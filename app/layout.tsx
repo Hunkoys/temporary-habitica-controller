@@ -32,22 +32,24 @@ export default function RootLayout({
             </section>
           </SignedOut>
           <SignedIn>
-            <section className={`fixed top-0 left-0 w-full  ${matter}`}>
-              <div className="flex justify-between align-baseline h-16 p-5">
-                <UserButton />
-                Settings
-              </div>
-            </section>
-            <section className={`${bg}`}>{children}</section>
-            <nav className={`fixed bottom-0 left-0 w-full ${matter}`}>
-              <ul className="flex justify-around p-3">
-                <li>
-                  <Link href="/">
-                    <Image src={listIcon} alt="List Icon" width={iconSize} height={iconSize} />
-                  </Link>
-                </li>
-              </ul>
-            </nav>
+            <div className={`${bg} h-screen flex flex-col justify-between`}>
+              <section className={`w-full  ${matter}`}>
+                <div className="flex justify-between align-baseline h-16 p-5">
+                  <UserButton />
+                  Settings
+                </div>
+              </section>
+              <section className={`h-full border-2 border-lime-700`}>{children}</section>
+              <nav className={`w-full ${matter}`}>
+                <ul className="flex justify-around p-3">
+                  <li>
+                    <Link href="/">
+                      <Image src={listIcon} alt="List Icon" width={iconSize} height={iconSize} />
+                    </Link>
+                  </li>
+                </ul>
+              </nav>
+            </div>
           </SignedIn>
         </body>
       </html>
