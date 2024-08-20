@@ -1,5 +1,5 @@
 {
-  "name": "nextjs",
+  "name": "temporary-habitica-controller",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -12,6 +12,7 @@
   "dependencies": {
     "@clerk/nextjs": "^5.3.1",
     "next": "14.2.5",
+    "next-pwa": "^5.6.0",
     "react": "^18",
     "react-dom": "^18"
   },
