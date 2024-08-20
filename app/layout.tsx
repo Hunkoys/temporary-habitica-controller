@@ -1,3 +1,4 @@
+import { ClerkProvider, SignInButton, SignedIn, SignedOut, UserButton } from '@clerk/nextjs';
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
@@ -13,6 +14,7 @@ export const metadata: Metadata = {
 };
 
 const iconSize = 36;
+const bg = 'bg-slate-800';
 
 export default function RootLayout({
   children,
@@ -20,19 +22,31 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body className={inter.className + ` bg-slate-800`}>
-        <section>{children}</section>
-        <nav className="fixed bottom-0 left-0 w-full bg-slate-600">
-          <ul className="flex justify-center p-3">
-            <li>
-              <Link href="/">
-                <Image src={listIcon} alt="List Icon" width={iconSize} height={iconSize} />
-              </Link>
-            </li>
-          </ul>
-        </nav>
-      </body>
-    </html>
+    <ClerkProvider>
+      <html lang="en" className={`${bg}`}>
+        <body className={inter.className}>
+          <SignedOut>
+            <section className={`${bg}`}>
+              <SignInButton>Sign</SignInButton>
+            </section>
+          </SignedOut>
+          <SignedIn>
+            <section className={`${bg}`}>{children}</section>
+            <nav className="fixed bottom-0 left-0 w-full bg-slate-600">
+              <ul className="flex justify-center p-3">
+                <li>
+                  <Link href="/">
+                    <Image src={listIcon} alt="List Icon" width={iconSize} height={iconSize} />
+                  </Link>
+                </li>
+                <li>
+                  <UserButton />
+                </li>
+              </ul>
+            </nav>
+          </SignedIn>
+        </body>
+      </html>
+    </ClerkProvider>
   );
 }
