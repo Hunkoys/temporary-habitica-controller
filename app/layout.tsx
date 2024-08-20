@@ -5,6 +5,7 @@ import './globals.css';
 import Link from 'next/link';
 import Image from 'next/image';
 import listIcon from '@/app/assets/list-icon.png';
+import { title } from 'process';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -17,6 +18,7 @@ export const metadata: Metadata = {
     startupImage: '/apple-icon.jpg',
     capable: true,
     title: 'Habitica Controller',
+    statusBarStyle: 'black-translucent',
   },
 };
 
