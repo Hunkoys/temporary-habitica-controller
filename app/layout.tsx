@@ -15,6 +15,7 @@ export const metadata: Metadata = {
 
 const iconSize = 36;
 const bg = 'bg-slate-800';
+const matter = 'bg-slate-600';
 
 export default function RootLayout({
   children,
@@ -31,16 +32,19 @@ export default function RootLayout({
             </section>
           </SignedOut>
           <SignedIn>
+            <section className={`fixed top-0 left-0 w-full  ${matter}`}>
+              <div className="flex justify-between align-baseline h-16 p-3">
+                <UserButton />
+                Settings
+              </div>
+            </section>
             <section className={`${bg}`}>{children}</section>
-            <nav className="fixed bottom-0 left-0 w-full bg-slate-600">
-              <ul className="flex justify-center p-3">
+            <nav className={`fixed bottom-0 left-0 w-full ${matter}`}>
+              <ul className="flex justify-around p-3">
                 <li>
                   <Link href="/">
                     <Image src={listIcon} alt="List Icon" width={iconSize} height={iconSize} />
                   </Link>
-                </li>
-                <li>
-                  <UserButton />
                 </li>
               </ul>
             </nav>
