@@ -33,7 +33,7 @@ export default function RootLayout({
           </SignedOut>
           <SignedIn>
             <section className={`fixed top-0 left-0 w-full  ${matter}`}>
-              <div className="flex justify-between align-baseline h-16 p-3">
+              <div className="flex justify-between align-baseline h-16 p-5">
                 <UserButton />
                 Settings
               </div>
