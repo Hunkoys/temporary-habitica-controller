@@ -3,22 +3,46 @@ import { Dropdown as NextUIDropdown, DropdownTrigger, DropdownMenu, DropdownItem
 import { SharedSelection } from '@nextui-org/system';
 import React, { useCallback, useMemo, useState } from 'react';
 
-function isItem<T>(i: unknown, items: readonly T[]): i is T {
-  return items.includes(i as T);
+// type Option<T extends string> = {
+//   [key in T]: string;
+// };
+
+// const units = ['day', 'month', 'year'] as const;
+
+// const options: Option<(typeof units)[number]> = {
+//   day: 'Day',
+//   month: 'Month',
+//   year: 'Year',
+// } as const;
+
+function name<O extends string, S extends O>({
+  items,
+  selected,
+}: {
+  items: { readonly [key in O]: string | undefined };
+  selected?: S;
+}) {
+  return items;
 }
 
+const a = name({
+  items: {
+    day: 'Day',
+    year: 'Year',
+  },
+  selected: 'year',
+});
+
 export default function Dropdown<T extends string>({
-  className,
-  onSelectionChange,
   items,
-  label,
   selectedValue,
+  label,
+  onSelectionChange,
 }: {
-  className?: string;
-  onSelectionChange: (selectedItem: T) => void;
-  items: readonly T[];
-  label?: string;
+  items: readonly { key: T; label: string }[];
   selectedValue?: T;
+  label: string;
+  onSelectionChange: (selectedItem: T) => void;
 }) {
   const setSelectedItem = useCallback(({ currentKey }: SharedSelection) => {
     if (isItem(currentKey, items)) {
@@ -27,8 +51,8 @@ export default function Dropdown<T extends string>({
   }, []);
 
   return (
-    <NextUIDropdown className={className}>
-      <DropdownTrigger className="w-full">
+    <NextUIDropdown>
+      <DropdownTrigger>
         <Button variant="faded">{selectedValue}</Button>
       </DropdownTrigger>
       <DropdownMenu
@@ -45,3 +69,7 @@ export default function Dropdown<T extends string>({
     </NextUIDropdown>
   );
 }
+
+// function isItem<T>(i: unknown, items: readonly T[]): i is T {
+//   return items.includes(i as T);
+// }

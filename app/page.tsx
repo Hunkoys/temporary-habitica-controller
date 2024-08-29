@@ -29,6 +29,10 @@ interface DateRepeat {
   relativeTo: 'date' | 'firstday' | 'lastday' | 'firstweek' | 'lastweek'; // 'does not apply for 'day' unit
 }
 
+const styles = {
+  gap: 'gap-2',
+};
+
 export default function Home() {
   const [date, setDate] = useState<DateRepeat['date']>(new Date());
   const [every, setEvery] = useState<DateRepeat['every']>(1);
@@ -39,23 +43,35 @@ export default function Home() {
 
   return (
     <main className="flex justify-center">
-      <form action="" className="flex flex-col gap-1 m-4 w-11/12 md:w-[400px]">
-        <DatePicker label="Date" variant="faded" showMonthAndYearPickers visibleMonths={2} radius="md" />
-        <Input
-          label="Every"
-          type="number"
+      <form action="" className={`flex flex-col m-4 w-11/12 md:w-[400px] ${styles.gap}`}>
+        <DatePicker
+          labelPlacement="outside-left"
+          label="Date"
           variant="faded"
-          min={0}
-          max={10000}
-          value={every.toString()}
-          onChange={(e) => setEvery(parseInt(e.target.value))}
+          showMonthAndYearPickers
+          visibleMonths={2}
+          radius="md"
         />
-        <Dropdown<typeof unit>
-          label="Interval"
-          items={['Day', 'Month', 'Year']}
-          selectedValue={unit}
-          onSelectionChange={setUnit}
-        />
+        <div className={`flex ${styles.gap} items-baseline`}>
+          <Input
+            labelPlacement="outside-left"
+            className="w-56"
+            label="Every"
+            type="number"
+            variant="faded"
+            min={0}
+            max={10000}
+            value={every.toString()}
+            onChange={(e) => setEvery(parseInt(e.target.value))}
+          />
+          <Dropdown<typeof unit>
+            className={`w-full`}
+            label="Interval"
+            items={['Day', 'Month', 'Year']}
+            selectedValue={unit}
+            onSelectionChange={setUnit}
+          />
+        </div>
       </form>
     </main>
   );
