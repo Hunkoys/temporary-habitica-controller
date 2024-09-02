@@ -17,11 +17,13 @@ export default function Select<T extends Item<string, string, string>>({
   label,
   onSelectionChange,
   backdrop,
+  className,
 }: {
   items: readonly T[];
   label?: string;
   onSelectionChange?: (selectedItem: T[typeof KEY]) => void;
   backdrop?: 'blur' | 'transparent' | 'opaque';
+  className?: string;
 }) {
   const [selectedKey, setSelectedKey] = useState<T[typeof KEY]>(items[0][KEY]);
   const selectedItem = useMemo(() => {
@@ -40,7 +42,7 @@ export default function Select<T extends Item<string, string, string>>({
 
   return (
     <Dropdown backdrop={backdrop}>
-      <DropdownTrigger>
+      <DropdownTrigger className={className}>
         <Button variant="faded">{selectedItem ? selectedItem[DISPLAY] : ''}</Button>
       </DropdownTrigger>
       <DropdownMenu

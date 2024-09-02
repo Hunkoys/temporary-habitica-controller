@@ -2,7 +2,6 @@
 
 import db from '@/prisma/db';
 import { DatePicker } from '@nextui-org/date-picker';
-import Dropdown from './components/Dropdown';
 import { useEffect, useState } from 'react';
 import { Input } from '@nextui-org/input';
 import Select from './components/Select';
@@ -65,14 +64,7 @@ export default function Home() {
             value={every.toString()}
             onChange={(e) => setEvery(parseInt(e.target.value))}
           />
-          <Select items={unitItems} label="Interval" onSelectionChange={setUnit} backdrop="opaque" />
-          {/* <Dropdown<typeof unit>
-            className={`w-full`}
-            label="Interval"
-            items={['Day', 'Month', 'Year']}
-            selectedValue={unit}
-            onSelectionChange={setUnit}
-          /> */}
+          <Select className="w-full" items={unitItems} label="Interval" onSelectionChange={setUnit} backdrop="opaque" />
         </div>
         <Select items={relativeToItems} label="Relative to" onSelectionChange={setRelativeTo} backdrop="opaque" />
       </form>
