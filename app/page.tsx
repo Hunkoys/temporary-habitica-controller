@@ -5,6 +5,7 @@ import { DatePicker } from '@nextui-org/date-picker';
 import Dropdown from './components/Dropdown';
 import { useState } from 'react';
 import { Input } from '@nextui-org/input';
+import Select from './components/Select';
 
 const unitMap = {
   Day: 'day',
@@ -72,6 +73,19 @@ export default function Home() {
             onSelectionChange={setUnit}
           />
         </div>
+        <Select
+          items={
+            [
+              ['date', 'Date'],
+              ['firstday', 'First Day'],
+              ['lastday', 'Last Day'],
+              ['firstweek', 'First Week'],
+              ['lastweek', 'Last Week'],
+            ] as const
+          }
+          label="Relative to"
+          onSelectionChange={console.log}
+        />
       </form>
     </main>
   );
