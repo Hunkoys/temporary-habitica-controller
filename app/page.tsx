@@ -3,31 +3,29 @@
 import db from '@/prisma/db';
 import { DatePicker } from '@nextui-org/date-picker';
 import Dropdown from './components/Dropdown';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Input } from '@nextui-org/input';
 import Select from './components/Select';
 
-const unitMap = {
-  Day: 'day',
-  Month: 'month',
-  Year: 'year',
-} as const;
-type UnitDisplay = keyof typeof unitMap;
+const unitItems = [
+  ['day', 'Day'],
+  ['month', 'Month'],
+  ['year', 'Year'],
+] as const;
 
-const relativeToMap = {
-  Date: 'date',
-  FirstDay: 'firstday',
-  LastDay: 'lastday',
-  FirstWeek: 'firstweek',
-  LastWeek: 'lastweek',
-} as const;
-type RelativeToDisplay = keyof typeof relativeToMap;
+const relativeToItems = [
+  ['date', 'Date'],
+  ['firstday', 'First Day'],
+  ['lastday', 'Last Day'],
+  ['firstweek', 'First Week'],
+  ['lastweek', 'Last Week'],
+] as const;
 
 interface DateRepeat {
   date: Date;
   every: number;
-  unit: (typeof unitMap)[UnitDisplay];
-  relativeTo: 'date' | 'firstday' | 'lastday' | 'firstweek' | 'lastweek'; // 'does not apply for 'day' unit
+  unit: (typeof unitItems)[number][0];
+  relativeTo: (typeof relativeToItems)[number][0];
 }
 
 const styles = {
@@ -37,10 +35,12 @@ const styles = {
 export default function Home() {
   const [date, setDate] = useState<DateRepeat['date']>(new Date());
   const [every, setEvery] = useState<DateRepeat['every']>(1);
-  const [unit, setUnit] = useState<UnitDisplay>('Day');
+  const [unit, setUnit] = useState<DateRepeat['unit']>('day');
   const [relativeTo, setRelativeTo] = useState<DateRepeat['relativeTo']>('date');
 
-  console.log(unitMap[unit]);
+  useEffect(() => {
+    console.log(unit);
+  }, [unit]);
 
   return (
     <main className="flex justify-center">
@@ -65,27 +65,16 @@ export default function Home() {
             value={every.toString()}
             onChange={(e) => setEvery(parseInt(e.target.value))}
           />
-          <Dropdown<typeof unit>
+          <Select items={unitItems} label="Interval" onSelectionChange={setUnit} backdrop="opaque" />
+          {/* <Dropdown<typeof unit>
             className={`w-full`}
             label="Interval"
             items={['Day', 'Month', 'Year']}
             selectedValue={unit}
             onSelectionChange={setUnit}
-          />
+          /> */}
         </div>
-        <Select
-          items={
-            [
-              ['date', 'Date'],
-              ['firstday', 'First Day'],
-              ['lastday', 'Last Day'],
-              ['firstweek', 'First Week'],
-              ['lastweek', 'Last Week'],
-            ] as const
-          }
-          label="Relative to"
-          onSelectionChange={console.log}
-        />
+        <Select items={relativeToItems} label="Relative to" onSelectionChange={setRelativeTo} backdrop="opaque" />
       </form>
     </main>
   );
