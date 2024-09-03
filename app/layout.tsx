@@ -1,11 +1,11 @@
-import { ClerkProvider, SignInButton, SignedIn, SignedOut, UserButton } from '@clerk/nextjs';
+import { ClerkProvider, SignedIn, SignedOut, UserButton } from '@clerk/nextjs';
 import type { Metadata, Viewport } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
-import Link from 'next/link';
-import Image from 'next/image';
-import listIcon from '@/app/assets/list-icon.png';
 import { NextUIProvider } from '@nextui-org/system';
+import { dark } from '@clerk/themes';
+import SignInCard from '@/app/components/login/SignInCard';
+import Navbar from '@/app/components/Navbar';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -33,8 +33,6 @@ export const viewport: Viewport = {
 };
 
 const iconSize = 36;
-const bg = 'bg-slate-800';
-const matter = 'bg-slate-600';
 
 export default function RootLayout({
   children,
@@ -42,34 +40,23 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <ClerkProvider>
-      <html lang="en" className={`${bg} dark`}>
-        <body className={inter.className}>
-          <NextUIProvider>
+    <ClerkProvider
+      appearance={{
+        baseTheme: dark,
+      }}
+    >
+      <html lang="en" className="dark bg-background h-full">
+        <body className={`${inter.className} h-full w-full`}>
+          <NextUIProvider className=" h-full w-full border-1 border-red-800">
             <SignedOut>
-              <section className={`${bg}`}>
-                <SignInButton>Sign</SignInButton>
-              </section>
+              <SignInCard />
             </SignedOut>
             <SignedIn>
-              <div className={`${bg} h-screen flex flex-col justify-between`}>
-                <section className={`w-full ${matter}`}>
-                  <div className="flex justify-between align-baseline h-16 p-5">
-                    <UserButton />
-                    Settings
-                  </div>
-                </section>
-                <section className={`h-full border-2 border-lime-700`}>{children}</section>
-                <nav className={`w-full ${matter}`}>
-                  <ul className="flex justify-around p-3">
-                    <li>
-                      <Link href="/">
-                        <Image src={listIcon} alt="List Icon" width={iconSize} height={iconSize} />
-                      </Link>
-                    </li>
-                  </ul>
-                </nav>
+              <div className="border-1 border-white h-full flex flex-col items-center gap-3 p-3">
+                <Navbar />
+                {children}
               </div>
+              {/* <Navbar /> */}
             </SignedIn>
           </NextUIProvider>
         </body>
