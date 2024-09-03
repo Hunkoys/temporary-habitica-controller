@@ -4,7 +4,11 @@ import db from '@/prisma/db';
 import { DatePicker } from '@nextui-org/date-picker';
 import { useEffect, useState } from 'react';
 import { Input } from '@nextui-org/input';
-import Select from './components/Select';
+import Dropdown from './components/Dropdown';
+import { Calendar, DateValue } from '@nextui-org/calendar';
+import { getLocalTimeZone, today } from '@internationalized/date';
+import { Button } from '@nextui-org/button';
+import Selector from './components/Selector';
 
 const unitItems = [
   ['day', 'Day'],
@@ -13,7 +17,7 @@ const unitItems = [
 ] as const;
 
 const relativeToItems = [
-  ['date', 'Date'],
+  ['date', 'Date', 'bro'],
   ['firstday', 'First Day'],
   ['lastday', 'Last Day'],
   ['firstweek', 'First Week'],
@@ -27,32 +31,51 @@ interface DateRepeat {
   relativeTo: (typeof relativeToItems)[number][0];
 }
 
-const styles = {
-  gap: 'gap-2',
-};
+function getToday() {
+  return today(getLocalTimeZone());
+}
 
 export default function Home() {
-  const [date, setDate] = useState<DateRepeat['date']>(new Date());
+  return (
+    <Selector
+      options={{ day: 'Day', week: 'Week', month: 'Month', year: 'Year' }}
+      selected="week"
+      onSelect={(unit) => console.log(unit)}
+    />
+  );
+}
+/* 
+
+  let [date, setDate] = useState<DateValue>(today(getLocalTimeZone()));
   const [every, setEvery] = useState<DateRepeat['every']>(1);
   const [unit, setUnit] = useState<DateRepeat['unit']>('day');
   const [relativeTo, setRelativeTo] = useState<DateRepeat['relativeTo']>('date');
 
   useEffect(() => {
-    console.log(unit);
-  }, [unit]);
+    console.log(date.toDate(getLocalTimeZone()));
+  }, [date]);
 
   return (
     <main className="flex justify-center">
-      <form action="" className={`flex flex-col m-4 w-11/12 md:w-[400px] ${styles.gap}`}>
-        <DatePicker
-          labelPlacement="outside-left"
-          label="Date"
-          variant="faded"
-          showMonthAndYearPickers
-          visibleMonths={2}
-          radius="md"
-        />
-        <div className={`flex ${styles.gap} items-baseline`}>
+      <form
+        action=""
+        className="flex flex-col items-stretch m-2 p-4 rounded-2xl  w-11/12 md:w-[400px] gap-default bg-matter"
+      >
+        <div className="flex justify-center ">
+          <Calendar
+            aria-label="Date"
+            showMonthAndYearPickers
+            value={date}
+            onChange={setDate}
+            topContent={
+              <div className="flex p-2 bg-matter">
+                <Button variant="bordered">Today</Button>
+              </div>
+            }
+          />
+        </div>
+
+        <div className={`flex gap-default items-baseline`}>
           <Input
             labelPlacement="outside-left"
             className="w-56"
@@ -64,10 +87,13 @@ export default function Home() {
             value={every.toString()}
             onChange={(e) => setEvery(parseInt(e.target.value))}
           />
+
           <Select className="w-full" items={unitItems} label="Interval" onSelectionChange={setUnit} backdrop="opaque" />
         </div>
-        <Select items={relativeToItems} label="Relative to" onSelectionChange={setRelativeTo} backdrop="opaque" />
+        <div className="flex">
+          {}
+          <Select items={relativeToItems} label="Relative to" onSelectionChange={setRelativeTo} backdrop="opaque" />
+        </div>
       </form>
     </main>
-  );
-}
+  */

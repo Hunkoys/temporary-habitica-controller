@@ -12,7 +12,7 @@ type Item<Key extends React.Key, Display extends React.Key, Description extends 
   Description?
 ];
 
-export default function Select<T extends Item<string, string, string>>({
+export default function Dropdown<T extends Item<string, string, string>>({
   items,
   label,
   onSelectionChange,
