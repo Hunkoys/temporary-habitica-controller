@@ -21,28 +21,47 @@ import { useState } from 'react';
 
 const tabs = ['Home', 'Tasks', 'Habits'] as const;
 
-export default function Navbar() {
+export default function Navbar({ leftie = false }: { leftie?: boolean }) {
   const [currentTab, setCurrentTab] = useState<SliderValue>(1);
 
   return (
-    <nav className="flex justify-start w-24 h-24 border-1 border-primary rounded-xl fixed bottom-2 right-0">
-      <Slider
-        className=""
-        orientation="vertical"
-        showSteps
-        step={1}
-        minValue={0}
-        maxValue={2}
-        defaultValue={0}
-        fillOffset={Array.isArray(currentTab) ? currentTab[0] : currentTab}
-        value={currentTab}
-        onChange={setCurrentTab}
-        marks={[
-          { value: 0, label: 'Home' },
-          { value: 1, label: 'Tasks' },
-          { value: 2, label: 'Habits' },
-        ]}
-      />
+    <nav>
+      <Tabs
+        className="fixed bottom-2"
+        aria-label="Navigation Tabs"
+        placement={leftie ? 'start' : 'end'}
+        color="primary"
+        variant="bordered"
+        defaultSelectedKey={'home'}
+      >
+        <Tab key="tasks" title="Tasks">
+          <Card>
+            <CardBody>
+              Lorem at TASKS ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut
+              labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut
+              aliquip ex ea commodo consequat.
+            </CardBody>
+          </Card>
+        </Tab>
+        <Tab key="habits" title="Habits">
+          <Card>
+            <CardBody>
+              Lorem at HABITS ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut
+              labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut
+              aliquip ex ea commodo consequat.
+            </CardBody>
+          </Card>
+        </Tab>
+        <Tab key="home" title="Home">
+          <Card>
+            <CardBody>
+              Lorem at HOME ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut
+              labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut
+              aliquip ex ea commodo consequat.
+            </CardBody>
+          </Card>
+        </Tab>
+      </Tabs>
     </nav>
   );
 }
