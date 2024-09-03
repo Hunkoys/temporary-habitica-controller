@@ -1,22 +1,5 @@
 'use client';
-import CommonButton from '@/app/components/CommonButton';
-import DragPick from '@/app/components/DragPick';
-import {
-  Button,
-  Card,
-  CardBody,
-  Dropdown,
-  DropdownItem,
-  DropdownMenu,
-  DropdownTrigger,
-  Select,
-  Selection,
-  SelectItem,
-  Slider,
-  SliderValue,
-  Tab,
-  Tabs,
-} from '@nextui-org/react';
+import { Card, CardBody, SliderValue, Tab, Tabs } from '@nextui-org/react';
 import { useState } from 'react';
 
 const tabs = ['Home', 'Tasks', 'Habits'] as const;
