@@ -1,14 +1,12 @@
-'use client';
-
 import db from '@/prisma/db';
 import { DatePicker } from '@nextui-org/date-picker';
 import { useEffect, useState } from 'react';
 import { Input } from '@nextui-org/input';
-import Dropdown from './components/Dropdown';
 import { Calendar, DateValue } from '@nextui-org/calendar';
 import { getLocalTimeZone, today } from '@internationalized/date';
 import { Button } from '@nextui-org/button';
 import Selector from './components/Selector';
+import { Dropdown, DropdownItem, DropdownMenu, DropdownTrigger } from '@nextui-org/react';
 
 const unitItems = [
   ['day', 'Day'],
@@ -36,13 +34,7 @@ function getToday() {
 }
 
 export default function Home() {
-  return (
-    <Selector
-      options={{ day: 'Day', week: 'Week', month: 'Month', year: 'Year' }}
-      selected="week"
-      onSelect={(unit) => console.log(unit)}
-    />
-  );
+  return <>hello</>;
 }
 /* 
 
