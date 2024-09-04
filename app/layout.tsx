@@ -6,6 +6,7 @@ import { NextUIProvider } from '@nextui-org/system';
 import { dark } from '@clerk/themes';
 import SignInCard from '@/app/components/login/SignInCard';
 import Navbar from '@/app/components/Navbar';
+import Link from 'next/link';
 
 const inter = Inter({ subsets: ['latin'] });
 
