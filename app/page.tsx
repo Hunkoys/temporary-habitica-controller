@@ -1,3 +1,5 @@
+'use client';
+
 import db from '@/prisma/db';
 import { DatePicker } from '@nextui-org/date-picker';
 import { useEffect, useState } from 'react';
@@ -34,7 +36,15 @@ function getToday() {
 }
 
 export default function Home() {
-  return <>hello</>;
+  const [counter, setCounter] = useState(0);
+  return (
+    <main>
+      <h1>Welcome to the Home Page</h1>
+      <p>This is a simple home page.</p>
+      <p>Counter: {counter}</p>
+      <button onClick={() => setCounter(counter + 1)}>Increment</button>
+    </main>
+  );
 }
 /* 
 
