@@ -52,9 +52,9 @@ export default function RootLayout({
               <SignInCard />
             </SignedOut>
             <SignedIn>
-              <div className="h-full flex flex-col items-center gap-3 p-3">
-                <Navbar />
+              <div className="h-full flex flex-col justify-between items-baseline gap-1 px-3 py-1">
                 {children}
+                <Navbar />
               </div>
             </SignedIn>
           </NextUIProvider>

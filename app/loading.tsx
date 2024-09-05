@@ -1,3 +1,9 @@
+import { Spinner } from '@nextui-org/react';
+
 export default function Loading() {
-  return <div>Hold ON</div>;
+  return (
+    <div className="">
+      <Spinner color="primary" />
+    </div>
+  );
 }
