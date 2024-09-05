@@ -40,7 +40,7 @@ export default function Navbar({ leftie = false }: { leftie?: boolean }) {
     <nav className="fixed w-full p-2 bottom-0">
       <Tabs
         aria-label="Navigation Tabs"
-        placement={leftie ? 'start' : 'end'}
+        placement={leftie ? 'end' : 'start'}
         color="primary"
         variant="bordered"
         defaultSelectedKey={pathName}
