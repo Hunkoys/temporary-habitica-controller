@@ -4,8 +4,8 @@ import { Inter } from 'next/font/google';
 import './globals.css';
 import { NextUIProvider } from '@nextui-org/system';
 import { dark } from '@clerk/themes';
-import SignInCard from '@/app/components/login/SignInCard';
-import Navbar from '@/app/components/Navbar';
+import SignInCard from '@/app/_components/login/SignInCard';
+import Navbar from '@/app/_components/Navbar';
 
 const inter = Inter({ subsets: ['latin'] });
 

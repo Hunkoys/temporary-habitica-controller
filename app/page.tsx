@@ -7,7 +7,6 @@ import { Input } from '@nextui-org/input';
 import { Calendar, DateValue } from '@nextui-org/calendar';
 import { getLocalTimeZone, today } from '@internationalized/date';
 import { Button } from '@nextui-org/button';
-import Selector from './components/Selector';
 import { Dropdown, DropdownItem, DropdownMenu, DropdownTrigger } from '@nextui-org/react';
 
 const unitItems = [

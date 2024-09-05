@@ -1,4 +1,4 @@
-import spidey from '@/app/assets/1348489.png';
+import spidey from '@/app/tasks/1348489.png';
 import Image from 'next/image';
 
 export default function Tasks() {
