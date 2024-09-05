@@ -48,12 +48,12 @@ export default function RootLayout({
     >
       <html lang="en" className="dark bg-background h-full">
         <body className={`${inter.className} h-full w-full`}>
-          <NextUIProvider className=" h-full w-full border-1 border-red-800">
+          <NextUIProvider className=" h-full">
             <SignedOut>
               <SignInCard />
             </SignedOut>
             <SignedIn>
-              <div className="border-1 border-white h-full flex flex-col items-center gap-3 p-3">
+              <div className="h-full flex flex-col items-center gap-3 p-3">
                 <Navbar />
                 {children}
               </div>
