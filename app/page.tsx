@@ -2,12 +2,13 @@
 
 import db from '@/prisma/db';
 import { DatePicker } from '@nextui-org/date-picker';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Input } from '@nextui-org/input';
 import { Calendar, DateValue } from '@nextui-org/calendar';
 import { getLocalTimeZone, today } from '@internationalized/date';
 import { Button } from '@nextui-org/button';
-import { Dropdown, DropdownItem, DropdownMenu, DropdownTrigger } from '@nextui-org/react';
+import { Card, Dropdown, DropdownItem, DropdownMenu, DropdownTrigger, ScrollShadow } from '@nextui-org/react';
+import CommonButton from '@/app/_components/CommonButton';
 
 const unitItems = [
   ['day', 'Day'],
@@ -34,14 +35,31 @@ function getToday() {
   return today(getLocalTimeZone());
 }
 
-export default function Home() {
-  const [counter, setCounter] = useState(0);
+function Item({ children: value, ...props }: { children?: string } & React.ComponentProps<typeof Card>) {
   return (
-    <main>
+    <Card {...props} className="p-1 bg-matter-700">
+      <Input />
+    </Card>
+  );
+}
+
+export default function Home() {
+  const [items, setItems] = useState<string[]>([]);
+  const addItem = useCallback(() => {
+    setItems((prev) => [...prev, '']);
+  }, []);
+
+  return (
+    <main className="p-2 overflow-auto w-full">
       <h1>Welcome to the Home Page</h1>
-      <p>This is a simple home page.</p>
-      <p>Counter: {counter}</p>
-      <button onClick={() => setCounter(counter + 1)}>Increment</button>
+      <div className="flex flex-col gap-1">
+        {items.map((item, index) => (
+          <Item key={index}>{item}</Item>
+        ))}
+      </div>
+      <CommonButton className="fixed bottom-6 right-2  h-11" onClick={addItem}>
+        Increment
+      </CommonButton>
     </main>
   );
 }

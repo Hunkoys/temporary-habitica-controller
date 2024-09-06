@@ -46,13 +46,13 @@ export default function RootLayout({
       }}
     >
       <html lang="en" className="dark bg-background h-full">
-        <body className={`${inter.className} h-full w-full`}>
+        <body className={`${inter.className} h-full w-full overflow-hidden`}>
           <NextUIProvider className=" h-full w-full">
             <SignedOut>
               <SignInCard />
             </SignedOut>
             <SignedIn>
-              <div className="h-full overflow-hidden flex flex-col justify-between items-baseline gap-1 px-3 py-1">
+              <div className="h-full overflow-hidden flex flex-col justify-between items-baseline gap-1 py-1">
                 {children}
                 <Navbar />
               </div>

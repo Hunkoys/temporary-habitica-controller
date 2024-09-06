@@ -58,7 +58,7 @@ export default function Navbar({ leftie = false }: { leftie?: boolean }) {
   const selectionChanged = useCallback((key: Key) => {
     if (typeof key !== 'string') return;
     setTo(key);
-    router.push(key);
+    router.push(key, { scroll: false });
   }, []);
 
   useEffect(() => {
