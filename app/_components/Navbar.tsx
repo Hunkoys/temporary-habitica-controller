@@ -15,7 +15,7 @@ function newRoute<
 }
 
 const iconClassName = (color: string) => {
-  return `${color} transition-all duration-[1000ms] ease-[cubic-bezier(.17,1.09,.45,.95)]`;
+  return `${color} transition-all duration-1000 ease-[cubic-bezier(.17,1.09,.45,.95)]`;
 };
 const routeMap = [
   newRoute('/', 'List', ({ size, color }) => (
@@ -70,10 +70,9 @@ export default function Navbar({ leftie = false }: { leftie?: boolean }) {
   }, [to, pathName]);
 
   return (
-    <nav className="w-full mb-3 pb-2 pt-2 px-2 flex justify-between">
+    <nav className="w-full mb-3 p-2 flex justify-evenly">
       <Tabs
         fullWidth
-        className="w-full"
         aria-label="Navigation Tabs"
         placement="bottom"
         variant="bordered"
@@ -82,13 +81,15 @@ export default function Navbar({ leftie = false }: { leftie?: boolean }) {
       >
         {routeMap.map(([url, display, Icon]) => (
           <Tab
-            className="w-16 sm:w-48 transition-all"
+            className="transition-all"
             key={url}
             title={
-              <div className="relative flex justify-center items-center gap-1">
+              <div className="relative flex w-fit sm:w-full justify-center items-center gap-1 transition-all">
                 {<Icon size={24} color={to === url ? 'fill-primary' : 'fill-white'} />}
                 <span
-                  className={`truncate w-0 sm:w-full transition-all text-lg text-${to === url ? 'primary' : 'white'}`}
+                  className={`truncate w-0 sm:w-full transition-all duration-1000 text-lg text-${
+                    to === url ? 'primary' : 'white'
+                  }`}
                 >
                   {display}
                 </span>
@@ -102,7 +103,7 @@ export default function Navbar({ leftie = false }: { leftie?: boolean }) {
           />
         ))}
       </Tabs>
-      <div id="space-for-page's-action-button" className="w-24"></div>
+      {/* <div id="space-for-page's-action-button" className="h-full w-32"></div> */}
     </nav>
   );
 }

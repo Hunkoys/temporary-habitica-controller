@@ -5,7 +5,7 @@ export default function CommonButton({
   ...props
 }: { children?: React.ReactNode } & React.ComponentProps<typeof Button>) {
   return (
-    <Button {...props} variant="ghost">
+    <Button variant="ghost" {...props}>
       {children}
     </Button>
   );
