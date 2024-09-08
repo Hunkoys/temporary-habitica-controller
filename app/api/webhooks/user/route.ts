@@ -2,7 +2,7 @@ import { headers } from 'next/headers';
 import { NextResponse, type NextRequest } from 'next/server';
 import { Webhook } from 'svix';
 import { WebhookEvent } from '@clerk/nextjs/server';
-import { createUser } from '@/app/api/webhooks/user/userDatabase';
+import { createUser, deleteUser } from '@/app/api/webhooks/user/userDatabase';
 
 export async function POST(request: NextRequest) {
   const SECRET = process.env.SVIX_SECRET;
@@ -46,7 +46,11 @@ export async function POST(request: NextRequest) {
   }
 
   if (evt.type === 'user.created') {
-    await createUser(evt.data.email_addresses[0].email_address);
+    await createUser(evt.data.id);
+  } else if (evt.type === 'user.deleted') {
+    if (evt.data.id) {
+      await deleteUser(evt.data.id);
+    }
   }
 
   return new NextResponse('Success', {
