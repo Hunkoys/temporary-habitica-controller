@@ -1,12 +1,12 @@
-import { ClerkProvider, SignedIn, SignedOut, UserButton } from '@clerk/nextjs';
+import Header from '@/app/_components/Header';
+import SignInCard from '@/app/_components/login/SignInCard';
+import Navbar from '@/app/_components/Navbar';
+import { ClerkProvider, SignedIn, SignedOut } from '@clerk/nextjs';
+import { dark } from '@clerk/themes';
+import { NextUIProvider } from '@nextui-org/system';
 import type { Metadata, Viewport } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
-import { NextUIProvider } from '@nextui-org/system';
-import { dark } from '@clerk/themes';
-import SignInCard from '@/app/_components/login/SignInCard';
-import Navbar from '@/app/_components/Navbar';
-import Header from '@/app/_components/Header';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -32,8 +32,6 @@ export const viewport: Viewport = {
   userScalable: false,
   themeColor: [{ media: '(prefers-color-scheme: dark)', color: '#fff' }],
 };
-
-const iconSize = 36;
 
 export default function RootLayout({
   children,
