@@ -13,11 +13,36 @@ datasource db {
   url      = env("POSTGRES_PRISMA_URL")
 }
 
-model User {
+model Profile {
+  id             String        @id @default(cuid())
+  email          String        @unique
+  habiticaUserId String        @unique
+  habiticaApiKey String        @unique
+  tasks          Task[]
+  taskHistories  TaskHistory[]
+  shortcuts      Shortcut[]
+}
+
+model Task {
+  id        String  @id @default(cuid())
+  title     String
+  profile   Profile @relation(fields: [profileId], references: [id])
+  profileId String
+}
+
+model TaskHistory {
   id        String   @id @default(cuid())
-  email     String   @unique
-  name      String?
-  password  String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  date      DateTime
+  status    String
+  taskId    String
+  Profile   Profile? @relation(fields: [profileId], references: [id])
+  profileId String?
+}
+
+model Shortcut {
+  id        String   @id @default(cuid())
+  title     String
+  command   Json
+  Profile   Profile? @relation(fields: [profileId], references: [id])
+  profileId String?
 }

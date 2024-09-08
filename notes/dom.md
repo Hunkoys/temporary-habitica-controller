@@ -31,5 +31,6 @@ Add a handle for dragging a group around
 * Tasks `linger` by default. If you set this to `false`, then it get moved to archive on the next cron. But you will still get damaged.
 
 
+# Shortcuts
 
-
+## Command example
