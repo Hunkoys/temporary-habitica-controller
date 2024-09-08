@@ -45,7 +45,7 @@ const theme1 = {
       '800': '#41414b',
       '900': '#393941',
       '950': '#18181b',
-      DEFAULT: '#18181b',
+      DEFAULT: '#393941',
       foreground: '#fff',
     },
     foreground: {

@@ -48,8 +48,8 @@ function getToday() {
 
 function Item({ children: value, ...props }: { children?: string } & React.ComponentProps<typeof Card>) {
   return (
-    <Card {...props} className="p-1 bg-matter-700 w-full">
-      <Input />
+    <Card {...props} className="p-2 bg-matter w-full">
+      <Input size="sm" />
     </Card>
   );
 }
@@ -62,13 +62,12 @@ export default function Home() {
 
   return (
     <main className="flex flex-col p-2 overflow-auto grow w-full">
-      <h1>Welcome to the Home Page</h1>
       <div className="flex flex-col justify-end items-end gap-1 grow relative">
         {items.map((item, index) => (
           <Item key={index}>{item}</Item>
         ))}
 
-        <Card className="p-1 mx-2 mt-2 bg-matter-700 sticky bottom-0">
+        <Card className="p-1 mx-2 mt-2 bg-matter sticky bottom-0">
           <CommonButton isIconOnly onClick={addItem} color="primary" variant="solid">
             <AddIcon />
           </CommonButton>
