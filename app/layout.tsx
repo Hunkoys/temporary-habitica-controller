@@ -51,7 +51,7 @@ export default function RootLayout({
               <SignInCard />
             </SignedOut>
             <SignedIn>
-              <div className="h-full overflow-hidden flex flex-col justify-between items-baseline gap-1 py-1">
+              <div className="h-full overflow-hidden flex flex-col justify-between items-center gap-1 py-1">
                 <Header />
                 {children}
                 <Navbar />

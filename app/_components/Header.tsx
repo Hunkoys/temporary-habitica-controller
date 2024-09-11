@@ -30,7 +30,7 @@ export default function Header() {
         <div className="flex gap-2 items-center">
           <UserButton />
           <div>
-            {profile?.fullName || profile?.username || <Skeleton className="h-[1em] w-3/5 rounded-lg" />}
+            {profile?.fullName || profile?.username || <Skeleton className="h-[1em] w-3/5 rounded-lg"></Skeleton>}
             <Progress
               label={
                 <span className="flex items-center gap-1">
