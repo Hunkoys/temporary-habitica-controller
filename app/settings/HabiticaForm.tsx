@@ -2,8 +2,6 @@
 
 import CommonButton from '@/app/_components/CommonButton';
 import { saveKeysToDb } from '@/app/settings/actions';
-import prisma from '@/prisma/db';
-import { useUser } from '@clerk/nextjs';
 import { Button, Input } from '@nextui-org/react';
 import clsx from 'clsx';
 import { useCallback, useEffect, useState } from 'react';
