@@ -1,6 +1,8 @@
 'use client';
 
 import CommonButton from '@/app/_components/CommonButton';
+import { checkStatus, habFetch } from '@/app/_utils/habitica';
+import { useThrottle } from '@/app/_utils/limiter';
 import { saveKeysToDb } from '@/app/settings/actions';
 import { Button, Input } from '@nextui-org/react';
 import clsx from 'clsx';
@@ -28,6 +30,25 @@ const closedEyeIcon = (
   </svg>
 );
 
+async function fetchCheckKeys(habId: string, apiKey: string) {
+  const stat = await checkStatus();
+
+  if (stat === false) {
+    return 'down' as const;
+  }
+
+  const res = await habFetch('get', 'user', { habId, apiKey });
+  if (res.status === 200) {
+    const body = await res.json();
+    console.log(body);
+    return 'confirmed' as const;
+  } else if (res.status === 401) {
+    return 'unauthorized' as const;
+  } else {
+    return 'error' as const;
+  }
+}
+
 export default function HabiticaForm(props: { id: string; habId: string; apiKey: string }) {
   const [editMode, setEditMode] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -39,9 +60,29 @@ export default function HabiticaForm(props: { id: string; habId: string; apiKey:
   const [habIdInputValue, setHabIdInputValue] = useState<string>(habId);
   const [apiKeyInputValue, setApiKeyInputValue] = useState<string>(apiKey);
 
+  const checkKeys = useThrottle(
+    2000,
+    async () => {
+      switch (await fetchCheckKeys(habId, apiKey)) {
+        case 'confirmed':
+          setError(null);
+          break;
+        case 'down':
+          setError('Habitica is down. Please try again later.');
+          break;
+        case 'unauthorized':
+          setError('Could not link to Habitica. Please check your User ID and API Key.');
+          break;
+        default:
+          setError('An unknown error occurred. Please try again later');
+      }
+    },
+    [habId, apiKey]
+  );
+
   useEffect(() => {
-    console.log(apiKeyInputValue);
-  }, [apiKeyInputValue]);
+    checkKeys();
+  }, [checkKeys]);
 
   const edit = useCallback(() => {
     setEditMode(true);
@@ -53,10 +94,9 @@ export default function HabiticaForm(props: { id: string; habId: string; apiKey:
     setShowPassword(false);
     if (props.id) {
       try {
-        console.log({ habId: habIdInputValue, key: apiKeyInputValue });
-        const res = await saveKeysToDb(props.id, { habId: habIdInputValue, key: apiKeyInputValue });
-        setApiKey(res.habiticaApiKey || '');
-        setHabId(res.habiticaUserId || '');
+        const dbResponse = await saveKeysToDb(props.id, { habId: habIdInputValue, key: apiKeyInputValue });
+        setApiKey(dbResponse.habiticaApiKey || '');
+        setHabId(dbResponse.habiticaUserId || '');
       } catch (err) {
         setError(err);
       }
