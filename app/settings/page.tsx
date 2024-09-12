@@ -5,16 +5,16 @@ import { Card, CardBody, CardHeader, Divider, Skeleton } from '@nextui-org/react
 import { Suspense } from 'react';
 
 export default async function SettingsPage() {
-  const user = await currentUser();
-  if (!user) return <div>Not logged in</div>;
+  const clerkUser = await currentUser();
+  if (!clerkUser) return <div>Not logged in</div>;
 
-  const habitica = await prisma.user.findUnique({
-    where: { id: user.id },
+  const user = await prisma.user.findUnique({
+    where: { id: clerkUser.id },
     select: { habiticaApiKey: true, habiticaUserId: true, id: true },
   });
-  if (!habitica) return <div>User not found</div>;
+  if (!user) return <div>User not found</div>;
 
-  let { habiticaApiKey: apiKey, habiticaUserId: habId } = habitica;
+  let { habiticaApiKey: apiKey, habiticaUserId: habId } = user;
   apiKey ??= '';
   habId ??= '';
 
@@ -27,7 +27,7 @@ export default async function SettingsPage() {
         <Divider />
         <CardBody className="flex flex-col gap-2 items-stretch">
           <Suspense fallback={<Skeleton className="h-[1em] w-3/5 rounded-lg"></Skeleton>}>
-            <HabiticaForm habId={habId} apiKey={apiKey} id={user.id} />
+            <HabiticaForm habId={habId} apiKey={apiKey} id={clerkUser.id} />
           </Suspense>
         </CardBody>
       </Card>
