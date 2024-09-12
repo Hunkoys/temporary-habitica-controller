@@ -20,6 +20,7 @@ export function habFetch(
       'x-client': X_CLIENT || '',
       ...credentialHeaders,
     },
+    body: body ? JSON.stringify(body) : undefined,
   });
 }
 

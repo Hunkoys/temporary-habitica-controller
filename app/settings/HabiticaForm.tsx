@@ -31,12 +31,6 @@ const closedEyeIcon = (
 );
 
 async function fetchCheckKeys(habId: string, apiKey: string) {
-  const stat = await checkStatus();
-
-  if (stat === false) {
-    return 'down' as const;
-  }
-
   const res = await habFetch('get', 'user', { habId, apiKey });
   if (res.status === 200) {
     const body = await res.json();
@@ -63,18 +57,19 @@ export default function HabiticaForm(props: { id: string; habId: string; apiKey:
   const checkKeys = useThrottle(
     2000,
     async () => {
-      switch (await fetchCheckKeys(habId, apiKey)) {
+      const status = await fetchCheckKeys(habId, apiKey);
+      switch (status) {
         case 'confirmed':
           setError(null);
-          break;
-        case 'down':
-          setError('Habitica is down. Please try again later.');
           break;
         case 'unauthorized':
           setError('Could not link to Habitica. Please check your User ID and API Key.');
           break;
+        case 'error':
+          setError('An unknown error occurred while checking your User ID and API Key.');
+          break;
         default:
-          setError('An unknown error occurred. Please try again later');
+          status satisfies never;
       }
     },
     [habId, apiKey]
