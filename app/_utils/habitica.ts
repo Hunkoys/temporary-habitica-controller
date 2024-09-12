@@ -1,6 +1,6 @@
 const X_CLIENT = process.env.NEXT_PUBLIC_X_CLIENT;
 
-export function habFetch(
+export async function habFetch(
   method: 'post' | 'get',
   endpoint: string,
   credentials?: { habId: string; apiKey: string },
@@ -13,7 +13,7 @@ export function habFetch(
         'x-api-key': string;
       } = credentials ? { 'x-api-user': credentials.habId, 'x-api-key': credentials.apiKey } : {};
 
-  return fetch(`https://habitica.com/api/v3/${endpoint}`, {
+  return await fetch(`https://habitica.com/api/v3/${endpoint}`, {
     method,
     headers: {
       'Content-Type': 'application/json',

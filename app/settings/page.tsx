@@ -10,11 +10,11 @@ export default async function SettingsPage() {
 
   const user = await prisma.user.findUnique({
     where: { id: clerkUser.id },
-    select: { habiticaApiKey: true, habiticaUserId: true, id: true },
+    select: { habiticaApiKey: true, habiticaUserId: true, id: true, linked: true },
   });
   if (!user) return <div>User not found</div>;
 
-  let { habiticaApiKey: apiKey, habiticaUserId: habId } = user;
+  let { habiticaApiKey: apiKey, habiticaUserId: habId, linked } = user;
   apiKey ??= '';
   habId ??= '';
 
@@ -27,7 +27,7 @@ export default async function SettingsPage() {
         <Divider />
         <CardBody className="flex flex-col gap-2 items-stretch">
           <Suspense fallback={<Skeleton className="h-[1em] w-3/5 rounded-lg"></Skeleton>}>
-            <HabiticaForm habId={habId} apiKey={apiKey} id={clerkUser.id} />
+            <HabiticaForm habId={habId} apiKey={apiKey} id={clerkUser.id} linked={linked} />
           </Suspense>
         </CardBody>
       </Card>

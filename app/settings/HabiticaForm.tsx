@@ -2,10 +2,11 @@
 
 import CommonButton from '@/app/_components/CommonButton';
 import { checkStatus, habFetch } from '@/app/_utils/habitica';
-import { useThrottle } from '@/app/_utils/limiter';
+import { throttle, useThrottle } from '@/app/_utils/limiter';
 import { saveKeysToDb } from '@/app/settings/actions';
 import { Button, Input } from '@nextui-org/react';
 import clsx from 'clsx';
+import { stat } from 'fs';
 import { useCallback, useEffect, useState } from 'react';
 
 const eyeIcon = (
@@ -30,7 +31,7 @@ const closedEyeIcon = (
   </svg>
 );
 
-async function fetchCheckKeys(habId: string, apiKey: string) {
+const checkHabitica = throttle(2000, async function fetchCheckKeys(habId: string, apiKey: string) {
   const res = await habFetch('get', 'user', { habId, apiKey });
   if (res.status === 200) {
     const body = await res.json();
@@ -41,43 +42,20 @@ async function fetchCheckKeys(habId: string, apiKey: string) {
   } else {
     return 'error' as const;
   }
-}
+});
 
-export default function HabiticaForm(props: { id: string; habId: string; apiKey: string }) {
+export default function HabiticaForm(props: { id: string; habId: string; apiKey: string; linked: boolean }) {
   const [editMode, setEditMode] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState<unknown | null>(null);
+  const [error, setError] = useState<unknown | null>(
+    props.linked ? null : 'Could not link to Habitica. Please check your User ID and API Key.'
+  );
 
   const [habId, setHabId] = useState<string>(props.habId);
   const [apiKey, setApiKey] = useState<string>(props.apiKey);
 
   const [habIdInputValue, setHabIdInputValue] = useState<string>(habId);
   const [apiKeyInputValue, setApiKeyInputValue] = useState<string>(apiKey);
-
-  const checkKeys = useThrottle(
-    2000,
-    async () => {
-      const status = await fetchCheckKeys(habId, apiKey);
-      switch (status) {
-        case 'confirmed':
-          setError(null);
-          break;
-        case 'unauthorized':
-          setError('Could not link to Habitica. Please check your User ID and API Key.');
-          break;
-        case 'error':
-          setError('An unknown error occurred while checking your User ID and API Key.');
-          break;
-        default:
-          status satisfies never;
-      }
-    },
-    [habId, apiKey]
-  );
-
-  useEffect(() => {
-    checkKeys();
-  }, [checkKeys]);
 
   const edit = useCallback(() => {
     setEditMode(true);
@@ -89,7 +67,26 @@ export default function HabiticaForm(props: { id: string; habId: string; apiKey:
     setShowPassword(false);
     if (props.id) {
       try {
-        const dbResponse = await saveKeysToDb(props.id, { habId: habIdInputValue, key: apiKeyInputValue });
+        const status = await checkHabitica(habIdInputValue, apiKeyInputValue);
+        switch (status) {
+          case 'confirmed':
+            setError(null);
+            break;
+          case 'unauthorized':
+            setError('Could not link to Habitica. Please check your User ID and API Key.');
+            break;
+          case 'error':
+            setError('An unknown error occured. Please try again later.');
+            break;
+          default:
+            status satisfies never;
+        }
+        console.log('status', status === 'confirmed');
+        const dbResponse = await saveKeysToDb(props.id, {
+          habId: habIdInputValue,
+          key: apiKeyInputValue,
+          linked: status === 'confirmed',
+        });
         setApiKey(dbResponse.habiticaApiKey || '');
         setHabId(dbResponse.habiticaUserId || '');
       } catch (err) {
