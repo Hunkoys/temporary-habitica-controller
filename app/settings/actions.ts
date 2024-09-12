@@ -8,3 +8,7 @@ export async function saveKeysToDb(
 ) {
   return await prisma.user.update({ data: { habiticaUserId: habId, habiticaApiKey: key, linked }, where: { id } });
 }
+
+export async function fetchUserData(id: string) {
+  return await prisma.user.findUnique({ where: { id } });
+}

@@ -7,6 +7,7 @@ import Image from 'next/image';
 import prisma from '@/prisma/db';
 import { Prisma } from '@prisma/client';
 import Link from 'next/link';
+import ShortcutsList from '@/app/shortcuts/list';
 
 async function equipMax(stat: 'str' | 'int' | 'per' | 'con') {
   // return await fetch(`https://habitica.com/api/v4/user/unequip/equipped`);
@@ -17,35 +18,28 @@ export default async function ShortcutsPage() {
 
   if (!clerkUser) return <div>Not signed in</div>;
 
-  const user = await prisma.user.findUnique({ where: { id: clerkUser.id }, include: { shortcuts: true } });
+  const user = await prisma.user.findUnique({
+    where: { id: clerkUser.id },
+    select: { id: true, habiticaUserId: true, habiticaApiKey: true, shortcuts: true, linked: true },
+  });
+
   if (!user)
     return (
       <div>
-        <Card className="p-2">
-          <p>Habitica Key not set yet</p>
-          <p>
-            Go to{' '}
-            <CommonButton as={Link} href="/settings">
-              Settings
-            </CommonButton>{' '}
-            to link your Habitica
-          </p>
-        </Card>
+        <Card className="p-2">User not found</Card>
       </div>
     );
 
-  return (
-    <div className="p-2 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 overflow-auto h-full w-full max-w-[1200px]">
-      <Card className="h-36">
-        <CardBody>
-          <Image src={listIcon} alt="List Icon" width={50} height={50} />
-        </CardBody>
-        <CardFooter>
-          <CommonButton className="w-full">Equip Max Strength</CommonButton>
-        </CardFooter>
-      </Card>
-    </div>
-  );
+  console.log(user);
+
+  if (!user.linked)
+    return (
+      <div>
+        <Card className="p-2">Please link your Habitica account to use shortcuts</Card>
+      </div>
+    );
+
+  return <ShortcutsList user={user} />;
 }
 
 // Turn into server component to pre render shortcuts, they don't change often
