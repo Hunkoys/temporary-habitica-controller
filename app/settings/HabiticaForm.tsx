@@ -1,13 +1,12 @@
 'use client';
 
 import CommonButton from '@/app/_components/CommonButton';
-import { checkStatus, habFetch } from '@/app/_utils/habitica';
-import { throttle, useThrottle } from '@/app/_utils/limiter';
+import { habFetch } from '@/app/_utils/habitica';
+import { throttle } from '@/app/_utils/limiter';
 import { saveKeysToDb } from '@/app/settings/actions';
 import { Button, Input } from '@nextui-org/react';
 import clsx from 'clsx';
-import { stat } from 'fs';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useState } from 'react';
 
 const eyeIcon = (
   <svg width="20" height="16" viewBox="0 0 20 16" fill="none" xmlns="http://www.w3.org/2000/svg">
