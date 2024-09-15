@@ -4,8 +4,9 @@ import CommonButton from '@/app/_components/CommonButton';
 import { Card, CardBody, CardFooter } from '@nextui-org/react';
 import Image from 'next/image';
 import listIcon from '@/assets/list-icon.png';
-import { Content, Gear, GearType, GEAR_TYPES, getUserData, habFetch, PlayerClass, Stats } from '@/app/_utils/habitica';
+import { getUserData, habFetch } from '@/app/_utils/habitica';
 import { useCallback, useMemo } from 'react';
+import { Content, Gear, GearType, GEAR_TYPES, PlayerClass, Stats } from '@/app/_utils/habiticaTypes';
 
 export default function ShortcutsList({
   user,
@@ -24,7 +25,7 @@ export default function ShortcutsList({
 
   const equipMaxPerHandler = useCallback(() => {
     (async () => {
-      let stat: keyof Stats = 'con';
+      let stat: keyof Stats = 'per';
 
       if (!creds) return;
       const body = await getUserData(creds, 'items.gear.owned,items.gear.equipped,stats.class');

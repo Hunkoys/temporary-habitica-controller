@@ -1,21 +1,12 @@
-import { Content } from '@/app/_utils/habitica';
+import { Content } from '@/app/_utils/habiticaTypes';
+import { getContent } from '@/app/_utils/habiticaContent';
 import ShortcutsList from '@/app/shortcuts/list';
 import prisma from '@/prisma/db';
 import { currentUser } from '@clerk/nextjs/server';
 import { Card } from '@nextui-org/react';
 
-// const content = (await (await habFetch('get', 'content')).json()) as Content;
-const content = {} as Content;
-
-// save to file
-
-// import fs from 'fs';
-// import path from 'path';
-
-// const filePath = path.join(process.cwd(), 'content.json');
-// fs.writeFileSync(filePath, JSON.stringify(content.gear.flat, null, 2), 'utf-8');
-
-// console.log(content.data.gear.flat);
+const every12Hours = 1 * 60 * 60 * 12;
+const content = getContent(every12Hours);
 
 export default async function ShortcutsPage() {
   const clerkUser = await currentUser();
