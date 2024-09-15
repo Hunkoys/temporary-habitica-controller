@@ -1,17 +1,21 @@
-import listIcon from '@/assets/list-icon.png';
-
-import CommonButton from '@/app/_components/CommonButton';
-import { currentUser } from '@clerk/nextjs/server';
-import { Card, CardBody, CardFooter } from '@nextui-org/react';
-import Image from 'next/image';
-import prisma from '@/prisma/db';
-import { Prisma } from '@prisma/client';
-import Link from 'next/link';
+import { Content } from '@/app/_utils/habitica';
 import ShortcutsList from '@/app/shortcuts/list';
+import prisma from '@/prisma/db';
+import { currentUser } from '@clerk/nextjs/server';
+import { Card } from '@nextui-org/react';
 
-async function equipMax(stat: 'str' | 'int' | 'per' | 'con') {
-  // return await fetch(`https://habitica.com/api/v4/user/unequip/equipped`);
-}
+// const content = (await (await habFetch('get', 'content')).json()) as Content;
+const content = {} as Content;
+
+// save to file
+
+// import fs from 'fs';
+// import path from 'path';
+
+// const filePath = path.join(process.cwd(), 'content.json');
+// fs.writeFileSync(filePath, JSON.stringify(content.gear.flat, null, 2), 'utf-8');
+
+// console.log(content.data.gear.flat);
 
 export default async function ShortcutsPage() {
   const clerkUser = await currentUser();
@@ -30,8 +34,6 @@ export default async function ShortcutsPage() {
       </div>
     );
 
-  console.log(user);
-
   if (!user.linked)
     return (
       <div>
@@ -39,7 +41,7 @@ export default async function ShortcutsPage() {
       </div>
     );
 
-  return <ShortcutsList user={user} />;
+  return <ShortcutsList user={user} content={content} />;
 }
 
 // Turn into server component to pre render shortcuts, they don't change often
