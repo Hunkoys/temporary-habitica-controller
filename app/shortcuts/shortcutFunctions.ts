@@ -110,8 +110,9 @@ export async function equipMax(stat: keyof Stats, creds: Credentials, content: C
   return true;
 }
 
-const domain = 'https://c9cc-2600-1700-786d-0-c828-d609-ac0-9e31.ngrok-free.app';
-const LEVEL_UUID = '32407f79-dbad-471a-9b69-98722b170079';
+const domain = process.env.NEXT_PUBLIC_DOMAIN;
+console.log(domain);
+const LEVEL_UUID = '32407f79-dbad-471a-9b69-98722b170079'; // save to command{}
 export async function updateAutoAssignStat(id: string, creds: Credentials, stat: keyof Stats, status: boolean) {
   const shortcut = await saveAutoAssignCommand(id, { stat, status });
   if (!shortcut) throw new Error('Failed to save auto assign stat command in database');
