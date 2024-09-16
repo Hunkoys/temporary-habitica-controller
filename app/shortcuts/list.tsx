@@ -3,10 +3,10 @@
 import CommonButton from '@/app/_components/CommonButton';
 import { Credentials } from '@/app/_utils/habiticaTypes';
 import { equipMax } from '@/app/shortcuts/shortcutFunctions';
-import { Card, CardBody, CardFooter } from '@nextui-org/react';
+import { Card, CardBody, CardFooter, Spinner } from '@nextui-org/react';
 import { JsonValue } from '@prisma/client/runtime/library';
 import Image, { StaticImageData } from 'next/image';
-import { useCallback } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 
 import conScene from '@/assets/Scene_constitution.webp';
 import intScene from '@/assets/Scene_intelligence.webp';
@@ -14,6 +14,7 @@ import perScene from '@/assets/Scene_perception.webp';
 import strScene from '@/assets/Scene_strength.webp';
 
 import listIcon from '@/assets/list-icon.png';
+import clsx from 'clsx';
 
 function ShortcutCard({
   image,
@@ -21,16 +22,32 @@ function ShortcutCard({
   children,
 }: {
   image: StaticImageData;
-  onClick?: () => void;
+  onClick?: () => Promise<boolean>;
   children: React.ReactNode;
 }) {
+  const [running, setRunning] = useState(false);
+
+  const handleClick = useCallback(async () => {
+    if (onClick) {
+      setRunning(true);
+      const res = await onClick();
+      setRunning(false);
+    }
+  }, [onClick]);
+
   return (
     <Card className="h-36">
+      <div
+        className={clsx('absolute bg-white opacity-30 blur-lg h-full w-full flex justify-center items-center', {
+          hidden: !running,
+        })}
+      ></div>
       <CardBody className="overflow-hidden flex justify-center items-center">
         <Image src={image} alt="List Icon" height={80} />
       </CardBody>
       <CardFooter>
-        <CommonButton className="w-full" onClick={onClick}>
+        <CommonButton className="w-full" onClick={handleClick} isDisabled={running}>
+          <Spinner className={clsx('absolute z-40', { hidden: !running })} />
           {children}
         </CommonButton>
       </CardFooter>
@@ -64,7 +81,7 @@ export default function ShortcutsList({
   }[];
 }) {
   const equipMaxPerceptionHandler = useCallback(() => {
-    equipMax('per', credentials);
+    return equipMax('per', credentials);
   }, []);
 
   const equipMaxStrengthHandler = useCallback(() => {
@@ -72,7 +89,7 @@ export default function ShortcutsList({
   }, []);
 
   const equipMaxIntelligenceHandler = useCallback(() => {
-    equipMax('int', credentials);
+    return equipMax('int', credentials);
   }, []);
 
   const equipMaxConstitutionHandler = useCallback(() => {
@@ -90,15 +107,6 @@ export default function ShortcutsList({
       <ShortcutGroup title="Equipment">
         <ShortcutCard image={perScene} onClick={equipMaxPerceptionHandler}>
           Max Perception
-        </ShortcutCard>
-        <ShortcutCard image={strScene} onClick={equipMaxStrengthHandler}>
-          Max Strength
-        </ShortcutCard>
-        <ShortcutCard image={intScene} onClick={equipMaxIntelligenceHandler}>
-          Max Intelligence
-        </ShortcutCard>
-        <ShortcutCard image={conScene} onClick={equipMaxConstitutionHandler}>
-          Max Constitution
         </ShortcutCard>
       </ShortcutGroup>
     </div>

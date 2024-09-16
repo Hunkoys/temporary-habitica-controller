@@ -3,21 +3,21 @@
 import { getUserData, habFetch } from '@/app/_utils/habitica';
 import { Content, Credentials, Gear, GEAR_TYPES, GearType, PlayerClass, Stats } from '@/app/_utils/habiticaTypes';
 
-export async function equipMax(stat: keyof Stats, creds: Credentials) {
-  if (!creds) return;
+export async function equipMax(stat: keyof Stats, creds: Credentials): Promise<boolean> {
+  if (!creds) return false;
   const body = await getUserData(creds, 'items.gear.owned,items.gear.equipped,stats.class');
-  if (!body) return;
+  if (!body) return false;
 
   const { owned, equipped } = body.items.gear;
   const playerClass = body.stats.class;
-  if (!owned) return;
-  if (!equipped) return;
+  if (!owned) return false;
+  if (!equipped) return false;
 
   const inPossession = Object.keys(owned).filter((key) => owned[key]);
-  if (!inPossession.length) return;
+  if (!inPossession.length) return false;
 
   const content = (await (await habFetch('get', 'content')).json()) as Content;
-  if (!content?.data?.gear?.flat) return;
+  if (!content?.data?.gear?.flat) return false;
   const gearlist = content.data.gear.flat;
 
   type keyOfMax = GearType | 'twoHandedWeapon';
@@ -87,6 +87,11 @@ export async function equipMax(stat: keyof Stats, creds: Credentials) {
     if (!item) continue;
     const res = await habFetch('post', `user/equip/equipped/${item.key}`, creds);
     const body = await res.json();
-    if (!body.success) console.error(body.message);
+    if (!body.success) {
+      console.error(body.message);
+      return false;
+    }
   }
+
+  return true;
 }
