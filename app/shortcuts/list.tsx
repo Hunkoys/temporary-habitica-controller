@@ -20,7 +20,7 @@ import {
 } from '@nextui-org/react';
 import { JsonValue } from '@prisma/client/runtime/library';
 import Image, { StaticImageData } from 'next/image';
-import { Key, useCallback, useMemo, useState } from 'react';
+import { Key, useCallback, useEffect, useMemo, useState } from 'react';
 
 import conScene from '@/assets/Scene_constitution.webp';
 import intScene from '@/assets/Scene_intelligence.webp';
@@ -30,6 +30,7 @@ import autoAssignStatImage from '@/assets/auto-assign-stat.webp';
 
 import listIcon from '@/assets/list-icon.png';
 import clsx from 'clsx';
+import { getAutoAssignCommand } from '@/app/shortcuts/actions';
 
 function ShortcutCard({
   image,
@@ -107,7 +108,7 @@ function isStat(key: unknown): key is keyof Stats {
 }
 function AutoStatCard({ creds, id }: { creds: Credentials; id: string }) {
   const [isOn, setIsOn] = useState(false); // get from user shortcuts
-  const [saving, setSaving] = useState(false);
+  const [saving, setSaving] = useState(true);
   const [success, setSuccess] = useState(true);
 
   const selectionMap = [
@@ -129,6 +130,21 @@ function AutoStatCard({ creds, id }: { creds: Credentials; id: string }) {
     },
   ];
   const [stat, setStat] = useState('str');
+
+  useEffect(() => {
+    (async () => {
+      const autoStat = await getAutoAssignCommand(id);
+      console.log(autoStat);
+      if (autoStat) {
+        const command = autoStat.command as { stat: keyof Stats; status: boolean };
+        setIsOn(command.status);
+        setStat(command.stat);
+      }
+      setSaving(false);
+      setSuccess(true);
+    })();
+  }, []);
+
   const handleOnChange = useCallback(
     async (key: Key) => {
       if (!isStat(key)) throw new Error('Invalid stat key in handleOnChange');
