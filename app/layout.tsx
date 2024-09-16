@@ -46,14 +46,14 @@ export default function RootLayout({
     >
       <html lang="en" className="dark bg-background h-full">
         <body className={`${inter.className} h-full w-full overflow-hidden`}>
-          <NextUIProvider className=" h-full w-full">
+          <NextUIProvider className="h-full w-full">
             <SignedOut>
               <SignInCard />
             </SignedOut>
             <SignedIn>
               <div className="h-full overflow-hidden flex flex-col justify-between items-center gap-1 py-1">
                 <Header />
-                {children}
+                <div className="overflow-y-auto h-full w-full">{children}</div>
                 <Navbar />
               </div>
             </SignedIn>
