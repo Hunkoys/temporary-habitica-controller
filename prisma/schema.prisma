@@ -24,25 +24,25 @@ model User {
 }
 
 model Task {
-  id        String @id @default(cuid())
-  title     String
-  profile   User   @relation(fields: [profileId], references: [id])
-  profileId String
+  id     String @id @default(cuid())
+  title  String
+  user   User   @relation(fields: [userId], references: [id])
+  userId String
 }
 
 model TaskHistory {
-  id        String   @id @default(cuid())
-  date      DateTime
-  status    String
-  taskId    String
-  Profile   User?    @relation(fields: [profileId], references: [id])
-  profileId String?
+  id     String   @id @default(cuid())
+  date   DateTime
+  status String
+  taskId String
+  user   User     @relation(fields: [userId], references: [id])
+  userId String
 }
 
 model Shortcut {
-  id        String  @id @default(cuid())
-  title     String
-  command   Json
-  Profile   User?   @relation(fields: [profileId], references: [id])
-  profileId String?
+  id      String @id @default(cuid())
+  title   String
+  command Json
+  user    User   @relation(fields: [userId], references: [id])
+  userId  String
 }

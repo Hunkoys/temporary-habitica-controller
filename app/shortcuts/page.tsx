@@ -36,7 +36,5 @@ export default async function ShortcutsPage() {
 
   if (!content) return <Error>Failed to get content</Error>;
 
-  return <ShortcutsList credentials={credentials} content={content} shortcuts={user.shortcuts} />;
+  return <ShortcutsList credentials={credentials} content={content} shortcuts={user.shortcuts} id={user.id} />;
 }
-
-// Turn into server component to pre render shortcuts, they don't change often

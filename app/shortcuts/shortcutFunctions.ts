@@ -3,16 +3,17 @@
 import { getUserData, habFetch } from '@/app/_utils/habitica';
 import { getContent } from '@/app/_utils/habiticaContent';
 import { Content, Credentials, Gear, GEAR_TYPES, GearType, PlayerClass, Stats } from '@/app/_utils/habiticaTypes';
+import { saveAutoAssignCommand } from '@/app/shortcuts/actions';
 
 export async function equipMax(stat: keyof Stats, creds: Credentials, content: Content | null): Promise<boolean> {
   if (!creds) return false;
   const body = await getUserData(creds, 'items.gear.owned,items.gear.equipped,stats.class');
   if (!body) return false;
 
-  const { owned, equipped } = body.items.gear;
+  const { owned, equipped: equippedKeys } = body.items.gear;
   const playerClass = body.stats.class;
   if (!owned) return false;
-  if (!equipped) return false;
+  if (!equippedKeys) return false;
 
   const inPossession = Object.keys(owned).filter((key) => owned[key]);
   if (!inPossession.length) return false;
@@ -57,39 +58,49 @@ export async function equipMax(stat: keyof Stats, creds: Credentials, content: C
     }
   });
 
-  function combo(stat: keyof Stats, setup: { weapon?: Gear; shield?: Gear }) {
-    return (setup.weapon?.[stat] || 0) + (setup.shield?.[stat] || 0);
+  function comboStats(combo: { weapon?: Gear; shield?: Gear }) {
+    return (combo.weapon?.[stat] || 0) + (combo.shield?.[stat] || 0);
   }
+
+  const comboMax = comboStats(max);
+  if (max.twoHandedWeapon && max.twoHandedWeapon[stat] > comboMax) {
+    max.weapon = max.twoHandedWeapon;
+    delete max.shield;
+  }
+
+  const equipped: {
+    [key in GearType]?: Gear;
+  } = {};
+
+  GEAR_TYPES.forEach((type) => {
+    if (!equippedKeys[type]) return;
+    const gear = gearlist[equippedKeys[type]];
+    if (!gear) return;
+    equipped[type] = getAdjustedGear(gear, playerClass);
+  });
 
   const toEquip: {
     [key in GearType]?: Gear;
   } = {};
 
   GEAR_TYPES.forEach((type) => {
-    if (!max[type]) return;
-    if (type === 'weapon' || type === 'shield') return;
-    if (max[type][stat] > getAdjustedGear(gearlist[equipped[type]], playerClass)[stat]) {
-      toEquip[type] = max[type];
+    const maxGear = max[type];
+    if (!maxGear) return;
+
+    if (maxGear === max.twoHandedWeapon && maxGear[stat] > comboStats(equipped)) {
+      toEquip.weapon = maxGear;
+    } else if (maxGear[stat] > (equipped?.[type]?.[stat] || 0)) {
+      toEquip[type] = maxGear;
     }
   });
 
-  const equippedStats = combo(stat, {
-    weapon: getAdjustedGear(gearlist[equipped.weapon], playerClass),
-    shield: getAdjustedGear(gearlist[equipped.shield], playerClass),
-  });
-
-  if (equippedStats < combo(stat, { weapon: max.twoHandedWeapon })) {
-    toEquip.weapon = max.twoHandedWeapon;
-  }
-  if (equippedStats < combo(stat, max)) {
-    toEquip.weapon = max.weapon;
-    toEquip.shield = max.shield;
-  }
+  console.log(toEquip);
 
   for (const item of Object.values(toEquip)) {
     if (!item) continue;
     const res = await habFetch('post', `user/equip/equipped/${item.key}`, creds);
     const body = await res.json();
+    console.log(body.message);
     if (!body.success) {
       console.error(body.message);
       return false;
@@ -97,4 +108,9 @@ export async function equipMax(stat: keyof Stats, creds: Credentials, content: C
   }
 
   return true;
+}
+
+export async function updateAutoAssignStat(id: string, creds: Credentials, stat: keyof Stats, status: boolean) {
+  const shortcut = await saveAutoAssignCommand(id, { stat, status });
+  return shortcut;
 }

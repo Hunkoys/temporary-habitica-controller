@@ -1,8 +1,8 @@
 'use client';
 
 import CommonButton from '@/app/_components/CommonButton';
-import { Content, Credentials } from '@/app/_utils/habiticaTypes';
-import { equipMax } from '@/app/shortcuts/shortcutFunctions';
+import { Content, Credentials, Stats } from '@/app/_utils/habiticaTypes';
+import { updateAutoAssignStat, equipMax } from '@/app/shortcuts/shortcutFunctions';
 import {
   Button,
   Card,
@@ -102,9 +102,14 @@ function ShortcutGroup({ title, children }: { title: string; children: React.Rea
   );
 }
 
-function AutoStatCard({ creds }: { creds: Credentials }) {
+function isStat(key: unknown): key is keyof Stats {
+  return key === 'str' || key === 'int' || key === 'per' || key === 'con';
+}
+function AutoStatCard({ creds, id }: { creds: Credentials; id: string }) {
   const [isOn, setIsOn] = useState(false); // get from user shortcuts
   const [saving, setSaving] = useState(false);
+  const [success, setSuccess] = useState(true);
+
   const selectionMap = [
     {
       stat: 'str',
@@ -124,64 +129,102 @@ function AutoStatCard({ creds }: { creds: Credentials }) {
     },
   ];
   const [stat, setStat] = useState('str');
-  const handleOnChange = useCallback((key: Key) => {
-    if (key === 'str' || key === 'int' || key === 'per' || key === 'con') {
+  const handleOnChange = useCallback(
+    async (key: Key) => {
+      if (!isStat(key)) throw new Error('Invalid stat key in handleOnChange');
       setStat(key);
-    }
-  }, []);
+      setSaving(true);
+      const result = await updateAutoAssignStat(id, creds, key, isOn);
+      setSaving(false);
+      if (!result) throw new Error('Failed to update auto assign stat command');
+    },
+    [isOn]
+  );
+
+  const handleSwitch = useCallback(
+    async (isOn: boolean) => {
+      setIsOn(isOn);
+      if (!isStat(stat)) throw new Error('Invalid stat key in handleSwitch');
+      setSaving(true);
+      const result = await updateAutoAssignStat(id, creds, stat, isOn);
+      setSaving(false);
+      if (!result) throw new Error('Failed to update auto assign stat command');
+    },
+    [stat]
+  );
 
   const color = useMemo(() => {
     return selectionMap.find((item) => item.stat === stat)?.color;
   }, [stat]);
 
+  const handleOpenChange = useCallback(() => setSuccess(true), []);
+
   return (
-    <Card>
-      <CardBody className="overflow-hidden flex justify-center items-center">
-        <Image src={autoAssignStatImage} alt="Level UP Image" height={80} className="rounded-lg" />
-        Auto assign stat points
-      </CardBody>
-      <CardFooter className="flex justify-between gap-2 ">
-        {/* <Spinner className={clsx('absolute z-40', { hidden: !saving })} /> */}
-        <Dropdown>
-          <DropdownTrigger className={color}>
-            <Button className="capitalize">{stat}</Button>
-          </DropdownTrigger>
-          <DropdownMenu
-            aria-label="Stat selection"
-            variant="bordered"
-            disallowEmptySelection
-            selectionMode="single"
-            selectedKeys={stat}
-            onAction={handleOnChange}
-          >
-            {selectionMap.map(({ stat, color }) => (
-              <DropdownItem key={stat} value={stat} className={color}>
-                <div className="capitalize">{stat}</div>
-              </DropdownItem>
-            ))}
-          </DropdownMenu>
-        </Dropdown>
-        <div className="flex gap-2 items-center">
-          {/* {isOn ? 'On' : 'Off'} */}
-          <Switch isSelected={isOn} onValueChange={setIsOn}></Switch>
-        </div>
-      </CardFooter>
-    </Card>
+    <Popover
+      placement="top"
+      color="danger"
+      isOpen={!success}
+      shouldCloseOnBlur
+      offset={-16}
+      onOpenChange={handleOpenChange}
+    >
+      <PopoverTrigger>
+        <Card className={clsx('border-1 border-transparent', { 'border-danger-500': !success })}>
+          <div
+            className={clsx('absolute bg-white opacity-30 blur-lg h-full w-full flex justify-center items-center', {
+              hidden: !saving,
+            })}
+          ></div>
+          <CardBody className="overflow-hidden flex justify-center items-center">
+            <Image src={autoAssignStatImage} alt="Level UP Image" height={80} className="rounded-lg" />
+            Auto assign stat points
+          </CardBody>
+          <CardFooter className="flex justify-between gap-2 ">
+            <Spinner className={clsx('absolute z-40 w-full', { hidden: !saving })} />
+            <Dropdown>
+              <DropdownTrigger className={color}>
+                <Button className="capitalize">{stat}</Button>
+              </DropdownTrigger>
+              <DropdownMenu
+                aria-label="Stat selection"
+                variant="bordered"
+                disallowEmptySelection
+                selectionMode="single"
+                selectedKeys={stat}
+                onAction={handleOnChange}
+              >
+                {selectionMap.map(({ stat, color }) => (
+                  <DropdownItem key={stat} value={stat} className={color}>
+                    <div className="capitalize">{stat}</div>
+                  </DropdownItem>
+                ))}
+              </DropdownMenu>
+            </Dropdown>
+            <div className="flex gap-2 items-center">
+              <Switch size="lg" isSelected={isOn} onValueChange={handleSwitch}></Switch>
+            </div>
+          </CardFooter>
+        </Card>
+      </PopoverTrigger>
+      <PopoverContent>Shortcut Failed</PopoverContent>
+    </Popover>
   );
 }
 
 export default function ShortcutsList({
+  id,
   credentials,
   content,
   shortcuts,
 }: {
+  id: string;
   credentials: Credentials;
   content: Content;
   shortcuts: {
     id: string;
     title: string;
     command: JsonValue;
-    profileId: string | null;
+    userId: string;
   }[];
 }) {
   const equipMaxPerceptionHandler = useCallback(() => {
@@ -203,7 +246,7 @@ export default function ShortcutsList({
   return (
     <div className="w-full flex flex-col justify-end gap-3">
       <ShortcutGroup title="Stats">
-        <AutoStatCard creds={credentials} />
+        <AutoStatCard creds={credentials} id={id} />
       </ShortcutGroup>
       <ShortcutGroup title="Equipment">
         <ShortcutCard image={perScene} onClick={equipMaxPerceptionHandler}>
