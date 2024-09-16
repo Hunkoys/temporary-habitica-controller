@@ -1,5 +1,5 @@
-import { Content } from '@/app/_utils/habiticaTypes';
 import { getContent } from '@/app/_utils/habiticaContent';
+import { Credentials } from '@/app/_utils/habiticaTypes';
 import ShortcutsList from '@/app/shortcuts/list';
 import prisma from '@/prisma/db';
 import { currentUser } from '@clerk/nextjs/server';
@@ -32,7 +32,10 @@ export default async function ShortcutsPage() {
       </div>
     );
 
-  return <ShortcutsList user={user} content={content} />;
+  if (user.habiticaApiKey === null || user.habiticaUserId === null) return <div>Missing Habitica credentials</div>;
+
+  const credentials: Credentials = { habId: user.habiticaUserId, apiKey: user.habiticaApiKey };
+  return <ShortcutsList credentials={credentials} content={content} shortcuts={user.shortcuts} />;
 }
 
 // Turn into server component to pre render shortcuts, they don't change often

@@ -1,132 +1,88 @@
 'use client';
 
 import CommonButton from '@/app/_components/CommonButton';
+import { Credentials } from '@/app/_utils/habiticaTypes';
+import { equipMax } from '@/app/shortcuts/shortcutFunctions';
 import { Card, CardBody, CardFooter } from '@nextui-org/react';
-import Image from 'next/image';
-import listIcon from '@/assets/list-icon.png';
-import { getUserData, habFetch } from '@/app/_utils/habitica';
-import { useCallback, useMemo } from 'react';
-import { Content, Gear, GearType, GEAR_TYPES, PlayerClass, Stats } from '@/app/_utils/habiticaTypes';
+import { JsonValue } from '@prisma/client/runtime/library';
+import Image, { StaticImageData } from 'next/image';
+import { useCallback } from 'react';
+
+import conScene from '@/assets/Scene_constitution.webp';
+import intScene from '@/assets/Scene_intelligence.webp';
+import perScene from '@/assets/Scene_perception.webp';
+import strScene from '@/assets/Scene_strength.webp';
+
+function ShortcutCard({
+  image,
+  onClick,
+  children,
+}: {
+  image: StaticImageData;
+  onClick: () => void;
+  children: React.ReactNode;
+}) {
+  return (
+    <Card className="h-36">
+      <CardBody className="overflow-hidden flex justify-center items-center">
+        <Image src={image} alt="List Icon" height={80} />
+      </CardBody>
+      <CardFooter>
+        <CommonButton className="w-full" onClick={onClick}>
+          {children}
+        </CommonButton>
+      </CardFooter>
+    </Card>
+  );
+}
 
 export default function ShortcutsList({
-  user,
+  credentials,
   content,
+  shortcuts,
 }: {
-  user: { id: string; habiticaUserId: string | null; habiticaApiKey: string | null; linked: boolean; shortcuts: {}[] };
+  credentials: Credentials;
   content: object;
+  shortcuts: {
+    id: string;
+    title: string;
+    command: JsonValue;
+    profileId: string | null;
+  }[];
 }) {
-  const creds = useMemo(() => {
-    if (user.habiticaUserId && user.habiticaApiKey) {
-      return { habId: user.habiticaUserId, apiKey: user.habiticaApiKey };
-    } else {
-      return null;
-    }
-  }, [user.habiticaUserId, user.habiticaApiKey]);
+  const equipMaxPerceptionHandler = useCallback(() => {
+    equipMax('per', credentials);
+  }, []);
 
-  const equipMaxPerHandler = useCallback(() => {
-    (async () => {
-      let stat: keyof Stats = 'per';
+  const equipMaxStrengthHandler = useCallback(() => {
+    equipMax('str', credentials);
+  }, []);
 
-      if (!creds) return;
-      const body = await getUserData(creds, 'items.gear.owned,items.gear.equipped,stats.class');
-      if (!body) return;
+  const equipMaxIntelligenceHandler = useCallback(() => {
+    equipMax('int', credentials);
+  }, []);
 
-      const { owned, equipped } = body.items.gear;
-      const playerClass = body.stats.class;
-      if (!owned) return;
-      if (!equipped) return;
-
-      const inPossession = Object.keys(owned).filter((key) => owned[key]);
-      if (!inPossession.length) return;
-
-      const content = (await (await habFetch('get', 'content')).json()) as Content;
-      if (!content?.data?.gear?.flat) return;
-      const gearlist = content.data.gear.flat;
-
-      type keyOfMax = GearType | 'twoHandedWeapon';
-
-      const max: {
-        [key in keyOfMax]?: Gear;
-      } = {};
-
-      function getMaxKey(item: Gear): keyOfMax {
-        if (item.type === 'weapon' && item.twoHanded) return 'twoHandedWeapon';
-        return item.type;
-      }
-
-      const classStatMap = { rogue: 'per', warrior: 'str', wizard: 'int', healer: 'con' } as const;
-
-      function getAdjustedGear(gear: Gear, playerClass: PlayerClass) {
-        const adjustedGear = { ...gear };
-        if (gear.klass === playerClass || (gear.klass === 'special' && gear.specialClass === playerClass)) {
-          const playerMainStat = classStatMap[playerClass];
-          adjustedGear[playerMainStat] = gear[playerMainStat] * 1.5;
-        }
-
-        return adjustedGear;
-      }
-
-      inPossession.forEach((key) => {
-        const stockGear = gearlist[key];
-        if (!stockGear) return;
-        const gear = getAdjustedGear(stockGear, playerClass);
-        const maxKey = getMaxKey(gear);
-
-        if (gear[stat] > (max[maxKey]?.[stat] || 0)) {
-          max[maxKey] = gear;
-        }
-      });
-
-      function combo(stat: keyof Stats, setup: { weapon?: Gear; shield?: Gear }) {
-        return (setup.weapon?.[stat] || 0) + (setup.shield?.[stat] || 0);
-      }
-
-      const toEquip: {
-        [key in GearType]?: Gear;
-      } = {};
-
-      GEAR_TYPES.forEach((type) => {
-        if (!max[type]) return;
-        if (type === 'weapon' || type === 'shield') return;
-        if (max[type][stat] > getAdjustedGear(gearlist[equipped[type]], playerClass)[stat]) {
-          toEquip[type] = max[type];
-        }
-      });
-
-      const equippedStats = combo(stat, {
-        weapon: getAdjustedGear(gearlist[equipped.weapon], playerClass),
-        shield: getAdjustedGear(gearlist[equipped.shield], playerClass),
-      });
-
-      if (equippedStats < combo(stat, { weapon: max.twoHandedWeapon })) {
-        toEquip.weapon = max.twoHandedWeapon;
-      }
-      if (equippedStats < combo(stat, max)) {
-        toEquip.weapon = max.weapon;
-        toEquip.shield = max.shield;
-      }
-
-      for (const item of Object.values(toEquip)) {
-        if (!item) continue;
-        const res = await habFetch('post', `user/equip/equipped/${item.key}`, creds);
-        const body = await res.json();
-        if (!body.success) console.error(body.message);
-      }
-    })();
+  const equipMaxConstitutionHandler = useCallback(() => {
+    equipMax('con', credentials);
   }, []);
 
   return (
-    <div className="p-2 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 overflow-auto h-full w-full max-w-[1200px]">
-      <Card className="h-36">
-        <CardBody>
-          <Image src={listIcon} alt="List Icon" width={50} height={50} />
-        </CardBody>
-        <CardFooter>
-          <CommonButton className="w-full" onClick={equipMaxPerHandler}>
-            Equip Max Strength
-          </CommonButton>
-        </CardFooter>
-      </Card>
+    <div className="w-full h-full overflow-auto flex flex-col justify-end">
+      <h1 className="text-2xl font-bold p-2">Equipment</h1>
+      <div className="p-2 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2 max-w-[1200px] content-end">
+        <ShortcutCard image={perScene} onClick={equipMaxPerceptionHandler}>
+          Max Perception
+        </ShortcutCard>
+        <ShortcutCard image={strScene} onClick={equipMaxStrengthHandler}>
+          Max Strength
+        </ShortcutCard>
+        <ShortcutCard image={intScene} onClick={equipMaxIntelligenceHandler}>
+          Max Intelligence
+        </ShortcutCard>
+        <ShortcutCard image={conScene} onClick={equipMaxConstitutionHandler}>
+          Max Constitution
+        </ShortcutCard>
+      </div>
     </div>
   );
 }

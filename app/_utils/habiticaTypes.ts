@@ -43,3 +43,5 @@ export type Content = {
     };
   };
 };
+
+export type Credentials = { habId: string; apiKey: string };

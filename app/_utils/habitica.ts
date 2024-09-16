@@ -1,6 +1,6 @@
-const X_CLIENT = process.env.NEXT_PUBLIC_X_CLIENT;
+import { Credentials } from '@/app/_utils/habiticaTypes';
 
-type Credentials = { habId: string; apiKey: string };
+const X_CLIENT = process.env.NEXT_PUBLIC_X_CLIENT;
 
 export function habFetch(
   method: 'post' | 'get',

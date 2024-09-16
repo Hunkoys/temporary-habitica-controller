@@ -1,5 +1,4 @@
 import HabiticaForm from '@/app/settings/HabiticaForm';
-import prisma from '@/prisma/db';
 import { currentUser } from '@clerk/nextjs/server';
 import { Card, CardBody, CardHeader, Divider, Skeleton } from '@nextui-org/react';
 import { Suspense } from 'react';
