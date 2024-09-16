@@ -1,9 +1,18 @@
 'use client';
 
 import CommonButton from '@/app/_components/CommonButton';
-import { Credentials } from '@/app/_utils/habiticaTypes';
+import { Content, Credentials } from '@/app/_utils/habiticaTypes';
 import { equipMax } from '@/app/shortcuts/shortcutFunctions';
-import { Card, CardBody, CardFooter, Spinner } from '@nextui-org/react';
+import {
+  Card,
+  CardBody,
+  CardFooter,
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+  Spinner,
+  Tooltip,
+} from '@nextui-org/react';
 import { JsonValue } from '@prisma/client/runtime/library';
 import Image, { StaticImageData } from 'next/image';
 import { useCallback, useMemo, useState } from 'react';
@@ -26,32 +35,50 @@ function ShortcutCard({
   children: React.ReactNode;
 }) {
   const [running, setRunning] = useState(false);
+  const [success, setSuccess] = useState(true);
 
   const handleClick = useCallback(async () => {
     if (onClick) {
+      setSuccess(true);
       setRunning(true);
-      const res = await onClick();
+      // const res = await onClick();
+      const res = await new Promise<boolean>((resolve) => {
+        setTimeout(() => resolve(false), 1000);
+      });
+      setSuccess(res);
       setRunning(false);
     }
   }, [onClick]);
 
   return (
-    <Card className="h-36">
-      <div
-        className={clsx('absolute bg-white opacity-30 blur-lg h-full w-full flex justify-center items-center', {
-          hidden: !running,
-        })}
-      ></div>
-      <CardBody className="overflow-hidden flex justify-center items-center">
-        <Image src={image} alt="List Icon" height={80} />
-      </CardBody>
-      <CardFooter>
-        <CommonButton className="w-full" onClick={handleClick} isDisabled={running}>
-          <Spinner className={clsx('absolute z-40', { hidden: !running })} />
-          {children}
-        </CommonButton>
-      </CardFooter>
-    </Card>
+    <Popover
+      placement="top"
+      color="danger"
+      isOpen={!success}
+      shouldCloseOnBlur
+      offset={-16}
+      onOpenChange={(open) => setSuccess(!open)}
+    >
+      <PopoverTrigger>
+        <Card className={clsx('h-36 border-1 border-transparent', { 'border-danger-500': !success })}>
+          <div
+            className={clsx('absolute bg-white opacity-30 blur-lg h-full w-full flex justify-center items-center', {
+              hidden: !running,
+            })}
+          ></div>
+          <CardBody className="overflow-hidden flex justify-center items-center">
+            <Image src={image} alt="List Icon" height={80} />
+          </CardBody>
+          <CardFooter>
+            <CommonButton className="w-full" onClick={handleClick} isDisabled={running}>
+              <Spinner className={clsx('absolute z-40', { hidden: !running })} />
+              {children}
+            </CommonButton>
+          </CardFooter>
+        </Card>
+      </PopoverTrigger>
+      <PopoverContent>Shortcut Failed</PopoverContent>
+    </Popover>
   );
 }
 
@@ -72,7 +99,7 @@ export default function ShortcutsList({
   shortcuts,
 }: {
   credentials: Credentials;
-  content: object;
+  content: Content;
   shortcuts: {
     id: string;
     title: string;
@@ -81,19 +108,19 @@ export default function ShortcutsList({
   }[];
 }) {
   const equipMaxPerceptionHandler = useCallback(() => {
-    return equipMax('per', credentials);
+    return equipMax('per', credentials, content);
   }, []);
 
   const equipMaxStrengthHandler = useCallback(() => {
-    equipMax('str', credentials);
+    return equipMax('str', credentials, content);
   }, []);
 
   const equipMaxIntelligenceHandler = useCallback(() => {
-    return equipMax('int', credentials);
+    return equipMax('int', credentials, content);
   }, []);
 
   const equipMaxConstitutionHandler = useCallback(() => {
-    equipMax('con', credentials);
+    return equipMax('con', credentials, content);
   }, []);
 
   return (
@@ -107,6 +134,15 @@ export default function ShortcutsList({
       <ShortcutGroup title="Equipment">
         <ShortcutCard image={perScene} onClick={equipMaxPerceptionHandler}>
           Max Perception
+        </ShortcutCard>
+        <ShortcutCard image={strScene} onClick={equipMaxStrengthHandler}>
+          Max Strength
+        </ShortcutCard>
+        <ShortcutCard image={intScene} onClick={equipMaxIntelligenceHandler}>
+          Max Intelligence
+        </ShortcutCard>
+        <ShortcutCard image={conScene} onClick={equipMaxConstitutionHandler}>
+          Max Constitution
         </ShortcutCard>
       </ShortcutGroup>
     </div>

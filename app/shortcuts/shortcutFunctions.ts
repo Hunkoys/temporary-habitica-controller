@@ -1,9 +1,10 @@
 'use client';
 
 import { getUserData, habFetch } from '@/app/_utils/habitica';
+import { getContent } from '@/app/_utils/habiticaContent';
 import { Content, Credentials, Gear, GEAR_TYPES, GearType, PlayerClass, Stats } from '@/app/_utils/habiticaTypes';
 
-export async function equipMax(stat: keyof Stats, creds: Credentials): Promise<boolean> {
+export async function equipMax(stat: keyof Stats, creds: Credentials, content: Content | null): Promise<boolean> {
   if (!creds) return false;
   const body = await getUserData(creds, 'items.gear.owned,items.gear.equipped,stats.class');
   if (!body) return false;
@@ -16,9 +17,11 @@ export async function equipMax(stat: keyof Stats, creds: Credentials): Promise<b
   const inPossession = Object.keys(owned).filter((key) => owned[key]);
   if (!inPossession.length) return false;
 
-  const content = (await (await habFetch('get', 'content')).json()) as Content;
-  if (!content?.data?.gear?.flat) return false;
-  const gearlist = content.data.gear.flat;
+  if (!content) {
+    content = await getContent();
+  }
+  if (!content?.gear?.flat) return false;
+  const gearlist = content.gear.flat;
 
   type keyOfMax = GearType | 'twoHandedWeapon';
 

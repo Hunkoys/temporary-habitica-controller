@@ -6,7 +6,6 @@ import { currentUser } from '@clerk/nextjs/server';
 import { Card } from '@nextui-org/react';
 
 const every12Hours = 1 * 60 * 60 * 12;
-const content = getContent(every12Hours);
 
 export default async function ShortcutsPage() {
   const clerkUser = await currentUser();
@@ -35,6 +34,11 @@ export default async function ShortcutsPage() {
   if (user.habiticaApiKey === null || user.habiticaUserId === null) return <div>Missing Habitica credentials</div>;
 
   const credentials: Credentials = { habId: user.habiticaUserId, apiKey: user.habiticaApiKey };
+
+  const content = await getContent(every12Hours);
+
+  if (!content) return <div>Failed to get content</div>;
+
   return <ShortcutsList credentials={credentials} content={content} shortcuts={user.shortcuts} />;
 }
 

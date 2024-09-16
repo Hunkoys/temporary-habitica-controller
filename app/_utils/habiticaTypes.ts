@@ -35,11 +35,9 @@ export type Gear =
     });
 
 export type Content = {
-  data: {
-    gear: {
-      flat: {
-        [key: string]: Gear;
-      };
+  gear: {
+    flat: {
+      [key: string]: Gear;
     };
   };
 };
