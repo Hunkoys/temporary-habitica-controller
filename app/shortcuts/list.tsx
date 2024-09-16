@@ -3,19 +3,10 @@
 import CommonButton from '@/app/_components/CommonButton';
 import { Content, Credentials } from '@/app/_utils/habiticaTypes';
 import { equipMax } from '@/app/shortcuts/shortcutFunctions';
-import {
-  Card,
-  CardBody,
-  CardFooter,
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-  Spinner,
-  Tooltip,
-} from '@nextui-org/react';
+import { Card, CardBody, CardFooter, Popover, PopoverContent, PopoverTrigger, Spinner } from '@nextui-org/react';
 import { JsonValue } from '@prisma/client/runtime/library';
 import Image, { StaticImageData } from 'next/image';
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useState } from 'react';
 
 import conScene from '@/assets/Scene_constitution.webp';
 import intScene from '@/assets/Scene_intelligence.webp';
