@@ -13,13 +13,15 @@ import intScene from '@/assets/Scene_intelligence.webp';
 import perScene from '@/assets/Scene_perception.webp';
 import strScene from '@/assets/Scene_strength.webp';
 
+import listIcon from '@/assets/list-icon.png';
+
 function ShortcutCard({
   image,
   onClick,
   children,
 }: {
   image: StaticImageData;
-  onClick: () => void;
+  onClick?: () => void;
   children: React.ReactNode;
 }) {
   return (
@@ -33,6 +35,17 @@ function ShortcutCard({
         </CommonButton>
       </CardFooter>
     </Card>
+  );
+}
+
+function ShortcutGroup({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <div className="p-2 flex flex-col gap-3">
+      <h2 className="text-2xl font-bold">{title}</h2>
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2 max-w-[1200px]">
+        {children}
+      </div>
+    </div>
   );
 }
 
@@ -67,9 +80,14 @@ export default function ShortcutsList({
   }, []);
 
   return (
-    <div className="w-full h-full overflow-auto flex flex-col justify-end">
-      <h1 className="text-2xl font-bold p-2">Equipment</h1>
-      <div className="p-2 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2 max-w-[1200px] content-end">
+    <div className="w-full h-full overflow-auto flex flex-col justify-end gap-3">
+      <ShortcutGroup title="Skills">
+        <ShortcutCard image={listIcon}>Skill 1</ShortcutCard>
+        <ShortcutCard image={listIcon}>Skill 2</ShortcutCard>
+        <ShortcutCard image={listIcon}>Skill 3</ShortcutCard>
+        <ShortcutCard image={listIcon}>Skill 4</ShortcutCard>
+      </ShortcutGroup>
+      <ShortcutGroup title="Equipment">
         <ShortcutCard image={perScene} onClick={equipMaxPerceptionHandler}>
           Max Perception
         </ShortcutCard>
@@ -82,7 +100,7 @@ export default function ShortcutsList({
         <ShortcutCard image={conScene} onClick={equipMaxConstitutionHandler}>
           Max Constitution
         </ShortcutCard>
-      </div>
+      </ShortcutGroup>
     </div>
   );
 }
