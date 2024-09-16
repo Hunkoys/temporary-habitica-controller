@@ -7,37 +7,34 @@ import { Card } from '@nextui-org/react';
 
 const every12Hours = 1 * 60 * 60 * 12;
 
+function Error({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="p-2">
+      <Card className="p-2 text-center">{children}</Card>
+    </div>
+  );
+}
+
 export default async function ShortcutsPage() {
   const clerkUser = await currentUser();
 
-  if (!clerkUser) return <div>Not signed in</div>;
+  if (!clerkUser) return <Error>Not logged in</Error>;
 
   const user = await prisma.user.findUnique({
     where: { id: clerkUser.id },
     select: { id: true, habiticaUserId: true, habiticaApiKey: true, shortcuts: true, linked: true },
   });
 
-  if (!user)
-    return (
-      <div>
-        <Card className="p-2">User not found</Card>
-      </div>
-    );
+  if (!user) return <Error>User not found</Error>;
+  if (!user.linked) return <Error>Please link your Habitica account to use shortcuts</Error>;
 
-  if (!user.linked)
-    return (
-      <div>
-        <Card className="p-2">Please link your Habitica account to use shortcuts</Card>
-      </div>
-    );
-
-  if (user.habiticaApiKey === null || user.habiticaUserId === null) return <div>Missing Habitica credentials</div>;
+  if (user.habiticaApiKey === null || user.habiticaUserId === null) return <Error>Missing Habitica credentials</Error>;
 
   const credentials: Credentials = { habId: user.habiticaUserId, apiKey: user.habiticaApiKey };
 
   const content = await getContent(every12Hours);
 
-  if (!content) return <div>Failed to get content</div>;
+  if (!content) return <Error>Failed to get content</Error>;
 
   return <ShortcutsList credentials={credentials} content={content} shortcuts={user.shortcuts} />;
 }

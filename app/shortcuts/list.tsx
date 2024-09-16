@@ -32,14 +32,16 @@ function ShortcutCard({
     if (onClick) {
       setSuccess(true);
       setRunning(true);
-      // const res = await onClick();
-      const res = await new Promise<boolean>((resolve) => {
-        setTimeout(() => resolve(false), 1000);
-      });
+      const res = await onClick();
+      // const res = await new Promise<boolean>((resolve) => {
+      //   setTimeout(() => resolve(false), 1000);
+      // });
       setSuccess(res);
       setRunning(false);
     }
   }, [onClick]);
+
+  const handleOpenChange = useCallback(() => setSuccess(true), []);
 
   return (
     <Popover
@@ -48,7 +50,7 @@ function ShortcutCard({
       isOpen={!success}
       shouldCloseOnBlur
       offset={-16}
-      onOpenChange={(open) => setSuccess(!open)}
+      onOpenChange={handleOpenChange}
     >
       <PopoverTrigger>
         <Card className={clsx('h-36 border-1 border-transparent', { 'border-danger-500': !success })}>
