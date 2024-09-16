@@ -110,7 +110,34 @@ export async function equipMax(stat: keyof Stats, creds: Credentials, content: C
   return true;
 }
 
+const domain = 'https://c9cc-2600-1700-786d-0-c828-d609-ac0-9e31.ngrok-free.app';
+const LEVEL_UUID = '32407f79-dbad-471a-9b69-98722b170079';
 export async function updateAutoAssignStat(id: string, creds: Credentials, stat: keyof Stats, status: boolean) {
   const shortcut = await saveAutoAssignCommand(id, { stat, status });
+  if (!shortcut) throw new Error('Failed to save auto assign stat command in database');
+
+  const res = await habFetch('get', 'user/webhook', creds);
+  const body = await res.json();
+  const webhooks = body.data;
+  const levelWebhook = webhooks.find(({ id }: { id: string }) => id === LEVEL_UUID);
+  if (!levelWebhook) {
+    const res = await habFetch('post', 'user/webhook', creds, {
+      id: LEVEL_UUID,
+      enabled: status,
+      url: domain + '/api/webhooks/level',
+      label: 'Level Webhook',
+      type: 'userActivity',
+      options: {
+        leveledUp: true,
+      },
+    });
+    if (!res) throw new Error('Failed to create level webhook');
+  } else {
+    const res = await habFetch('put', `user/webhook/${LEVEL_UUID}`, creds, {
+      enabled: status,
+    });
+    if (!res) throw new Error('Failed to update level webhook');
+  }
+
   return shortcut;
 }

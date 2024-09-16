@@ -3,7 +3,7 @@ import { Credentials } from '@/app/_utils/habiticaTypes';
 const X_CLIENT = process.env.NEXT_PUBLIC_X_CLIENT;
 
 export function habFetch(
-  method: 'post' | 'get',
+  method: 'post' | 'get' | 'put' | 'delete',
   endpoint: string,
   credentials?: Credentials,
   body?: any,
@@ -19,7 +19,7 @@ export function habFetch(
       } = credentials ? { 'x-api-user': credentials.habId, 'x-api-key': credentials.apiKey } : {};
 
   return fetch(`https://habitica.com/api/v3/${endpoint}`, {
-    method,
+    method: method.toUpperCase(),
     headers: {
       'Content-Type': 'application/json',
       'x-client': X_CLIENT || '',
