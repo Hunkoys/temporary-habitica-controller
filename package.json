@@ -10,14 +10,14 @@
     "prismaMigrateDev": "dotenv -e .env.development.local -- npx prisma migrate dev"
   },
   "dependencies": {
-    "@clerk/nextjs": "^5.3.1",
+    "@clerk/nextjs": "^5.5.2",
     "@clerk/themes": "^2.1.25",
     "@internationalized/date": "^3.5.5",
     "@nextui-org/react": "^2.4.6",
     "@prisma/client": "^5.19.1",
     "clsx": "^2.1.1",
     "framer-motion": "^11.3.30",
-    "next": "14.2.5",
+    "next": "14.2.13",
     "next-pwa": "^5.6.0",
     "react": "^18",
     "react-dom": "^18",
