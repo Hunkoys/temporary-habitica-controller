@@ -15,9 +15,10 @@ const location = path.join(process.cwd(), 'cache/content.json');
 export async function getContent(cacheSeconds: number = 1): Promise<Content | null> {
   try {
     const file = await fs.readFile(location, 'utf-8');
-    const cache: Cache = JSON.parse(file);
 
-    if (cache.date + cacheSeconds * 1000 > Date.now()) {
+    const cache: Cache = file ? JSON.parse(file) : { date: 0, content: null };
+
+    if (cache.date + cacheSeconds * 1000 > Date.now() && cache.content !== null) {
       console.log('Using cached content');
       return cache.content;
     } else {
