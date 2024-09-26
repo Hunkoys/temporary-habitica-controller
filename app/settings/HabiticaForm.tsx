@@ -3,7 +3,7 @@
 import CommonButton from '@/app/_components/CommonButton';
 import { habFetch } from '@/app/_utils/habitica';
 import { throttle } from '@/app/_utils/limiter';
-import { show } from '@/app/api/webhooks/route';
+import { GET } from '@/app/api/webhooks/route';
 import { fetchUserData, saveKeysToDb } from '@/app/settings/actions';
 import prisma from '@/prisma/db';
 import { Button, Input } from '@nextui-org/react';
@@ -49,7 +49,7 @@ const checkHabitica = throttle(2000, async function fetchCheckKeys(habId: string
 export default function HabiticaForm(props: { id: string }) {
   useEffect(() => {
     (async () => {
-      await show();
+      await GET();
     })();
   }, []);
 

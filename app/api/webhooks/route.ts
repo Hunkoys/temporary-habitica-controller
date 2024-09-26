@@ -3,13 +3,15 @@
 import prisma from '@/prisma/db';
 import { NextRequest } from 'next/server';
 
-export async function show() {
+export async function GET() {
   const data = await prisma.shortcut.findFirst({
     where: {
       title: 'webhook data',
     },
   });
   console.log(data);
+
+  return new Response(JSON.stringify(data), { status: 200 });
 }
 
 export async function POST(req: NextRequest) {
