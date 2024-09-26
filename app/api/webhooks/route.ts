@@ -27,9 +27,9 @@ export async function POST(req: NextRequest) {
         userId: payload.user._id,
       },
     });
-    console.log(a);
+    console.error(a);
   } catch (Err) {
-    console.log(Err);
+    console.error(Err);
     return new Response('db error', { status: 200 });
   }
 
