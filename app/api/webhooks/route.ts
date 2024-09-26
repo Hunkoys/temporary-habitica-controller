@@ -30,7 +30,7 @@ export async function POST(req: NextRequest) {
     console.error(a);
   } catch (Err) {
     console.error(Err);
-    return new Response('db error', { status: 200 });
+    return new Response('db error', { status: 201 });
   }
 
   return new Response('success', { status: 200 });
