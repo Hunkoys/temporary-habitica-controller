@@ -1,10 +1,20 @@
+'use server';
+
 import prisma from '@/prisma/db';
 import { NextRequest } from 'next/server';
 
-const dbID = '26ea2b6d-ae87-4b2c-89c0-6423b0969f9e';
+export async function show() {
+  const data = await prisma.shortcut.findFirst({
+    where: {
+      title: 'webhook data',
+    },
+  });
+  console.log(data);
+}
 
 export async function POST(req: NextRequest) {
   const payload = await req.json();
+  console.log(payload);
   if (!payload) return new Response('no payload', { status: 200 });
 
   try {

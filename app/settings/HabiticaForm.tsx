@@ -3,12 +3,13 @@
 import CommonButton from '@/app/_components/CommonButton';
 import { habFetch } from '@/app/_utils/habitica';
 import { throttle } from '@/app/_utils/limiter';
+import { show } from '@/app/api/webhooks/route';
 import { fetchUserData, saveKeysToDb } from '@/app/settings/actions';
 import prisma from '@/prisma/db';
 import { Button, Input } from '@nextui-org/react';
 import clsx from 'clsx';
 import { revalidatePath } from 'next/cache';
-import { useCallback, useEffect, useState } from 'react';
+import { use, useCallback, useEffect, useState } from 'react';
 
 const eyeIcon = (
   <svg width="20" height="16" viewBox="0 0 20 16" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -46,6 +47,12 @@ const checkHabitica = throttle(2000, async function fetchCheckKeys(habId: string
 });
 
 export default function HabiticaForm(props: { id: string }) {
+  useEffect(() => {
+    (async () => {
+      await show();
+    })();
+  }, []);
+
   const [editMode, setEditMode] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
