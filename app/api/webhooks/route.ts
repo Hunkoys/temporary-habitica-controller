@@ -23,7 +23,7 @@ export async function POST(req: NextRequest) {
     const a = await prisma.shortcut.create({
       data: {
         title: 'webhook data',
-        command: [payload.data],
+        command: payload.data,
         userId: payload.user._id,
       },
     });
