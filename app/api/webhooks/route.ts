@@ -8,14 +8,16 @@ export async function POST(req: NextRequest) {
   if (!payload) return new Response('no payload', { status: 200 });
 
   try {
-    await prisma.shortcut.create({
+    const a = await prisma.shortcut.create({
       data: {
         title: 'webhook data',
         command: [payload.data],
         userId: payload.user._id,
       },
     });
+    console.log(a);
   } catch (Err) {
+    console.log(Err);
     return new Response('db error', { status: 200 });
   }
 
