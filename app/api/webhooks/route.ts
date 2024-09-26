@@ -4,12 +4,7 @@ import prisma from '@/prisma/db';
 import { NextRequest } from 'next/server';
 
 export async function GET() {
-  const data = await prisma.shortcut.findFirst({
-    where: {
-      title: 'webhook data',
-    },
-  });
-  console.log(data);
+  const data = await prisma.dog.findMany();
 
   return new Response(JSON.stringify(data), { status: 200 });
 }
@@ -20,11 +15,9 @@ export async function POST(req: NextRequest) {
   if (!payload) return new Response('no payload', { status: 202 });
 
   try {
-    const a = await prisma.shortcut.create({
+    const a = await prisma.dog.create({
       data: {
-        title: 'webhook data',
-        command: payload.data,
-        userId: payload.user._id,
+        data: payload,
       },
     });
     console.error(a);

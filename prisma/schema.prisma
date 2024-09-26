@@ -46,3 +46,8 @@ model Shortcut {
   user    User   @relation(fields: [userId], references: [id])
   userId  String
 }
+
+model Dog {
+  id   String @id @default(cuid())
+  data Json
+}
