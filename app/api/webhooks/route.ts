@@ -16,8 +16,8 @@ export async function GET() {
 
 export async function POST(req: NextRequest) {
   const payload = await req.json();
-  console.log(payload);
-  if (!payload) return new Response('no payload', { status: 200 });
+  console.error(payload);
+  if (!payload) return new Response('no payload', { status: 202 });
 
   try {
     const a = await prisma.shortcut.create({
