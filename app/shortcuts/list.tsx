@@ -2,7 +2,12 @@
 
 import CommonButton from '@/app/_components/CommonButton';
 import { Content, Credentials, Stats } from '@/app/_utils/habiticaTypes';
-import { updateAutoAssignStat, equipMax, castBurstOfFlames } from '@/app/shortcuts/shortcutFunctions';
+import {
+  updateAutoAssignStat,
+  equipMax,
+  castBurstOfFlames,
+  useUpManaForBurstOfFlames,
+} from '@/app/shortcuts/shortcutFunctions';
 import {
   Button,
   Card,
@@ -27,7 +32,7 @@ import intScene from '@/assets/Scene_intelligence.webp';
 import perScene from '@/assets/Scene_perception.webp';
 import strScene from '@/assets/Scene_strength.webp';
 import autoAssignStatImage from '@/assets/auto-assign-stat.webp';
-import firball from '@/assets/shop_fireball.png';
+import fireball from '@/assets/shop_fireball.png';
 
 import listIcon from '@/assets/list-icon.png';
 import clsx from 'clsx';
@@ -37,10 +42,12 @@ function ShortcutCard({
   image,
   onClick,
   children,
+  actionText,
 }: {
   image: StaticImageData;
   onClick?: () => Promise<boolean>;
   children: React.ReactNode;
+  actionText: string;
 }) {
   const [running, setRunning] = useState(false);
   const [success, setSuccess] = useState(true);
@@ -83,7 +90,7 @@ function ShortcutCard({
           <CardFooter>
             <CommonButton className="w-full" onClick={handleClick} isDisabled={running}>
               <Spinner className={clsx('absolute z-40', { hidden: !running })} />
-              Equip
+              {actionText}
             </CommonButton>
           </CardFooter>
         </Card>
@@ -264,32 +271,42 @@ export default function ShortcutsList({
     return castBurstOfFlames(credentials);
   }, []);
 
+  const handleAllOutFire = useCallback(() => {
+    return useUpManaForBurstOfFlames(credentials);
+  }, []);
+
   return (
     <div className="w-full flex flex-col justify-end gap-3">
       <ShortcutGroup title="Stats">
         <AutoStatCard creds={credentials} id={id} />
       </ShortcutGroup>
       <ShortcutGroup title="Equipment">
-        <ShortcutCard image={perScene} onClick={equipMaxPerceptionHandler}>
+        <ShortcutCard image={perScene} actionText="Equip" onClick={equipMaxPerceptionHandler}>
           Max Perception
         </ShortcutCard>
-        <ShortcutCard image={strScene} onClick={equipMaxStrengthHandler}>
+        <ShortcutCard image={strScene} actionText="Equip" onClick={equipMaxStrengthHandler}>
           Max Strength
         </ShortcutCard>
-        <ShortcutCard image={intScene} onClick={equipMaxIntelligenceHandler}>
+        <ShortcutCard image={intScene} actionText="Equip" onClick={equipMaxIntelligenceHandler}>
           Max Intelligence
         </ShortcutCard>
-        <ShortcutCard image={conScene} onClick={equipMaxConstitutionHandler}>
+        <ShortcutCard image={conScene} actionText="Equip" onClick={equipMaxConstitutionHandler}>
           Max Constitution
         </ShortcutCard>
       </ShortcutGroup>
       <ShortcutGroup title="Skills">
-        <ShortcutCard image={firball} onClick={handleBurstOfFlames}>
-          Skill 1
+        <ShortcutCard image={fireball} actionText="Cast" onClick={handleBurstOfFlames}>
+          Burst of Flames
         </ShortcutCard>
-        <ShortcutCard image={listIcon}>Skill 2</ShortcutCard>
-        <ShortcutCard image={listIcon}>Skill 3</ShortcutCard>
-        <ShortcutCard image={listIcon}>Skill 4</ShortcutCard>
+        <ShortcutCard image={fireball} actionText="Cast" onClick={handleAllOutFire}>
+          All Out Fire
+        </ShortcutCard>
+        <ShortcutCard image={listIcon} actionText="Cast">
+          Skill 3
+        </ShortcutCard>
+        <ShortcutCard image={listIcon} actionText="Cast">
+          Skill 4
+        </ShortcutCard>
       </ShortcutGroup>
     </div>
   );

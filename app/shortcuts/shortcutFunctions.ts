@@ -173,3 +173,24 @@ export async function castBurstOfFlames(creds: Credentials) {
 
   return true;
 }
+
+function sleep(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+export async function useUpManaForBurstOfFlames(creds: Credentials) {
+  const res = await habFetch('get', 'user?userFields=stats.mp', creds);
+  const body = await res.json();
+  if (!body.success) return false;
+
+  const burstCount = Math.floor(body.data.stats.mp / 10);
+  if (burstCount === 0) return false;
+
+  for (let i = 0; i < burstCount; i++) {
+    await sleep(1000);
+    const cast = await castBurstOfFlames(creds);
+    if (!cast) return false;
+  }
+
+  return true;
+}
