@@ -6,7 +6,7 @@ import {
   updateAutoAssignStat,
   equipMax,
   castBurstOfFlames,
-  useUpManaForBurstOfFlames,
+  emptyOutManaForBurstOfFlames,
 } from '@/app/shortcuts/shortcutFunctions';
 import {
   Button,
@@ -272,7 +272,7 @@ export default function ShortcutsList({
   }, [credentials]);
 
   const handleAllOutFire = useCallback(() => {
-    return useUpManaForBurstOfFlames(credentials);
+    return emptyOutManaForBurstOfFlames(credentials);
   }, [credentials]);
 
   return (

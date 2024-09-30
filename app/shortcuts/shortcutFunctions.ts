@@ -178,7 +178,7 @@ async function sleep(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-export async function useUpManaForBurstOfFlames(creds: Credentials) {
+export async function emptyOutManaForBurstOfFlames(creds: Credentials) {
   const res = await habFetch('get', 'user?userFields=stats.mp', creds);
   const body = await res.json();
   if (!body.success) return false;
@@ -187,6 +187,7 @@ export async function useUpManaForBurstOfFlames(creds: Credentials) {
   if (burstCount === 0) return false;
 
   for (let i = 0; i < burstCount; i++) {
+    await sleep(1000);
     const cast = await castBurstOfFlames(creds);
     if (!cast) return false;
   }
