@@ -28,10 +28,9 @@ export default function Header() {
     <div className="p-2 w-full">
       <Card className="w-full flex-row justify-between py-2 px-3 sm:px-4 transition-all bg-matter">
         <div className="flex gap-2 items-center">
+          {profile && <UserButton />}
           <div>
-            <Skeleton
-              className={`h-[1em] w-3/5 rounded-lg ${profile?.fullName || profile?.username ? '' : 'hidden'}`}
-            ></Skeleton>
+            {profile?.fullName || profile?.username || <Skeleton className="h-[1em] w-3/5 rounded-lg"></Skeleton>}
             <Progress
               label={
                 <span className="flex items-center gap-1">
