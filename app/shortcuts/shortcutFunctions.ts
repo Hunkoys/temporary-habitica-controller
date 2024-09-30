@@ -142,3 +142,34 @@ export async function updateAutoAssignStat(id: string, creds: Credentials, stat:
 
   return shortcut;
 }
+
+// Temporary
+
+export async function castBurstOfFlames(creds: Credentials) {
+  const res = await habFetch('get', 'tasks/user', creds);
+  const body = await res.json();
+  if (!body.success) return false;
+  const tasks = body.data as Array<{ value: number; id: string; type: string }>;
+  // get task with max value that is not of type 'reward'
+  const maxValueTask = tasks.reduce(
+    (max, task) => {
+      if (task.type === 'reward') return max;
+      return task.value > max.value ? task : max;
+    },
+    { value: 0, id: '', type: '' }
+  );
+  if (!maxValueTask.id) return false;
+
+  console.log(maxValueTask);
+
+  const res2 = await habFetch('post', `user/class/cast/fireball?targetId=${maxValueTask.id}`, creds);
+  const body2 = await res2.json();
+  if (!body2.success) {
+    console.error(body2.message);
+    return false;
+  }
+
+  console.log(`Casted on ${maxValueTask.id} with value ${maxValueTask.value}`);
+
+  return true;
+}

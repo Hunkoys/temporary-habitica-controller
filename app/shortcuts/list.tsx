@@ -2,7 +2,7 @@
 
 import CommonButton from '@/app/_components/CommonButton';
 import { Content, Credentials, Stats } from '@/app/_utils/habiticaTypes';
-import { updateAutoAssignStat, equipMax } from '@/app/shortcuts/shortcutFunctions';
+import { updateAutoAssignStat, equipMax, castBurstOfFlames } from '@/app/shortcuts/shortcutFunctions';
 import {
   Button,
   Card,
@@ -27,6 +27,7 @@ import intScene from '@/assets/Scene_intelligence.webp';
 import perScene from '@/assets/Scene_perception.webp';
 import strScene from '@/assets/Scene_strength.webp';
 import autoAssignStatImage from '@/assets/auto-assign-stat.webp';
+import firball from '@/assets/shop_fireball.png';
 
 import listIcon from '@/assets/list-icon.png';
 import clsx from 'clsx';
@@ -259,6 +260,10 @@ export default function ShortcutsList({
     return equipMax('con', credentials, content);
   }, []);
 
+  const handleBurstOfFlames = useCallback(() => {
+    return castBurstOfFlames(credentials);
+  }, []);
+
   return (
     <div className="w-full flex flex-col justify-end gap-3">
       <ShortcutGroup title="Stats">
@@ -279,7 +284,9 @@ export default function ShortcutsList({
         </ShortcutCard>
       </ShortcutGroup>
       <ShortcutGroup title="Skills">
-        <ShortcutCard image={listIcon}>Skill 1</ShortcutCard>
+        <ShortcutCard image={firball} onClick={handleBurstOfFlames}>
+          Skill 1
+        </ShortcutCard>
         <ShortcutCard image={listIcon}>Skill 2</ShortcutCard>
         <ShortcutCard image={listIcon}>Skill 3</ShortcutCard>
         <ShortcutCard image={listIcon}>Skill 4</ShortcutCard>
