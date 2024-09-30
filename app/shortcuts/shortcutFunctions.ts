@@ -174,7 +174,7 @@ export async function castBurstOfFlames(creds: Credentials) {
   return true;
 }
 
-function sleep(ms: number) {
+async function sleep(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
