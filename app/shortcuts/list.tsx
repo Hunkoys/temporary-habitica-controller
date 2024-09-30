@@ -253,27 +253,27 @@ export default function ShortcutsList({
 }) {
   const equipMaxPerceptionHandler = useCallback(() => {
     return equipMax('per', credentials, content);
-  }, []);
+  }, [credentials, content]);
 
   const equipMaxStrengthHandler = useCallback(() => {
     return equipMax('str', credentials, content);
-  }, []);
+  }, [credentials, content]);
 
   const equipMaxIntelligenceHandler = useCallback(() => {
     return equipMax('int', credentials, content);
-  }, []);
+  }, [credentials, content]);
 
   const equipMaxConstitutionHandler = useCallback(() => {
     return equipMax('con', credentials, content);
-  }, []);
+  }, [credentials, content]);
 
   const handleBurstOfFlames = useCallback(() => {
     return castBurstOfFlames(credentials);
-  }, []);
+  }, [credentials]);
 
   const handleAllOutFire = useCallback(() => {
     return useUpManaForBurstOfFlames(credentials);
-  }, []);
+  }, [credentials]);
 
   return (
     <div className="w-full flex flex-col justify-end gap-3">
