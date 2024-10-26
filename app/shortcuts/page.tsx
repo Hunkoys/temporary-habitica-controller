@@ -1,6 +1,6 @@
 import { getContent } from '@/app/_utils/habiticaContent';
 import { Credentials } from '@/app/_utils/habiticaTypes';
-import ShortcutsList from '@/app/shortcuts/list';
+import ShortcutsList from '@/app/shortcuts/_components/List';
 import prisma from '@/prisma/db';
 import { currentUser } from '@clerk/nextjs/server';
 import { Card } from '@nextui-org/react';

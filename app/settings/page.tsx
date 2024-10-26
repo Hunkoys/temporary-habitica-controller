@@ -1,4 +1,4 @@
-import HabiticaForm from '@/app/settings/HabiticaForm';
+import HabiticaForm from '@/app/settings/_components/HabiticaForm';
 import { currentUser } from '@clerk/nextjs/server';
 import { Card, CardBody, CardHeader, Divider, Skeleton } from '@nextui-org/react';
 import { Suspense } from 'react';
