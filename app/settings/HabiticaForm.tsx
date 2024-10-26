@@ -2,14 +2,11 @@
 
 import CommonButton from '@/app/_components/CommonButton';
 import { habFetch } from '@/app/_utils/habitica';
-import { throttle } from '@/app/_utils/limiter';
-import { GET } from '@/app/api/webhooks/route';
 import { fetchUserData, saveKeysToDb } from '@/app/settings/actions';
-import prisma from '@/prisma/db';
 import { Button, Input } from '@nextui-org/react';
 import clsx from 'clsx';
 import { revalidatePath } from 'next/cache';
-import { use, useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 const eyeIcon = (
   <svg width="20" height="16" viewBox="0 0 20 16" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -33,25 +30,19 @@ const closedEyeIcon = (
   </svg>
 );
 
-const checkHabitica = throttle(2000, async function fetchCheckKeys(habId: string, apiKey: string) {
+async function fetchCheckKeys(habId: string, apiKey: string) {
   const res = await habFetch('get', 'user', { habId, apiKey });
   if (res.status === 200) {
-    const body = await res.json();
-    console.log(body);
     return 'confirmed' as const;
   } else if (res.status === 401) {
     return 'unauthorized' as const;
   } else {
     return 'error' as const;
   }
-});
+}
+
 
 export default function HabiticaForm(props: { id: string }) {
-  useEffect(() => {
-    (async () => {
-      await GET();
-    })();
-  }, []);
 
   const [editMode, setEditMode] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -64,17 +55,19 @@ export default function HabiticaForm(props: { id: string }) {
   const [apiKeyInputValue, setApiKeyInputValue] = useState<string>(apiKey);
 
   useEffect(() => {
-    const user = fetchUserData(props.id).then((data) => {
-      if (data) {
-        setHabId(data.habiticaUserId || '');
-        setApiKey(data.habiticaApiKey || '');
-        setHabIdInputValue(data.habiticaUserId || '');
-        setApiKeyInputValue(data.habiticaApiKey || '');
+    (async () => {
+      const user = await fetchUserData(props.id);
+      if (user) {
+        setHabId(user.habiticaUserId || '');
+        setApiKey(user.habiticaApiKey || '');
+        setHabIdInputValue(user.habiticaUserId || '');
+        setApiKeyInputValue(user.habiticaApiKey || '');
 
-        if (data.linked) setError(null);
+        if (user.linked) setError(null);
         else setError('Could not link to Habitica. Please check your User ID and API Key.');
       }
-    });
+    }
+    )();
   }, [props.id]);
 
   const edit = useCallback(() => {
@@ -86,7 +79,7 @@ export default function HabiticaForm(props: { id: string }) {
     setShowPassword(false);
     if (props.id) {
       try {
-        const status = await checkHabitica(habIdInputValue, apiKeyInputValue);
+        const status = await fetchCheckKeys(habIdInputValue, apiKeyInputValue);
         switch (status) {
           case 'confirmed':
             setError(null);
