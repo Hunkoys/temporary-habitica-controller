@@ -1,15 +1,134 @@
-'use client';
+"use client";
 
-import CommonButton from '@/app/_components/CommonButton';
-import { habFetch } from '@/app/_utils/habitica';
-import { fetchUserData, saveKeysToDb } from '@/app/settings/actions';
-import { Button, Input } from '@nextui-org/react';
-import clsx from 'clsx';
-import { revalidatePath } from 'next/cache';
-import { useCallback, useEffect, useState } from 'react';
+import { saveHabiticaKeys } from "@/app/_actions/user";
+import CommonButton from "@/app/_components/CommonButton";
+import { Button, Input } from "@nextui-org/react";
+import clsx from "clsx";
+import { useCallback, useState } from "react";
+
+export default function HabiticaForm({
+  habiticaCreds,
+}: {
+  habiticaCreds: HabiticaCreds;
+}) {
+  const [editMode, setEditMode] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const [APIUserValue, setAPIUserValue] = useState<string>(
+    habiticaCreds.habiticaApiUser
+  );
+  const [APIKeyValue, setAPIKeyValue] = useState<string>(
+    habiticaCreds.habiticaApiKey
+  );
+
+  const edit = useCallback(() => {
+    setEditMode(true);
+  }, []);
+
+  const save = useCallback(() => {
+    (async () => {
+      const result = await saveHabiticaKeys({
+        habiticaApiUser: APIUserValue,
+        habiticaApiKey: APIKeyValue,
+      });
+
+      switch (result.status) {
+        case "error":
+          setError("Unknown error occurred. Please try again later.");
+          break;
+        case "invalid":
+          setError("Invalid User ID or API Key.");
+          break;
+        case "success":
+          setError(null);
+          setEditMode(false);
+          setShowPassword(false);
+          break;
+        default:
+          result.status satisfies never;
+      }
+    })();
+  }, [APIUserValue, APIKeyValue]);
+
+  const cancel = useCallback(() => {
+    setEditMode(false);
+    setShowPassword(false);
+    setAPIUserValue("");
+    setAPIKeyValue("");
+
+    setAPIUserValue(habiticaCreds.habiticaApiUser);
+    setAPIKeyValue(habiticaCreds.habiticaApiKey);
+  }, []);
+
+  const togglePassword = useCallback(
+    () => setShowPassword((prev) => !prev),
+    []
+  );
+
+  const onAPIUserChange = useCallback((value: string) => {
+    setError(null);
+    setAPIUserValue(value);
+  }, []);
+
+  const onAPIKeyChange = useCallback((value: string) => {
+    setError(null);
+    setAPIKeyValue(value);
+  }, []);
+
+  return (
+    <>
+      <h2>Habitica</h2>
+      <Input
+        variant={editMode ? "faded" : "bordered"}
+        label="User ID"
+        isDisabled={!editMode}
+        isInvalid={!!error}
+        value={APIUserValue}
+        onValueChange={onAPIUserChange}
+      />
+      <Input
+        variant={editMode ? "faded" : "bordered"}
+        label="API Key"
+        isDisabled={!editMode}
+        type={showPassword ? "text" : "password"}
+        endContent={
+          <Button onClick={togglePassword} isIconOnly>
+            {showPassword ? eyeIcon : closedEyeIcon}
+          </Button>
+        }
+        isInvalid={!!error}
+        errorMessage={error}
+        value={APIKeyValue}
+        onValueChange={onAPIKeyChange}
+      />
+      <div className="self-end flex gap-1">
+        <CommonButton className={clsx(editMode && "hidden")} onClick={edit}>
+          Edit
+        </CommonButton>
+        <CommonButton
+          className={clsx(editMode || "hidden")}
+          onClick={cancel}
+          color="danger"
+        >
+          Cancel
+        </CommonButton>
+        <CommonButton className={clsx(editMode || "hidden")} onClick={save}>
+          Save
+        </CommonButton>
+      </div>
+    </>
+  );
+}
 
 const eyeIcon = (
-  <svg width="20" height="16" viewBox="0 0 20 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <svg
+    width="20"
+    height="16"
+    viewBox="0 0 20 16"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+  >
     <path
       fillRule="evenodd"
       clipRule="evenodd"
@@ -20,7 +139,13 @@ const eyeIcon = (
 );
 
 const closedEyeIcon = (
-  <svg width="20" height="12" viewBox="0 0 20 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <svg
+    width="20"
+    height="12"
+    viewBox="0 0 20 12"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+  >
     <path
       fillRule="evenodd"
       clipRule="evenodd"
@@ -29,129 +154,3 @@ const closedEyeIcon = (
     />
   </svg>
 );
-
-async function fetchCheckKeys(habId: string, apiKey: string) {
-  const res = await habFetch('get', 'user', { habId, apiKey });
-  if (res.status === 200) {
-    return 'confirmed' as const;
-  } else if (res.status === 401) {
-    return 'unauthorized' as const;
-  } else {
-    return 'error' as const;
-  }
-}
-
-
-export default function HabiticaForm(props: { id: string }) {
-
-  const [editMode, setEditMode] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  const [habId, setHabId] = useState<string>('');
-  const [apiKey, setApiKey] = useState<string>('');
-
-  const [habIdInputValue, setHabIdInputValue] = useState<string>(habId);
-  const [apiKeyInputValue, setApiKeyInputValue] = useState<string>(apiKey);
-
-  useEffect(() => {
-    (async () => {
-      const user = await fetchUserData(props.id);
-      if (user) {
-        setHabId(user.habiticaUserId || '');
-        setApiKey(user.habiticaApiKey || '');
-        setHabIdInputValue(user.habiticaUserId || '');
-        setApiKeyInputValue(user.habiticaApiKey || '');
-
-        if (user.linked) setError(null);
-        else setError('Could not link to Habitica. Please check your User ID and API Key.');
-      }
-    }
-    )();
-  }, [props.id]);
-
-  const edit = useCallback(() => {
-    setEditMode(true);
-  }, []);
-
-  const save = useCallback(async () => {
-    setEditMode(false);
-    setShowPassword(false);
-    if (props.id) {
-      try {
-        const status = await fetchCheckKeys(habIdInputValue, apiKeyInputValue);
-        switch (status) {
-          case 'confirmed':
-            setError(null);
-            break;
-          case 'unauthorized':
-            setError('Could not link to Habitica. Please check your User ID and API Key.');
-            break;
-          case 'error':
-            setError('An unknown error occured. Please try again later.');
-            break;
-          default:
-            status satisfies never;
-        }
-        console.log('status', status === 'confirmed');
-        const dbResponse = await saveKeysToDb(props.id, {
-          habId: habIdInputValue,
-          key: apiKeyInputValue,
-          linked: status === 'confirmed',
-        });
-        setApiKey(dbResponse.habiticaApiKey || '');
-        setHabId(dbResponse.habiticaUserId || '');
-        revalidatePath('/settings');
-      } catch (err) {}
-    }
-  }, [apiKeyInputValue, habIdInputValue, props.id]);
-
-  const cancel = useCallback(() => {
-    setEditMode(false);
-    setShowPassword(false);
-    setHabIdInputValue(habId);
-    setApiKeyInputValue(apiKey);
-  }, [habId, apiKey]);
-
-  const togglePassword = useCallback(() => setShowPassword((prev) => !prev), []);
-
-  return (
-    <>
-      <h2>Habitica</h2>
-      <Input
-        variant={editMode ? 'faded' : 'bordered'}
-        label="User ID"
-        isDisabled={!editMode}
-        isInvalid={!!error}
-        value={habIdInputValue}
-        onValueChange={setHabIdInputValue}
-      />
-      <Input
-        variant={editMode ? 'faded' : 'bordered'}
-        label="API Key"
-        isDisabled={!editMode}
-        type={showPassword ? 'text' : 'password'}
-        endContent={
-          <Button onClick={togglePassword} isIconOnly>
-            {showPassword ? eyeIcon : closedEyeIcon}
-          </Button>
-        }
-        isInvalid={!!error}
-        errorMessage={error}
-        value={apiKeyInputValue}
-        onValueChange={setApiKeyInputValue}
-      />
-      <div className="self-end flex gap-1">
-        <CommonButton className={clsx(editMode && 'hidden')} onClick={edit}>
-          Edit
-        </CommonButton>
-        <CommonButton className={clsx(editMode || 'hidden')} onClick={cancel} color="danger">
-          Cancel
-        </CommonButton>
-        <CommonButton className={clsx(editMode || 'hidden')} onClick={save}>
-          Save
-        </CommonButton>
-      </div>
-    </>
-  );
-}

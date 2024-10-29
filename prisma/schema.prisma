@@ -14,13 +14,13 @@ datasource db {
 }
 
 model User {
-  id             String        @id
-  habiticaUserId String?       @unique
-  habiticaApiKey String?       @unique
-  linked         Boolean       @default(false)
-  tasks          Task[]
-  taskHistories  TaskHistory[]
-  shortcuts      Shortcut[]
+  id              String        @id
+  habiticaApiUser String?
+  habiticaApiKey  String?
+  linked          Boolean       @default(false)
+  tasks           Task[]
+  taskHistories   TaskHistory[]
+  shortcuts       Shortcut[]
 }
 
 model Task {
