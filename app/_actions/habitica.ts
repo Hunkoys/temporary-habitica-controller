@@ -65,7 +65,6 @@ export async function fetchHabitica<T extends unknown>(
     }
   }
 
-  console.log(creds.habiticaApiKey);
   const response = await fetch(`https://habitica.com/api/v3/${endpoint}`, {
     method: method.toUpperCase(),
     headers: {
@@ -73,6 +72,7 @@ export async function fetchHabitica<T extends unknown>(
       "x-api-user": creds.habiticaApiUser,
       "x-api-key": creds.habiticaApiKey,
     },
+    body: options.body ? JSON.stringify(options.body) : undefined,
     next: {
       revalidate: options.cache,
     },
