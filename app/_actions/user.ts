@@ -64,7 +64,6 @@ const WEBHOOKS: {
 } as const;
 
 const DOMAIN = process.env.DOMAIN;
-console.log(DOMAIN);
 
 export async function getUser<T extends Prisma.UserInclude>(include?: T) {
   const id: string | null = auth().userId;
