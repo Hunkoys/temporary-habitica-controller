@@ -1,5 +1,6 @@
 "use server";
 
+import { fetchHabitica } from "@/app/_actions/habitica";
 import { HabiticaCreds } from "@/app/_types/habitica.types";
 import { habFetch } from "@/app/_utils/habitica";
 import prisma from "@/prisma/db";
@@ -20,13 +21,13 @@ export async function getUser<T extends Prisma.UserInclude>(include?: T) {
   return user;
 }
 
-type SaveHabiticaKeysReturnType = {
+type SaveHabiticaCredsReturnType = {
   status: "success" | "invalid" | "error";
 };
 
-export async function saveHabiticaKeys(
+export async function saveHabiticaCreds(
   habiticaCreds: HabiticaCreds
-): Promise<SaveHabiticaKeysReturnType> {
+): Promise<SaveHabiticaCredsReturnType> {
   const id = auth().userId;
   if (id === null) {
     console.error(`clerk id couldn't be retrieved: ${id}`);
@@ -46,19 +47,17 @@ export async function saveHabiticaKeys(
     return { status: "success" };
   }
 
-  const response = await habFetch("get", "user", {
-    habId: habiticaCreds.habiticaApiUser,
-    apiKey: habiticaCreds.habiticaApiKey,
-  });
+  const response = await fetchHabitica<{ success: boolean; error: string }>(
+    "get",
+    "user",
+    { creds: habiticaCreds }
+  );
 
-  switch (response.status) {
-    case 200:
-      break;
-    case 401:
-      return { status: "invalid" };
-    default:
-      console.error(`Error: Habitica api/user request: ${response}`);
-      return { status: "error" };
+  if (response.success === false) {
+    if (response.error === "NotAuthorized") return { status: "invalid" };
+
+    console.error(`Error: Habitica api/user request: ${response}`);
+    return { status: "error" };
   }
 
   await prisma.user.update({

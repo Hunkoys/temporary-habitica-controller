@@ -1,6 +1,6 @@
 "use client";
 
-import { saveHabiticaKeys } from "@/app/_actions/user";
+import { saveHabiticaCreds } from "@/app/_actions/user";
 import CommonButton from "@/app/_components/CommonButton";
 import { Button, Input } from "@nextui-org/react";
 import clsx from "clsx";
@@ -28,7 +28,7 @@ export default function HabiticaForm({
 
   const save = useCallback(() => {
     (async () => {
-      const result = await saveHabiticaKeys({
+      const result = await saveHabiticaCreds({
         habiticaApiUser: APIUserValue,
         habiticaApiKey: APIKeyValue,
       });
