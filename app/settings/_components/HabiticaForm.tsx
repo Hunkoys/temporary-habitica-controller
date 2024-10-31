@@ -2,6 +2,7 @@
 
 import { saveHabiticaCreds } from "@/app/_actions/user";
 import CommonButton from "@/app/_components/CommonButton";
+import { HabiticaCreds } from "@/app/_types/habitica.types";
 import { Button, Input } from "@nextui-org/react";
 import clsx from "clsx";
 import { useCallback, useState } from "react";
@@ -29,8 +30,8 @@ export default function HabiticaForm({
   const save = useCallback(() => {
     (async () => {
       const result = await saveHabiticaCreds({
-        habiticaApiUser: APIUserValue,
-        habiticaApiKey: APIKeyValue,
+        id: APIUserValue,
+        token: APIKeyValue,
       });
 
       switch (result.status) {
