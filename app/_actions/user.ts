@@ -1,5 +1,6 @@
 "use server";
 
+import { HabiticaCreds } from "@/app/_types/habitica.types";
 import { habFetch } from "@/app/_utils/habitica";
 import prisma from "@/prisma/db";
 import { auth } from "@clerk/nextjs/server";
