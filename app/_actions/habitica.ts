@@ -4,7 +4,19 @@ import { HabiticaContent, HabiticaCreds } from "@/app/_types/habitica.types";
 import prisma from "@/prisma/db";
 import { auth } from "@clerk/nextjs/server";
 
-export async function fetchHabitica<T extends unknown>(
+type HabiticaResponse<T = Object> =
+  | {
+      success: true;
+      data: T;
+      [key: string]: unknown;
+    }
+  | {
+      success: false;
+      error: string;
+      [key: string]: unknown;
+    };
+
+export async function fetchHabitica<T = unknown>(
   method: "post" | "get" | "put" | "delete",
   endpoint: string,
   options: {
@@ -13,7 +25,7 @@ export async function fetchHabitica<T extends unknown>(
     anon?: boolean;
     creds?: HabiticaCreds;
   } = {}
-): Promise<T> {
+): Promise<HabiticaResponse<T>> {
   const creds: HabiticaCreds = {
     habiticaApiUser: "",
     habiticaApiKey: "",
@@ -31,7 +43,7 @@ export async function fetchHabitica<T extends unknown>(
           error: "ClerkIdNotFound",
           message: "auth().userId might be null",
           from: "temporary habitica controller",
-        } as T;
+        };
 
       const user = await prisma.user.findUnique({
         where: { id },
@@ -47,7 +59,7 @@ export async function fetchHabitica<T extends unknown>(
           error: "UserNotFound",
           message: "User not found in database",
           from: "temporary habitica controller",
-        } as T;
+        };
 
       const habiticaApiUser = user.habiticaApiUser;
       const habiticaApiKey = user.habiticaApiKey;
@@ -58,7 +70,7 @@ export async function fetchHabitica<T extends unknown>(
           error: "HabiticaCredentialsNotSet",
           message: "Habitica credentials not set in database",
           from: "temporary habitica controller",
-        } as T;
+        };
 
       creds.habiticaApiUser = habiticaApiUser;
       creds.habiticaApiKey = habiticaApiKey;
@@ -97,10 +109,7 @@ const validity = 2 * 60 * 60 * 1000;
 
 export async function getContent() {
   if (dataTimeStamp + validity < Date.now()) {
-    const json = await fetchHabitica<{ success: boolean; data: Object }>( // Try ZOD
-      "get",
-      "content"
-    );
+    const json = await fetchHabitica<Object>("get", "content"); // Try ZOD
     if (json.success === true) {
       dataTimeStamp = Date.now();
       content = json.data;
