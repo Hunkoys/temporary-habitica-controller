@@ -1,6 +1,6 @@
-import { getUser } from "@/app/_actions/db";
-import { Habitica } from "@/app/_utils/habitica";
-import HabiticaForm from "@/app/settings/_components/HabiticaForm";
+import { getUser } from "@/app/_ACTIONS/db";
+import { Habitica } from "@/app/_UTILS/habitica";
+import HabiticaForm from "@/app/settings/_COMPONENTS/HabiticaForm";
 import { auth } from "@clerk/nextjs/server";
 import {
   Card,

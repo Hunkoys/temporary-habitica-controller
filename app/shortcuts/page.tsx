@@ -1,4 +1,4 @@
-import { fetchHabitica, getContent } from "@/app/_actions/habitica";
+import { fetchHabitica, getContent } from "@/app/_ACTIONS/habitica";
 import prisma from "@/prisma/db";
 import { auth } from "@clerk/nextjs/server";
 import { Card } from "@nextui-org/react";

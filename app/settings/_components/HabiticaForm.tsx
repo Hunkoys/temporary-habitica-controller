@@ -1,14 +1,14 @@
 "use client";
 
-import { saveHabiticaCreds } from "@/app/_actions/user";
-import CommonButton from "@/app/_components/CommonButton";
-import { HabiticaKeys } from "@/app/_types/habitica.types";
+import { saveHabiticaCreds } from "@/app/_ACTIONS/user";
+import CommonButton from "@/app/_COMPONENTS/ELEMENTS/CommonButton";
+import { HabiticaKeys } from "@/app/_TYPES/habitica.types";
 import { Button, Input } from "@nextui-org/react";
 import clsx from "clsx";
 import { useCallback, useState } from "react";
 
 export default function HabiticaForm({
-  habiticaCreds,
+  habiticaCreds: habiticaKeys,
 }: {
   habiticaCreds: HabiticaKeys;
 }) {
@@ -18,8 +18,8 @@ export default function HabiticaForm({
 
   // disable on load
 
-  const [APIUserValue, setAPIUserValue] = useState<string>(habiticaCreds.id);
-  const [APIKeyValue, setAPIKeyValue] = useState<string>(habiticaCreds.token);
+  const [APIUserValue, setAPIUserValue] = useState<string>(habiticaKeys.id);
+  const [APIKeyValue, setAPIKeyValue] = useState<string>(habiticaKeys.token);
 
   const edit = useCallback(() => {
     setEditMode(true);
@@ -56,9 +56,9 @@ export default function HabiticaForm({
     setAPIUserValue("");
     setAPIKeyValue("");
 
-    setAPIUserValue(habiticaCreds.id);
-    setAPIKeyValue(habiticaCreds.token);
-  }, []);
+    setAPIUserValue(habiticaKeys.id);
+    setAPIKeyValue(habiticaKeys.token);
+  }, [habiticaKeys]);
 
   const togglePassword = useCallback(
     () => setShowPassword((prev) => !prev),

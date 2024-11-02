@@ -1,11 +1,17 @@
-'use client';
+"use client";
 
-import CommonButton from '@/app/_components/CommonButton';
-import { Card, CardBody, CardFooter, CardHeader, Divider } from '@nextui-org/react';
-import { useCallback, useEffect, useState } from 'react';
-import clerkLogo from '@/app/_components/login/clerk-logo-light-accent.svg';
-import Image from 'next/image';
-import { SignInButton } from '@clerk/nextjs';
+import CommonButton from "@/app/_COMPONENTS/ELEMENTS/CommonButton";
+import {
+  Card,
+  CardBody,
+  CardFooter,
+  CardHeader,
+  Divider,
+} from "@nextui-org/react";
+import { useCallback, useEffect, useState } from "react";
+import clerkLogo from "@/app/_components/ELEMENTS/login/clerk-logo-light-accent.svg";
+import Image from "next/image";
+import { SignInButton } from "@clerk/nextjs";
 
 export default function SignInCard() {
   const [isLoading, setIsLoading] = useState(false);
@@ -20,12 +26,19 @@ export default function SignInCard() {
       <Card className="w-[300px] p-4 flex flex-col items-center gap-1 bg-matter-950">
         <CardHeader className="flex flex-col">
           <p className="text-gray-400">Welcome to</p>
-          <h1 className="text-2xl font-bold text-secondary-400">Habitica Controller</h1>
+          <h1 className="text-2xl font-bold text-secondary-400">
+            Habitica Controller
+          </h1>
         </CardHeader>
         <CardBody className="flex flex-col items-center gap-2">
           <SignInButton mode="modal">
-            <CommonButton color="primary" size="lg" isLoading={isLoading} onClick={onClick}>
-              {isLoading ? 'Signing In...' : 'Sign In'}
+            <CommonButton
+              color="primary"
+              size="lg"
+              isLoading={isLoading}
+              onClick={onClick}
+            >
+              {isLoading ? "Signing In..." : "Sign In"}
             </CommonButton>
           </SignInButton>
         </CardBody>
@@ -33,7 +46,7 @@ export default function SignInCard() {
         <CardFooter className="text-sm text-foreground-400 flex justify-center align-baseline gap-1 mt-3 p-0">
           Secured by
           <span>
-            <Image src={clerkLogo} alt="Clerk.dev" height={14} />{' '}
+            <Image src={clerkLogo} alt="Clerk.dev" height={14} />{" "}
           </span>
         </CardFooter>
       </Card>

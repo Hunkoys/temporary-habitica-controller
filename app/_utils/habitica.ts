@@ -1,5 +1,5 @@
-import { HabiticaKeys } from "@/app/_types/habitica.types";
-import { Credentials } from "@/app/_utils/habiticaTypes";
+import { HabiticaKeys } from "@/app/_TYPES/habitica.types";
+import { Credentials } from "@/app/_UTILS/habiticaTypes";
 
 const X_CLIENT = process.env.NEXT_PUBLIC_X_CLIENT;
 

@@ -1,13 +1,28 @@
-'use client';
+"use client";
 
-import { getUserData, habFetch } from '@/app/_utils/habitica';
-import { getContent } from '@/app/_utils/habiticaContent';
-import { Content, Credentials, Gear, GEAR_TYPES, GearType, PlayerClass, Stats } from '@/app/_utils/habiticaTypes';
-import { saveAutoAssignCommand } from '@/app/shortcuts/actions';
+import { getUserData, habFetch } from "@/app/_UTILS/habitica";
+import { getContent } from "@/app/_UTILS/habiticaContent";
+import {
+  Content,
+  Credentials,
+  Gear,
+  GEAR_TYPES,
+  GearType,
+  PlayerClass,
+  Stats,
+} from "@/app/_UTILS/habiticaTypes";
+import { saveAutoAssignCommand } from "@/app/shortcuts/actions";
 
-export async function equipMax(stat: keyof Stats, creds: Credentials, content: Content | null): Promise<boolean> {
+export async function equipMax(
+  stat: keyof Stats,
+  creds: Credentials,
+  content: Content | null
+): Promise<boolean> {
   if (!creds) return false;
-  const body = await getUserData(creds, 'items.gear.owned,items.gear.equipped,stats.class');
+  const body = await getUserData(
+    creds,
+    "items.gear.owned,items.gear.equipped,stats.class"
+  );
   if (!body) return false;
 
   const { owned, equipped: equippedKeys } = body.items.gear;
@@ -24,22 +39,30 @@ export async function equipMax(stat: keyof Stats, creds: Credentials, content: C
   if (!content?.gear?.flat) return false;
   const gearlist = content.gear.flat;
 
-  type keyOfMax = GearType | 'twoHandedWeapon';
+  type keyOfMax = GearType | "twoHandedWeapon";
 
   const max: {
     [key in keyOfMax]?: Gear;
   } = {};
 
   function getMaxKey(item: Gear): keyOfMax {
-    if (item.type === 'weapon' && item.twoHanded) return 'twoHandedWeapon';
+    if (item.type === "weapon" && item.twoHanded) return "twoHandedWeapon";
     return item.type;
   }
 
-  const classStatMap = { rogue: 'per', warrior: 'str', wizard: 'int', healer: 'con' } as const;
+  const classStatMap = {
+    rogue: "per",
+    warrior: "str",
+    wizard: "int",
+    healer: "con",
+  } as const;
 
   function getAdjustedGear(gear: Gear, playerClass: PlayerClass) {
     const adjustedGear = { ...gear };
-    if (gear.klass === playerClass || (gear.klass === 'special' && gear.specialClass === playerClass)) {
+    if (
+      gear.klass === playerClass ||
+      (gear.klass === "special" && gear.specialClass === playerClass)
+    ) {
       const playerMainStat = classStatMap[playerClass];
       adjustedGear[playerMainStat] = gear[playerMainStat] * 1.5;
     }
@@ -87,7 +110,10 @@ export async function equipMax(stat: keyof Stats, creds: Credentials, content: C
     const maxGear = max[type];
     if (!maxGear) return;
 
-    if (maxGear === max.twoHandedWeapon && maxGear[stat] > comboStats(equipped)) {
+    if (
+      maxGear === max.twoHandedWeapon &&
+      maxGear[stat] > comboStats(equipped)
+    ) {
       toEquip.weapon = maxGear;
     } else if (maxGear[stat] > (equipped?.[type]?.[stat] || 0)) {
       toEquip[type] = maxGear;
@@ -98,7 +124,11 @@ export async function equipMax(stat: keyof Stats, creds: Credentials, content: C
 
   for (const item of Object.values(toEquip)) {
     if (!item) continue;
-    const res = await habFetch('post', `user/equip/equipped/${item.key}`, creds);
+    const res = await habFetch(
+      "post",
+      `user/equip/equipped/${item.key}`,
+      creds
+    );
     const body = await res.json();
     console.log(body.message);
     if (!body.success) {
@@ -112,32 +142,40 @@ export async function equipMax(stat: keyof Stats, creds: Credentials, content: C
 
 const domain = process.env.NEXT_PUBLIC_DOMAIN;
 console.log(domain);
-const LEVEL_UUID = '32407f79-dbad-471a-9b69-98722b170079'; // save to command{}
-export async function updateAutoAssignStat(id: string, creds: Credentials, stat: keyof Stats, status: boolean) {
+const LEVEL_UUID = "32407f79-dbad-471a-9b69-98722b170079"; // save to command{}
+export async function updateAutoAssignStat(
+  id: string,
+  creds: Credentials,
+  stat: keyof Stats,
+  status: boolean
+) {
   const shortcut = await saveAutoAssignCommand(id, { stat, status });
-  if (!shortcut) throw new Error('Failed to save auto assign stat command in database');
+  if (!shortcut)
+    throw new Error("Failed to save auto assign stat command in database");
 
-  const res = await habFetch('get', 'user/webhook', creds);
+  const res = await habFetch("get", "user/webhook", creds);
   const body = await res.json();
   const webhooks = body.data;
-  const levelWebhook = webhooks.find(({ id }: { id: string }) => id === LEVEL_UUID);
+  const levelWebhook = webhooks.find(
+    ({ id }: { id: string }) => id === LEVEL_UUID
+  );
   if (!levelWebhook) {
-    const res = await habFetch('post', 'user/webhook', creds, {
+    const res = await habFetch("post", "user/webhook", creds, {
       id: LEVEL_UUID,
       enabled: status,
-      url: domain + '/api/webhooks/level',
-      label: 'Level Webhook',
-      type: 'userActivity',
+      url: domain + "/api/webhooks/level",
+      label: "Level Webhook",
+      type: "userActivity",
       options: {
         leveledUp: true,
       },
     });
-    if (!res) throw new Error('Failed to create level webhook');
+    if (!res) throw new Error("Failed to create level webhook");
   } else {
-    const res = await habFetch('put', `user/webhook/${LEVEL_UUID}`, creds, {
+    const res = await habFetch("put", `user/webhook/${LEVEL_UUID}`, creds, {
       enabled: status,
     });
-    if (!res) throw new Error('Failed to update level webhook');
+    if (!res) throw new Error("Failed to update level webhook");
   }
 
   return shortcut;
@@ -146,23 +184,27 @@ export async function updateAutoAssignStat(id: string, creds: Credentials, stat:
 // Temporary
 
 export async function castBurstOfFlames(creds: Credentials) {
-  const res = await habFetch('get', 'tasks/user', creds);
+  const res = await habFetch("get", "tasks/user", creds);
   const body = await res.json();
   if (!body.success) return false;
   const tasks = body.data as Array<{ value: number; id: string; type: string }>;
   // get task with max value that is not of type 'reward'
   const maxValueTask = tasks.reduce(
     (max, task) => {
-      if (task.type === 'reward') return max;
+      if (task.type === "reward") return max;
       return task.value > max.value ? task : max;
     },
-    { value: 0, id: '', type: '' }
+    { value: 0, id: "", type: "" }
   );
   if (!maxValueTask.id) return false;
 
   console.log(maxValueTask);
 
-  const res2 = await habFetch('post', `user/class/cast/fireball?targetId=${maxValueTask.id}`, creds);
+  const res2 = await habFetch(
+    "post",
+    `user/class/cast/fireball?targetId=${maxValueTask.id}`,
+    creds
+  );
   const body2 = await res2.json();
   if (!body2.success) {
     console.error(body2.message);
@@ -179,7 +221,7 @@ async function sleep(ms: number) {
 }
 
 export async function emptyOutManaForBurstOfFlames(creds: Credentials) {
-  const res = await habFetch('get', 'user?userFields=stats.mp', creds);
+  const res = await habFetch("get", "user?userFields=stats.mp", creds);
   const body = await res.json();
   if (!body.success) return false;
 
