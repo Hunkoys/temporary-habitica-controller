@@ -6,10 +6,9 @@ import { HabiticaKeys } from "@/app/_TYPES/habitica.types";
 import { Habitica } from "@/app/_UTILS/habitica";
 import prisma from "@/prisma/db";
 import { auth } from "@clerk/nextjs/server";
-import { Prisma } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 
-export async function saveHabiticaCreds(habaticaKeys: HabiticaKeys): Promise<{
+export async function saveHabiticaKeys(habaticaKeys: HabiticaKeys): Promise<{
   status: "success" | "invalid" | "error";
 }> {
   const id = auth().userId;

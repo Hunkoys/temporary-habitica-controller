@@ -36,7 +36,7 @@ export default async function SettingsPage() {
               <Skeleton className="h-[1em] w-3/5 rounded-lg"></Skeleton>
             }
           >
-            <HabiticaForm habiticaCreds={habiticaKeys} />
+            <HabiticaForm habiticaKeys={habiticaKeys} />
           </Suspense>
         </CardBody>
       </Card>

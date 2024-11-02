@@ -1,25 +1,30 @@
 "use client";
 
-import { saveHabiticaCreds } from "@/app/_ACTIONS/user";
+import { saveHabiticaKeys } from "@/app/_ACTIONS/user";
 import CommonButton from "@/app/_COMPONENTS/ELEMENTS/CommonButton";
 import { HabiticaKeys } from "@/app/_TYPES/habitica.types";
 import { Button, Input } from "@nextui-org/react";
 import clsx from "clsx";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 export default function HabiticaForm({
-  habiticaCreds: habiticaKeys,
+  habiticaKeys: habiticaKeys,
 }: {
-  habiticaCreds: HabiticaKeys;
+  habiticaKeys: HabiticaKeys;
 }) {
   const [editMode, setEditMode] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // disable on load
+  const [isLoading, setIsLoading] = useState<boolean>(true);
 
-  const [APIUserValue, setAPIUserValue] = useState<string>(habiticaKeys.id);
-  const [APIKeyValue, setAPIKeyValue] = useState<string>(habiticaKeys.token);
+  const [inputId, setInputId] = useState<string>(habiticaKeys.id);
+  const [inputToken, setInputToken] = useState<string>(habiticaKeys.token);
+
+  useEffect(() => {
+    setIsLoading(false);
+    return () => setIsLoading(true);
+  }, []);
 
   const edit = useCallback(() => {
     setEditMode(true);
@@ -27,9 +32,11 @@ export default function HabiticaForm({
 
   const save = useCallback(() => {
     (async () => {
-      const result = await saveHabiticaCreds({
-        id: APIUserValue,
-        token: APIKeyValue,
+      setIsLoading(true);
+
+      const result = await saveHabiticaKeys({
+        id: inputId,
+        token: inputToken,
       });
 
       switch (result.status) {
@@ -47,17 +54,19 @@ export default function HabiticaForm({
         default:
           result.status satisfies never;
       }
+
+      setIsLoading(false);
     })();
-  }, [APIUserValue, APIKeyValue]);
+  }, [inputId, inputToken]);
 
   const cancel = useCallback(() => {
     setEditMode(false);
     setShowPassword(false);
-    setAPIUserValue("");
-    setAPIKeyValue("");
+    setInputId("");
+    setInputToken("");
 
-    setAPIUserValue(habiticaKeys.id);
-    setAPIKeyValue(habiticaKeys.token);
+    setInputId(habiticaKeys.id);
+    setInputToken(habiticaKeys.token);
   }, [habiticaKeys]);
 
   const togglePassword = useCallback(
@@ -67,12 +76,12 @@ export default function HabiticaForm({
 
   const onAPIUserChange = useCallback((value: string) => {
     setError(null);
-    setAPIUserValue(value);
+    setInputId(value);
   }, []);
 
   const onAPIKeyChange = useCallback((value: string) => {
     setError(null);
-    setAPIKeyValue(value);
+    setInputToken(value);
   }, []);
 
   return (
@@ -81,15 +90,15 @@ export default function HabiticaForm({
       <Input
         variant={editMode ? "faded" : "bordered"}
         label="User ID"
-        isDisabled={!editMode}
+        isDisabled={!editMode || isLoading}
         isInvalid={!!error}
-        value={APIUserValue}
+        value={inputId}
         onValueChange={onAPIUserChange}
       />
       <Input
         variant={editMode ? "faded" : "bordered"}
         label="API Key"
-        isDisabled={!editMode}
+        isDisabled={!editMode || isLoading}
         type={showPassword ? "text" : "password"}
         endContent={
           <Button onClick={togglePassword} isIconOnly>
@@ -98,21 +107,30 @@ export default function HabiticaForm({
         }
         isInvalid={!!error}
         errorMessage={error}
-        value={APIKeyValue}
+        value={inputToken}
         onValueChange={onAPIKeyChange}
       />
       <div className="self-end flex gap-1">
-        <CommonButton className={clsx(editMode && "hidden")} onClick={edit}>
+        <CommonButton
+          className={clsx(editMode && "hidden")}
+          onClick={edit}
+          isDisabled={isLoading}
+        >
           Edit
         </CommonButton>
         <CommonButton
           className={clsx(editMode || "hidden")}
           onClick={cancel}
+          isDisabled={isLoading}
           color="danger"
         >
           Cancel
         </CommonButton>
-        <CommonButton className={clsx(editMode || "hidden")} onClick={save}>
+        <CommonButton
+          className={clsx(editMode || "hidden")}
+          onClick={save}
+          isLoading={isLoading}
+        >
           Save
         </CommonButton>
       </div>

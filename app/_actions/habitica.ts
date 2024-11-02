@@ -79,7 +79,7 @@ export async function fetchHabitica<T = unknown>(
 
   if (json.success === false)
     console.error(
-      `habiticaFetch Error: \nResponse and Creds Log: ${JSON.stringify({
+      `habiticaFetch Error: \nResponse and Keys Log: ${JSON.stringify({
         ...json,
         ...habiticaKeys,
       })}`
