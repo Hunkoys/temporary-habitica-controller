@@ -1,6 +1,6 @@
-export type HabiticaCreds = {
-  habiticaApiUser: string; // x-api-user
-  habiticaApiKey: string; // x-api-key
+export type HabiticaKeys = {
+  id: string; // x-api-user (User ID)
+  token: string; // x-api-key (API Token)
 };
 
 export type HabiticaPlayerClass = "warrior" | "wizard" | "healer" | "rogue";

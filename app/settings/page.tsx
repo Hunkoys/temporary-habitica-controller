@@ -1,5 +1,6 @@
+import { getUser } from "@/app/_actions/db";
+import { Habitica } from "@/app/_utils/habitica";
 import HabiticaForm from "@/app/settings/_components/HabiticaForm";
-import prisma from "@/prisma/db";
 import { auth } from "@clerk/nextjs/server";
 import {
   Card,
@@ -17,16 +18,10 @@ export default async function SettingsPage() {
       "Tried to load a page only accessible when logged in. id from clerk:auth object is null"
     );
 
-  const user = await prisma.user.findUnique({
-    where: { id },
-    select: { habiticaApiUser: true, habiticaApiKey: true },
-  });
+  const user = await getUser();
   if (user === null) throw new Error("User not found in the database.");
 
-  const habiticaCreds = {
-    habiticaApiUser: user.habiticaApiUser || "",
-    habiticaApiKey: user.habiticaApiKey || "",
-  };
+  const habiticaKeys = Habitica.unfoldKeys(user.habiticaKeys);
 
   return (
     <div className="w-full h-full overflow-auto p-2 flex justify-center items-start">
@@ -41,7 +36,7 @@ export default async function SettingsPage() {
               <Skeleton className="h-[1em] w-3/5 rounded-lg"></Skeleton>
             }
           >
-            <HabiticaForm habiticaCreds={habiticaCreds} />
+            <HabiticaForm habiticaCreds={habiticaKeys} />
           </Suspense>
         </CardBody>
       </Card>

@@ -1,8 +1,10 @@
 "use server";
 
-import { HabiticaContent, HabiticaCreds } from "@/app/_types/habitica.types";
-import prisma from "@/prisma/db";
-import { auth } from "@clerk/nextjs/server";
+import { HabiticaContent, HabiticaKeys } from "@/app/_types/habitica.types";
+import { getUser } from "@/app/_actions/db";
+import { Habitica } from "@/app/_utils/habitica";
+
+const X_CLIENT = process.env.HABITICA_X_CLIENT;
 
 type HabiticaResponse<T = Object> =
   | {
@@ -23,57 +25,39 @@ export async function fetchHabitica<T = unknown>(
     body?: unknown;
     cache?: number;
     anon?: boolean;
-    creds?: HabiticaCreds;
+    habiticaKeys?: HabiticaKeys;
   } = {}
 ): Promise<HabiticaResponse<T>> {
-  const creds: HabiticaCreds = {
-    habiticaApiUser: "",
-    habiticaApiKey: "",
+  let habiticaKeys: HabiticaKeys = {
+    id: "",
+    token: "",
   };
 
   if (Boolean(options.anon) === false) {
-    if (options.creds) {
-      creds.habiticaApiUser = options.creds.habiticaApiUser;
-      creds.habiticaApiKey = options.creds.habiticaApiKey;
+    if (options.habiticaKeys) {
+      habiticaKeys = options.habiticaKeys;
     } else {
-      const id = auth().userId;
-      if (id === null)
-        return {
-          success: false,
-          error: "ClerkIdNotFound",
-          message: "auth().userId might be null",
-          from: "temporary habitica controller",
-        };
+      const user = await getUser();
 
-      const user = await prisma.user.findUnique({
-        where: { id },
-        select: {
-          habiticaApiUser: true,
-          habiticaApiKey: true,
-        },
-      });
-
-      if (user === null)
+      if (user === null) {
         return {
           success: false,
           error: "UserNotFound",
           message: "User not found in database",
           from: "temporary habitica controller",
         };
+      }
 
-      const habiticaApiUser = user.habiticaApiUser;
-      const habiticaApiKey = user.habiticaApiKey;
-
-      if (habiticaApiUser === null || habiticaApiKey === null)
+      if (user.habiticaKeys === "") {
         return {
           success: false,
           error: "HabiticaCredentialsNotSet",
           message: "Habitica credentials not set in database",
           from: "temporary habitica controller",
         };
+      }
 
-      creds.habiticaApiUser = habiticaApiUser;
-      creds.habiticaApiKey = habiticaApiKey;
+      habiticaKeys = Habitica.unfoldKeys(user.habiticaKeys);
     }
   }
 
@@ -81,8 +65,9 @@ export async function fetchHabitica<T = unknown>(
     method: method.toUpperCase(),
     headers: {
       "Content-Type": "application/json",
-      "x-api-user": creds.habiticaApiUser,
-      "x-api-key": creds.habiticaApiKey,
+      "x-client": X_CLIENT || "",
+      "x-api-user": habiticaKeys.id,
+      "x-api-key": habiticaKeys.token,
     },
     body: options.body ? JSON.stringify(options.body) : undefined,
     next: {
@@ -96,7 +81,7 @@ export async function fetchHabitica<T = unknown>(
     console.error(
       `habiticaFetch Error: \nResponse and Creds Log: ${JSON.stringify({
         ...json,
-        ...creds,
+        ...habiticaKeys,
       })}`
     );
 
@@ -109,7 +94,7 @@ const validity = 2 * 60 * 60 * 1000;
 
 export async function getContent() {
   if (dataTimeStamp + validity < Date.now()) {
-    const json = await fetchHabitica<Object>("get", "content"); // Try ZOD
+    const json = await fetchHabitica<HabiticaContent>("get", "content"); // Try ZOD
     if (json.success === true) {
       dataTimeStamp = Date.now();
       content = json.data;
