@@ -41,7 +41,8 @@ export default function ShortcutsSpells({
               className="bg-blue-700 rounded-xl"
               src={fireball}
             />
-            <div className="font-bold h-fit">Burst Of Flames</div>
+            <div className="font-bold h-fit">Burst Of Flames</div>(
+            {Number(burstCount) * 10} Mana)
           </Button>
         </CardBody>
         <CardFooter className="text-small p-0 flex flex-row items-baseline gap-1 w-fit">
@@ -49,7 +50,7 @@ export default function ShortcutsSpells({
           <Input
             min={0}
             type="number"
-            className="w-20 h-full"
+            className="w-16 h-full"
             value={burstCount}
             onValueChange={setBurstCount}
           />
