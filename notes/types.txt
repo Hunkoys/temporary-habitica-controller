@@ -1,3 +1,0 @@
-https://github.com/HabitRPG/habitica/blob/develop/website/common/script/content/constants/index.js
-
-https://github.com/HabitRPG/habitica/blob/develop/test/content/gear.test.js#L7
