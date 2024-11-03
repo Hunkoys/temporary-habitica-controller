@@ -1,11 +1,27 @@
-import HabiticaForm from '@/app/settings/_components/HabiticaForm';
-import { currentUser } from '@clerk/nextjs/server';
-import { Card, CardBody, CardHeader, Divider, Skeleton } from '@nextui-org/react';
-import { Suspense } from 'react';
+import { getUser } from "@/app/_ACTIONS/db";
+import { Habitica } from "@/app/_UTILS/habitica";
+import HabiticaForm from "@/app/settings/_COMPONENTS/HabiticaForm";
+import { auth } from "@clerk/nextjs/server";
+import {
+  Card,
+  CardBody,
+  CardHeader,
+  Divider,
+  Skeleton,
+} from "@nextui-org/react";
+import { Suspense } from "react";
 
 export default async function SettingsPage() {
-  const clerkUser = await currentUser();
-  if (!clerkUser) return <div>Not logged in</div>;
+  const id = auth().userId;
+  if (id === null)
+    throw new Error(
+      "Tried to load a page only accessible when logged in. id from clerk:auth object is null"
+    );
+
+  const user = await getUser();
+  if (user === null) throw new Error("User not found in the database.");
+
+  const habiticaKeys = Habitica.unfoldKeys(user.habiticaKeys);
 
   return (
     <div className="w-full h-full overflow-auto p-2 flex justify-center items-start">
@@ -15,8 +31,12 @@ export default async function SettingsPage() {
         </CardHeader>
         <Divider />
         <CardBody className="flex flex-col gap-2 items-stretch">
-          <Suspense fallback={<Skeleton className="h-[1em] w-3/5 rounded-lg"></Skeleton>}>
-            <HabiticaForm id={clerkUser.id} />
+          <Suspense
+            fallback={
+              <Skeleton className="h-[1em] w-3/5 rounded-lg"></Skeleton>
+            }
+          >
+            <HabiticaForm habiticaKeys={habiticaKeys} />
           </Suspense>
         </CardBody>
       </Card>

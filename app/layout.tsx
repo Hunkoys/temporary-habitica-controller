@@ -1,25 +1,25 @@
-import Header from '@/app/_components/Header';
-import SignInCard from '@/app/_components/login/SignInCard';
-import Navbar from '@/app/_components/Navbar';
-import { ClerkProvider, SignedIn, SignedOut } from '@clerk/nextjs';
-import { dark } from '@clerk/themes';
-import { NextUIProvider } from '@nextui-org/system';
-import type { Metadata, Viewport } from 'next';
-import { Inter } from 'next/font/google';
-import './globals.css';
+import Header from "@/app/_COMPONENTS/SECTIONS/Header";
+import SignInCard from "@/app/_COMPONENTS/ELEMENTS/login/SignInCard";
+import Navbar from "@/app/_COMPONENTS/SECTIONS/Navbar";
+import { ClerkProvider, SignedIn, SignedOut } from "@clerk/nextjs";
+import { dark } from "@clerk/themes";
+import { NextUIProvider } from "@nextui-org/system";
+import type { Metadata, Viewport } from "next";
+import { Inter } from "next/font/google";
+import "./globals.css";
 
-const inter = Inter({ subsets: ['latin'] });
+const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: 'Habitica Controller',
-  description: 'This is temporary',
-  generator: 'Next.js',
-  manifest: '/manifest.json',
+  title: "Habitica Controller",
+  description: "This is temporary",
+  generator: "Next.js",
+  manifest: "/manifest.json",
   appleWebApp: {
-    startupImage: '/apple-icon.jpg',
+    startupImage: "/apple-icon.jpg",
     capable: true,
-    title: 'Habitica Controller',
-    statusBarStyle: 'black-translucent',
+    title: "Habitica Controller",
+    statusBarStyle: "black-translucent",
   },
 };
 
@@ -27,10 +27,10 @@ export const viewport: Viewport = {
   minimumScale: 1,
   maximumScale: 1,
   initialScale: 1,
-  width: 'device-width',
-  viewportFit: 'contain',
+  width: "device-width",
+  viewportFit: "contain",
   userScalable: false,
-  themeColor: [{ media: '(prefers-color-scheme: dark)', color: '#fff' }],
+  themeColor: [{ media: "(prefers-color-scheme: dark)", color: "#fff" }],
 };
 
 export default function RootLayout({

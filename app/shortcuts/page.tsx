@@ -1,40 +1,37 @@
-import { getContent } from '@/app/_utils/habiticaContent';
-import { Credentials } from '@/app/_utils/habiticaTypes';
-import ShortcutsList from '@/app/shortcuts/_components/List';
-import prisma from '@/prisma/db';
-import { currentUser } from '@clerk/nextjs/server';
-import { Card } from '@nextui-org/react';
+import { getUser } from "@/app/_ACTIONS/db";
+import { HabiticaKeys } from "@/app/_TYPES/habitica.types";
+import { Habitica } from "@/app/_UTILS/habitica";
+import ShortcutsSpells from "@/app/shortcuts/_COMPONENTS/Spells";
+import { Card } from "@nextui-org/react";
 
-const every12Hours = 1 * 60 * 60 * 12;
+export default async function ShortcutsPage() {
+  const user = await getUser({ shortcuts: true });
+  if (user === null)
+    return <ErrorElement>User not found in the database.</ErrorElement>;
+  if (user.habiticaKeys === "")
+    return (
+      <ErrorElement>Habitica credentials not set in database.</ErrorElement>
+    );
 
-function Error({ children }: { children: React.ReactNode }) {
+  const habiticaKeys: HabiticaKeys = Habitica.unfoldKeys(user.habiticaKeys);
+
+  const burstCountShortcut = user.shortcuts.find(
+    (s) => s.title === "burstCount"
+  );
+
+  const burstCount = (burstCountShortcut?.command as string) || "1";
+
   return (
-    <div className="p-2">
-      <Card className="p-2 text-center">{children}</Card>
+    <div className="flex flex-col gap-2 p-2 w-full sm:w-96 ">
+      <ShortcutsSpells burstCount={burstCount} />
     </div>
   );
 }
 
-export default async function ShortcutsPage() {
-  const clerkUser = await currentUser();
-
-  if (!clerkUser) return <Error>Not logged in</Error>;
-
-  const user = await prisma.user.findUnique({
-    where: { id: clerkUser.id },
-    select: { id: true, habiticaUserId: true, habiticaApiKey: true, shortcuts: true, linked: true },
-  });
-
-  if (!user) return <Error>User not found</Error>;
-  if (!user.linked) return <Error>Please link your Habitica account to use shortcuts</Error>;
-
-  if (user.habiticaApiKey === null || user.habiticaUserId === null) return <Error>Missing Habitica credentials</Error>;
-
-  const credentials: Credentials = { habId: user.habiticaUserId, apiKey: user.habiticaApiKey };
-
-  const content = await getContent(every12Hours);
-
-  if (!content) return <Error>Failed to get content</Error>;
-
-  return <ShortcutsList credentials={credentials} content={content} shortcuts={user.shortcuts} id={user.id} />;
+function ErrorElement({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="p-2">
+      <Card className="p-2 text-center text-danger">{children}</Card>
+    </div>
+  );
 }
