@@ -87,6 +87,7 @@ export default function HabiticaForm({
   return (
     <>
       <h2>Habitica</h2>
+      <h3>Keys</h3>
       <Input
         variant={editMode ? "faded" : "bordered"}
         label="User ID"
@@ -97,7 +98,7 @@ export default function HabiticaForm({
       />
       <Input
         variant={editMode ? "faded" : "bordered"}
-        label="API Key"
+        label="API Token"
         isDisabled={!editMode || isLoading}
         type={showPassword ? "text" : "password"}
         endContent={

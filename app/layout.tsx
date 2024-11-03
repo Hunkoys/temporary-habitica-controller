@@ -3,7 +3,6 @@ import SignInCard from "@/app/_components/elements/login/SignInCard";
 import Navbar from "@/app/_components/sections/Navbar";
 import { ClerkProvider, SignedIn, SignedOut } from "@clerk/nextjs";
 import { dark } from "@clerk/themes";
-import { NextUIProvider } from "@nextui-org/system";
 import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
@@ -46,18 +45,16 @@ export default function RootLayout({
     >
       <html lang="en" className="dark bg-background h-full">
         <body className={`${inter.className} h-full w-full overflow-hidden`}>
-          <NextUIProvider className="h-full w-full">
-            <SignedOut>
-              <SignInCard />
-            </SignedOut>
-            <SignedIn>
-              <div className="h-full overflow-hidden flex flex-col justify-between items-center gap-1 py-1">
-                <Header />
-                <div className="overflow-y-auto h-full w-full">{children}</div>
-                <Navbar />
-              </div>
-            </SignedIn>
-          </NextUIProvider>
+          <SignedOut>
+            <SignInCard />
+          </SignedOut>
+          <SignedIn>
+            <div className="h-full overflow-hidden flex flex-col justify-between items-center gap-1 py-1">
+              <Header />
+              <div className="overflow-y-auto h-full w-full">{children}</div>
+              <Navbar />
+            </div>
+          </SignedIn>
         </body>
       </html>
     </ClerkProvider>

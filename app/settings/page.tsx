@@ -2,13 +2,7 @@ import { getUser } from "@/app/_actions/db";
 import { Habitica } from "@/app/_utils/habitica";
 import HabiticaForm from "@/app/settings/_components/HabiticaForm";
 import { auth } from "@clerk/nextjs/server";
-import {
-  Card,
-  CardBody,
-  CardHeader,
-  Divider,
-  Skeleton,
-} from "@nextui-org/react";
+import { Card, CardBody, Skeleton } from "@nextui-org/react";
 import { Suspense } from "react";
 
 export default async function SettingsPage() {
@@ -26,10 +20,6 @@ export default async function SettingsPage() {
   return (
     <div className="w-full h-full overflow-auto p-2 flex justify-center items-start">
       <Card className="w-full sm:w-[640px]">
-        <CardHeader>
-          <h1>Settings</h1>
-        </CardHeader>
-        <Divider />
         <CardBody className="flex flex-col gap-2 items-stretch">
           <Suspense
             fallback={

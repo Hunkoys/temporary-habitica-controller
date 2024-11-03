@@ -1,10 +1,56 @@
 "use client";
 
-import { Spinner, Tab, Tabs } from "@nextui-org/react";
-import { ReactElement, useCallback, useEffect, useState } from "react";
-import { Key } from "@react-types/shared";
-import { usePathname, useRouter } from "next/navigation";
-// import clsx from 'clsx';
+import { Tab, Tabs } from "@nextui-org/react";
+import { ReactElement, useMemo } from "react";
+import { usePathname } from "next/navigation";
+import Link from "next/link";
+
+export default function Navbar({ leftie = false }: { leftie?: boolean }) {
+  const pathName = usePathname();
+  const pathBase = useMemo(() => {
+    return pathName.split("/")[1];
+  }, [pathName]);
+
+  return (
+    <nav className="w-full mb-3 p-2 flex justify-evenly">
+      <Tabs
+        fullWidth
+        aria-label="Navigation Tabs"
+        placement="bottom"
+        variant="bordered"
+        selectedKey={pathBase}
+      >
+        {routeMap.map(([url, display, Icon]) => (
+          <Tab
+            className="transition-all"
+            key={url}
+            title={
+              <Link
+                prefetch
+                href={`/${url}`}
+                className="relative flex w-fit sm:w-full justify-center items-center gap-1 transition-all"
+              >
+                {
+                  <Icon
+                    size={24}
+                    color={pathBase === url ? "fill-primary" : "fill-white"}
+                  />
+                }
+                <span
+                  className={`truncate w-0 sm:w-full transition-all duration-1000 text-lg text-${
+                    pathBase === url ? "primary" : "white"
+                  }`}
+                >
+                  {display}
+                </span>
+              </Link>
+            }
+          />
+        ))}
+      </Tabs>
+    </nav>
+  );
+}
 
 function newRoute<
   U extends string,
@@ -18,7 +64,7 @@ const iconClassName = (color: string) => {
   return `${color} transition-all duration-1000 ease-[cubic-bezier(.17,1.09,.45,.95)]`;
 };
 const routeMap = [
-  newRoute("/", "List", ({ size, color }) => (
+  newRoute("", "List", ({ size, color }) => (
     <svg
       width={size}
       viewBox="0 0 32 32"
@@ -31,7 +77,7 @@ const routeMap = [
       />
     </svg>
   )),
-  newRoute("/schedule", "Schedule", ({ size, color }) => (
+  newRoute("schedule", "Schedule", ({ size, color }) => (
     <svg
       width={size}
       viewBox="0 0 32 32"
@@ -44,7 +90,7 @@ const routeMap = [
       />
     </svg>
   )),
-  newRoute("/shortcuts", "Shortcuts", ({ size, color }) => (
+  newRoute("shortcuts", "Shortcuts", ({ size, color }) => (
     <svg
       height={size}
       viewBox="0 0 28 30"
@@ -57,7 +103,7 @@ const routeMap = [
       />
     </svg>
   )),
-  newRoute("/settings", "Settings", ({ size, color }) => (
+  newRoute("settings", "Settings", ({ size, color }) => (
     <svg
       height={size}
       viewBox="0 0 24 24"
@@ -73,80 +119,3 @@ const routeMap = [
     </svg>
   )),
 ] as const;
-
-export default function Navbar({ leftie = false }: { leftie?: boolean }) {
-  const router = useRouter();
-  const pathName = usePathname();
-  const [to, setTo] = useState<Key>(pathName);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    routeMap.forEach(([url]) => {
-      router.prefetch(url);
-    });
-  }, [router]);
-
-  const selectionChanged = useCallback(
-    (key: Key) => {
-      if (typeof key !== "string") return;
-      setTo(key);
-      router.push(key, { scroll: false });
-    },
-    [router]
-  );
-
-  useEffect(() => {
-    if (to !== pathName) {
-      setLoading(true);
-    } else {
-      setLoading(false);
-    }
-  }, [to, pathName]);
-
-  return (
-    <nav className="w-full mb-3 p-2 flex justify-evenly">
-      <Tabs
-        fullWidth
-        aria-label="Navigation Tabs"
-        placement="bottom"
-        variant="bordered"
-        defaultSelectedKey={pathName}
-        onSelectionChange={selectionChanged}
-      >
-        {routeMap.map(([url, display, Icon]) => (
-          <Tab
-            className="transition-all"
-            key={url}
-            title={
-              <div className="relative flex w-fit sm:w-full justify-center items-center gap-1 transition-all">
-                {
-                  <Icon
-                    size={24}
-                    color={to === url ? "fill-primary" : "fill-white"}
-                  />
-                }
-                <span
-                  className={`truncate w-0 sm:w-full transition-all duration-1000 text-lg text-${
-                    to === url ? "primary" : "white"
-                  }`}
-                >
-                  {display}
-                </span>
-                <Spinner
-                  className={`absolute transition-opacity opacity-${
-                    loading && to === url ? "100" : "0"
-                  }`}
-                  size="sm"
-                  color="white"
-                />
-              </div>
-            }
-          />
-        ))}
-      </Tabs>
-      {/* <div id="space-for-page's-action-button" className="h-full w-32"></div> */}
-    </nav>
-  );
-}
-
-// This type of navbar is a bad idea, any url you put in the address bar will reroute to home in this setup.

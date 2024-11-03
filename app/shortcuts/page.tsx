@@ -2,7 +2,8 @@ import { getUser } from "@/app/_actions/db";
 import { HabiticaKeys } from "@/app/_types/habitica.types";
 import { Habitica } from "@/app/_utils/habitica";
 import ShortcutsSpells from "@/app/shortcuts/_components/Spells";
-import { Card } from "@nextui-org/react";
+import { Card, Link } from "@nextui-org/react";
+import NextLink from "next/link";
 
 export default async function ShortcutsPage() {
   const user = await getUser({ shortcuts: true });
@@ -10,7 +11,20 @@ export default async function ShortcutsPage() {
     return <ErrorElement>User not found in the database.</ErrorElement>;
   if (user.habiticaKeys === "")
     return (
-      <ErrorElement>Habitica credentials not set in database.</ErrorElement>
+      <ErrorElement>
+        <span>
+          Habitica Keys not set. You can set it in{" "}
+          <Link
+            as={NextLink}
+            href="/settings"
+            color="secondary"
+            underline="always"
+          >
+            Settings
+          </Link>
+          .
+        </span>
+      </ErrorElement>
     );
 
   const habiticaKeys: HabiticaKeys = Habitica.unfoldKeys(user.habiticaKeys);

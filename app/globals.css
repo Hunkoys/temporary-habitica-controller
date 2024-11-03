@@ -6,3 +6,17 @@
   width: 2.75rem;
   height: 2.75rem;
 }
+
+/* Lets style headers */
+
+h1 {
+  @apply text-3xl font-bold;
+}
+
+h2 {
+  @apply text-2xl font-bold;
+}
+
+h3 {
+  @apply font-bold;
+}
