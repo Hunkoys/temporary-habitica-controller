@@ -20,5 +20,12 @@ export async function getUser<T extends Prisma.UserInclude>(include?: T) {
 
   if (include) search.include = include;
 
-  return await prisma.user.findUnique(search);
+  return await prisma.user.findUnique(
+    search as {
+      where: {
+        id: string;
+      };
+      include: T;
+    }
+  );
 }
