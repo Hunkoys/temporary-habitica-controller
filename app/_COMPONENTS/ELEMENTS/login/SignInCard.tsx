@@ -1,6 +1,6 @@
 "use client";
 
-import CommonButton from "@/app/_COMPONENTS/ELEMENTS/CommonButton";
+import CommonButton from "@/app/_components/ELEMENTS/CommonButton";
 import {
   Card,
   CardBody,

@@ -1,8 +1,8 @@
 "use client";
 
-import { saveHabiticaKeys } from "@/app/_ACTIONS/user";
-import CommonButton from "@/app/_COMPONENTS/ELEMENTS/CommonButton";
-import { HabiticaKeys } from "@/app/_TYPES/habitica.types";
+import { saveHabiticaKeys } from "@/app/_actions/user";
+import CommonButton from "@/app/_components/ELEMENTS/CommonButton";
+import { HabiticaKeys } from "@/app/_types/habitica.types";
 import { Button, Input } from "@nextui-org/react";
 import clsx from "clsx";
 import { useCallback, useEffect, useState } from "react";

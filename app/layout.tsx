@@ -1,6 +1,6 @@
-import Header from "@/app/_COMPONENTS/SECTIONS/Header";
-import SignInCard from "@/app/_COMPONENTS/ELEMENTS/login/SignInCard";
-import Navbar from "@/app/_COMPONENTS/SECTIONS/Navbar";
+import Header from "@/app/_components/SECTIONS/Header";
+import SignInCard from "@/app/_components/ELEMENTS/login/SignInCard";
+import Navbar from "@/app/_components/SECTIONS/Navbar";
 import { ClerkProvider, SignedIn, SignedOut } from "@clerk/nextjs";
 import { dark } from "@clerk/themes";
 import { NextUIProvider } from "@nextui-org/system";

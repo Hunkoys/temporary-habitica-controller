@@ -1,7 +1,7 @@
 "use server";
 
-import { habFetch } from "@/app/_UTILS/habitica";
-import { Content } from "@/app/_UTILS/habiticaTypes";
+import { habFetch } from "@/app/_utils/habitica";
+import { Content } from "@/app/_utils/habiticaTypes";
 import { a } from "framer-motion/client";
 import fs from "fs/promises";
 import path from "path";

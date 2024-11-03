@@ -1,8 +1,8 @@
 "use server";
 
-import { getUser } from "@/app/_ACTIONS/db";
-import { fetchHabitica } from "@/app/_ACTIONS/habitica";
-import { Stats } from "@/app/_UTILS/habiticaTypes";
+import { getUser } from "@/app/_actions/db";
+import { fetchHabitica } from "@/app/_actions/habitica";
+import { Stats } from "@/app/_utils/habiticaTypes";
 import prisma from "@/prisma/db";
 import { auth } from "@clerk/nextjs/server";
 
