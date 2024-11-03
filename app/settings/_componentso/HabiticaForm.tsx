@@ -1,6 +1,6 @@
 "use client";
 
-import { saveHabiticaKeys } from "@/app/_actions/user";
+import { saveHabiticaKeys } from "@/app/_actionso/user";
 import CommonButton from "@/app/_componentso/elements/CommonButton";
 import { HabiticaKeys } from "@/app/_typeso/habitica.types";
 import { Button, Input } from "@nextui-org/react";
