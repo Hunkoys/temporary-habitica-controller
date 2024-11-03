@@ -4,7 +4,7 @@ import { Button, Card, CardBody, CardFooter, Input } from "@nextui-org/react";
 import fireball from "@/assets/shop_fireball.png";
 import NextImage from "next/image";
 import { useCallback, useState } from "react";
-import { saveBurstCount } from "@/app/shortcuts/actions";
+import { castBurstOfFlames } from "@/app/shortcuts/actions";
 
 export default function ShortcutsSpells({
   burstCount: propBurstCount,
@@ -16,7 +16,7 @@ export default function ShortcutsSpells({
 
   const onBurstOfFlames = useCallback(async () => {
     setIsSavingBurstCount(true);
-    await saveBurstCount(burstCount);
+    await castBurstOfFlames(burstCount);
     setIsSavingBurstCount(false);
   }, [burstCount]);
 
