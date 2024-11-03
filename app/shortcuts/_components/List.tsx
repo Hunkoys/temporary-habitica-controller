@@ -1,7 +1,7 @@
 "use client";
 
-import CommonButton from "@/app/_componentso/elements/CommonButton";
-import { Content, Credentials, Stats } from "@/app/_utilso/habiticaTypes";
+import CommonButton from "@/app/_components/elements/CommonButton";
+import { Content, Credentials, Stats } from "@/app/_utils/habiticaTypes";
 import {
   updateAutoAssignStat,
   equipMax,

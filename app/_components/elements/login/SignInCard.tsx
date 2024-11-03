@@ -1,6 +1,6 @@
 "use client";
 
-import CommonButton from "@/app/_componentso/elements/CommonButton";
+import CommonButton from "@/app/_components/elements/CommonButton";
 import {
   Card,
   CardBody,
@@ -9,7 +9,7 @@ import {
   Divider,
 } from "@nextui-org/react";
 import { useCallback, useEffect, useState } from "react";
-import clerkLogo from "@/app/_componentso/elements/login/clerk-logo-light-accent.svg";
+import clerkLogo from "@/app/_components/elements/login/clerk-logo-light-accent.svg";
 import Image from "next/image";
 import { SignInButton } from "@clerk/nextjs";
 

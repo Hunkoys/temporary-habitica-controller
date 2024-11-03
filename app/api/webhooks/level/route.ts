@@ -1,7 +1,7 @@
 import fs from "fs/promises";
 import path from "path";
 
-import { habFetch } from "@/app/_utilso/habitica";
+import { habFetch } from "@/app/_utils/habitica";
 import prisma from "@/prisma/db";
 import { NextRequest } from "next/server";
 

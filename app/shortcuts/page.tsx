@@ -1,7 +1,7 @@
-import { getUser } from "@/app/_actionso/db";
-import { HabiticaKeys } from "@/app/_typeso/habitica.types";
-import { Habitica } from "@/app/_utilso/habitica";
-import ShortcutsSpells from "@/app/shortcuts/_componentso/Spells";
+import { getUser } from "@/app/_actions/db";
+import { HabiticaKeys } from "@/app/_types/habitica.types";
+import { Habitica } from "@/app/_utils/habitica";
+import ShortcutsSpells from "@/app/shortcuts/_components/Spells";
 import { Card } from "@nextui-org/react";
 
 export default async function ShortcutsPage() {

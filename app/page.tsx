@@ -15,7 +15,7 @@ import {
   DropdownTrigger,
   ScrollShadow,
 } from "@nextui-org/react";
-import CommonButton from "@/app/_componentso/elements/CommonButton";
+import CommonButton from "@/app/_components/elements/CommonButton";
 
 function AddIcon({ className = "fill-white" }: { className?: string }) {
   return (

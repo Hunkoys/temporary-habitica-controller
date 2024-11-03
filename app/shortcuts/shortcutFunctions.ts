@@ -1,7 +1,7 @@
 "use client";
 
-import { getUserData, habFetch } from "@/app/_utilso/habitica";
-import { getContent } from "@/app/_utilso/habiticaContent";
+import { getUserData, habFetch } from "@/app/_utils/habitica";
+import { getContent } from "@/app/_utils/habiticaContent";
 import {
   Content,
   Credentials,
@@ -10,7 +10,7 @@ import {
   GearType,
   PlayerClass,
   Stats,
-} from "@/app/_utilso/habiticaTypes";
+} from "@/app/_utils/habiticaTypes";
 import { saveAutoAssignCommand } from "@/app/shortcuts/actions";
 
 export async function equipMax(

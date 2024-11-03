@@ -1,8 +1,8 @@
 "use server";
 
-import { HabiticaContent, HabiticaKeys } from "@/app/_typeso/habitica.types";
-import { getUser } from "@/app/_actionso/db";
-import { Habitica } from "@/app/_utilso/habitica";
+import { HabiticaContent, HabiticaKeys } from "@/app/_types/habitica.types";
+import { getUser } from "@/app/_actions/db";
+import { Habitica } from "@/app/_utils/habitica";
 
 const X_CLIENT = process.env.HABITICA_X_CLIENT;
 
