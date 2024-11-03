@@ -9,7 +9,7 @@ import {
   Divider,
 } from "@nextui-org/react";
 import { useCallback, useEffect, useState } from "react";
-import clerkLogo from "@/app/_components/ELEMENTS/login/clerk-logo-light-accent.svg";
+import clerkLogo from "@/app/_COMPONENTS/ELEMENTS/login/clerk-logo-light-accent.svg";
 import Image from "next/image";
 import { SignInButton } from "@clerk/nextjs";
 
