@@ -1,0 +1,7 @@
+  Show current Mana
+  delay burst of flames
+    add a progress bar. we might use sockets
+  limit max cast for burst of flames
+  Validate input to be numbers only
+  Minimum is 1
+  Change Name
