@@ -6,6 +6,7 @@ import { dark } from "@clerk/themes";
 import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
+import { Spinner } from "@nextui-org/react";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -58,5 +59,13 @@ export default function RootLayout({
         </body>
       </html>
     </ClerkProvider>
+  );
+}
+
+function LoadingOverlay() {
+  return (
+    <div className="absolute w-screen h-screen flex justify-center items-center backdrop-blur">
+      <Spinner />
+    </div>
   );
 }
