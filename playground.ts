@@ -365,9 +365,9 @@ HabiticaNetwork.broadcast(party, "checking in").then((res) => {
 DELETE(me);
 
 type Payload = string | object;
-type ID = string;
-type PeerId = ID;
-type ChannelId = ID;
+type UUID4 = string;
+type PeerId = UUID4;
+type ChannelId = UUID4;
 type List<T> = {
-  [id: ID]: T | undefined;
+  [id: UUID4]: T | undefined;
 };
