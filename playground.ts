@@ -256,6 +256,7 @@ class HabiticaNetworkClass {
         (this.channelList[channelId] = new Channel());
 
       channel.peers[peerId] = true;
+
       // don't await this
       this.broadcast(channelId, { type: "join", peerId });
       return true;
@@ -263,7 +264,33 @@ class HabiticaNetworkClass {
   }
 
   // make sure to delete channel when empty
-  // async leave
+  async leave(peerId: PeerId): Promise<boolean> {
+    return await this.peerManager.access((peers) => {
+      const peer = peers[peerId];
+      if (!peer) return false;
+
+      const channelId = peer.channel;
+      if (!channelId) return false;
+
+      const channel = this.channelList[channelId];
+      if (!channel) return false;
+
+      delete channel.peers[peerId];
+      peer.channel = null;
+
+      const hasActivePeers = Object.keys(channel.peers).length !== 0;
+      if (hasActivePeers) {
+        // don't await this
+        this.broadcast(channelId, {
+          type: "leave",
+          peerId,
+        });
+      } else {
+        delete this.channelList[channelId];
+      }
+      return true;
+    });
+  }
 
   // return false if channel doesn't exist or is empty
   async broadcast(channelId: ChannelId, payload: Payload): Promise<boolean> {
@@ -330,6 +357,12 @@ HabiticaNetwork.dm(me, "hoy");
 HabiticaNetwork.join(me, party).then(console.log);
 
 HabiticaNetwork.broadcast(party, "hi there newbie").then(console.log);
+
+// HabiticaNetwork.leave(me).then(console.log);
+
+HabiticaNetwork.despawn(me);
+
+HabiticaNetwork.broadcast(party, "checking in").then(console.log);
 
 DELETE(me);
 
