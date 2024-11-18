@@ -203,51 +203,49 @@ class HabiticaNetworkClass {
   private peerManager = new AccessManager<List<Peer>>({});
   private channelList: List<Channel> = {};
 
-  // return null if user already exists else return stream
-  async spawn(peerId: PeerId): Promise<ReadableStream<Uint8Array> | null> {
+  async spawn(peerId: PeerId) {
     return await this.peerManager.access((peers) => {
-      if (peers[peerId]) return null;
+      if (peers[peerId]) return ["peerExists", null] as const;
 
       const peer = new Peer((reason) => {
-        console.log(`lost it: ${reason}`);
+        console.log(`lost it: ${reason}`); // delete later
         this.despawn(peerId);
       });
 
       peers[peerId] = peer;
       peer.send(`you're alive!`);
-      return peer.line;
+
+      return ["succes", peer.line] as const;
     });
   }
 
-  // return false if user doesn't exist
-  async despawn(peerId: PeerId): Promise<boolean> {
+  async despawn(peerId: PeerId) {
+    await this.leave(peerId);
+
     return await this.peerManager.access((peers) => {
       const peer = peers[peerId];
-      if (!peer) return false;
+      if (!peer) return "peerDoesNotExist";
 
       peer.send("goodbye");
       peer.disconnect();
-      delete peers[peerId];
-      return true;
+      return "success";
     });
   }
 
-  // return false if user doesn't exist
-  async dm(peerId: PeerId, payload: Payload): Promise<boolean> {
+  async dm(peerId: PeerId, payload: Payload) {
     return await this.peerManager.access((peers) => {
       const peer = peers[peerId];
-      if (!peer) return false;
+      if (!peer) return "peerDoesNotExist";
 
       peer.send(payload);
-      return true;
+      return "success";
     });
   }
 
-  // return false if user doesn't exist
   async join(peerId: PeerId, channelId: ChannelId) {
     return await this.peerManager.access((peers) => {
       const peer = peers[peerId];
-      if (!peer) return false;
+      if (!peer) return "peerDoesNotExist";
 
       peer.channel = channelId;
 
@@ -259,21 +257,20 @@ class HabiticaNetworkClass {
 
       // don't await this
       this.broadcast(channelId, { type: "join", peerId });
-      return true;
+      return "success";
     });
   }
 
-  // make sure to delete channel when empty
-  async leave(peerId: PeerId): Promise<boolean> {
+  async leave(peerId: PeerId) {
     return await this.peerManager.access((peers) => {
       const peer = peers[peerId];
-      if (!peer) return false;
+      if (!peer) return "peerDoesNotExist";
 
       const channelId = peer.channel;
-      if (!channelId) return false;
+      if (!channelId) return "notInChannel";
 
       const channel = this.channelList[channelId];
-      if (!channel) return false;
+      if (!channel) return "channelDoesNotExist";
 
       delete channel.peers[peerId];
       peer.channel = null;
@@ -288,22 +285,21 @@ class HabiticaNetworkClass {
       } else {
         delete this.channelList[channelId];
       }
-      return true;
+      return "success";
     });
   }
 
-  // return false if channel doesn't exist or is empty
-  async broadcast(channelId: ChannelId, payload: Payload): Promise<boolean> {
+  async broadcast(channelId: ChannelId, payload: Payload) {
     return await this.peerManager.access((peers) => {
       const channel = this.channelList[channelId];
-      if (!channel) return false;
+      if (!channel) return "channelDoesNotExist";
 
       for (const peerId in channel.peers) {
         const peer = peers[peerId];
         if (peer) peer.send(payload);
       }
 
-      return true;
+      return "success";
     });
   }
 }
@@ -318,9 +314,9 @@ class HabiticaNetworkClass {
 const HabiticaNetwork = new HabiticaNetworkClass();
 
 async function POST(id: PeerId) {
-  const line = await HabiticaNetwork.spawn(id);
+  const [status, line] = await HabiticaNetwork.spawn(id);
 
-  if (!line) {
+  if (status === "peerExists") {
     return new Response("User already exists", { status: 400 });
   }
 
@@ -346,7 +342,7 @@ POST(me).then((response) => {
       return;
     }
 
-    console.log("Received", unpack(value));
+    console.log("%cReceived", "color: red;", unpack(value));
 
     reader.read().then(next);
   });
@@ -354,15 +350,17 @@ POST(me).then((response) => {
 
 HabiticaNetwork.dm(me, "hoy");
 
-HabiticaNetwork.join(me, party).then(console.log);
+HabiticaNetwork.join(me, party).then(console.error);
 
-HabiticaNetwork.broadcast(party, "hi there newbie").then(console.log);
+HabiticaNetwork.broadcast(party, "hi there newbie").then(console.error);
 
-// HabiticaNetwork.leave(me).then(console.log);
+// HabiticaNetwork.leave(me).then(console.error);
 
 HabiticaNetwork.despawn(me);
 
-HabiticaNetwork.broadcast(party, "checking in").then(console.log);
+HabiticaNetwork.broadcast(party, "checking in").then((res) => {
+  console.error("broadcast", res);
+});
 
 DELETE(me);
 
