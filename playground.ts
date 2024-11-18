@@ -136,8 +136,8 @@ class AccessManager<T extends Object> {
       this.lastPromise = this.lastPromise.then(async (data) => {
         const before = deepCopy(data);
         resolve(await callback(data));
-        console.log("before", before);
-        console.log("after", data);
+        // console.log("before", before);
+        // console.log("after", data);
         return data;
       });
     });
@@ -165,7 +165,8 @@ class Peer {
 
   private _controller: ReadableStreamDefaultController | null = null;
   private _connected: boolean = true;
-  private interruptedCallback: (reason?: string) => void = () => {};
+
+  constructor(private interruptedCallback: (reason?: string) => void) {}
 
   line = new ReadableStream({
     start: (controller) => {
@@ -189,47 +190,93 @@ class Peer {
     }
   }
 
-  onInterrupted(callback: typeof this.interruptedCallback) {
-    this.interruptedCallback = callback;
-  }
-
   get connected() {
     return this._connected;
   }
 }
 
 class Channel {
-  peers: PeerId[] = [];
+  peers: List<boolean> = {};
 }
 
 class HabiticaNetworkClass {
-  private peerList = new AccessManager<List<Peer>>({});
-  private channelList = new AccessManager<List<Channel>>({});
+  private peerManager = new AccessManager<List<Peer>>({});
+  private channelList: List<Channel> = {};
 
-  async spawn(peerId: PeerId) {
-    return await this.peerList.access((peers) => {
-      const peer = new Peer();
-      peers[peerId] = peer;
+  // return null if user already exists else return stream
+  async spawn(peerId: PeerId): Promise<ReadableStream<Uint8Array> | null> {
+    return await this.peerManager.access((peers) => {
+      if (peers[peerId]) return null;
 
-      peer.onInterrupted((reason) => {
+      const peer = new Peer((reason) => {
         console.log(`lost it: ${reason}`);
         this.despawn(peerId);
       });
 
+      peers[peerId] = peer;
       peer.send(`you're alive!`);
-
       return peer.line;
     });
   }
 
-  async despawn(peerId: PeerId) {
-    await this.peerList.access((peers) => {
+  // return false if user doesn't exist
+  async despawn(peerId: PeerId): Promise<boolean> {
+    return await this.peerManager.access((peers) => {
       const peer = peers[peerId];
+      if (!peer) return false;
 
       peer.send("goodbye");
       peer.disconnect();
-
       delete peers[peerId];
+      return true;
+    });
+  }
+
+  // return false if user doesn't exist
+  async dm(peerId: PeerId, payload: Payload): Promise<boolean> {
+    return await this.peerManager.access((peers) => {
+      const peer = peers[peerId];
+      if (!peer) return false;
+
+      peer.send(payload);
+      return true;
+    });
+  }
+
+  // return false if user doesn't exist
+  async join(peerId: PeerId, channelId: ChannelId) {
+    return await this.peerManager.access((peers) => {
+      const peer = peers[peerId];
+      if (!peer) return false;
+
+      peer.channel = channelId;
+
+      const channel =
+        this.channelList[channelId] ||
+        (this.channelList[channelId] = new Channel());
+
+      channel.peers[peerId] = true;
+      // don't await this
+      this.broadcast(channelId, { type: "join", peerId });
+      return true;
+    });
+  }
+
+  // make sure to delete channel when empty
+  // async leave
+
+  // return false if channel doesn't exist or is empty
+  async broadcast(channelId: ChannelId, payload: Payload): Promise<boolean> {
+    return await this.peerManager.access((peers) => {
+      const channel = this.channelList[channelId];
+      if (!channel) return false;
+
+      for (const peerId in channel.peers) {
+        const peer = peers[peerId];
+        if (peer) peer.send(payload);
+      }
+
+      return true;
     });
   }
 }
@@ -239,9 +286,6 @@ class HabiticaNetworkClass {
 // .dm(peer, payload)
 // .join(peer, channel)
 // .leave(peer)
-
-// .start(channel)
-// .terminate(channel)
 // .broadcast(channel, payload)
 
 const HabiticaNetwork = new HabiticaNetworkClass();
@@ -249,7 +293,11 @@ const HabiticaNetwork = new HabiticaNetworkClass();
 async function POST(id: PeerId) {
   const line = await HabiticaNetwork.spawn(id);
 
-  return line;
+  if (!line) {
+    return new Response("User already exists", { status: 400 });
+  }
+
+  return new Response(line, { status: 200 });
 }
 
 async function DELETE(id: PeerId) {
@@ -259,8 +307,12 @@ async function DELETE(id: PeerId) {
 const me = randomUUID();
 const party = "tanglo";
 
-POST(me).then((line) => {
-  const reader = line.getReader();
+POST(me).then((response) => {
+  if (response.status !== 200) return "Failed to spawn";
+  if (!response.body) return "No body";
+
+  const reader = response.body.getReader();
+
   reader.read().then(function next({ done, value }) {
     if (done) {
       console.log("Stream complete");
@@ -273,6 +325,12 @@ POST(me).then((line) => {
   });
 });
 
+HabiticaNetwork.dm(me, "hoy");
+
+HabiticaNetwork.join(me, party).then(console.log);
+
+HabiticaNetwork.broadcast(party, "hi there newbie").then(console.log);
+
 DELETE(me);
 
 type Payload = string | object;
@@ -280,5 +338,5 @@ type ID = string;
 type PeerId = ID;
 type ChannelId = ID;
 type List<T> = {
-  [id: ID]: T;
+  [id: ID]: T | undefined;
 };
