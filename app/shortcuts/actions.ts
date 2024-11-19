@@ -29,6 +29,8 @@ export async function castBurstOfFlames(burstCount: string): Promise<{
   success: boolean;
   message: string;
 }> {
+  console.log(`boom ${burstCount}`);
+
   const mana = await fetchHabitica<{ stats: { mp: number } }>(
     "get",
     "user?userFields=stats.mp"
@@ -70,14 +72,15 @@ export async function castBurstOfFlames(burstCount: string): Promise<{
   }
 
   for (let i = 0; i < count; i++) {
-    const cast = await fetchHabitica(
-      "post",
-      `user/class/cast/fireball?targetId=${maxValueTask.id}`
-    );
+    // const cast = await fetchHabitica(
+    //   "post",
+    //   `user/class/cast/fireball?targetId=${maxValueTask.id}`
+    // );
 
-    if (cast.success === false) {
-      return { success: false, message: cast.error };
-    }
+    // if (cast.success === false) {
+    //   return { success: false, message: cast.error };
+    // }
+    await new Promise((res) => setTimeout(res, 1000));
   }
 
   if ((await saveBurstCount(burstCount)) === false) {

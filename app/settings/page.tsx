@@ -7,10 +7,12 @@ import { Suspense } from "react";
 
 export default async function SettingsPage() {
   const id = auth().userId;
-  if (id === null)
-    throw new Error(
+  if (id === null) {
+    console.log(
       "Tried to load a page only accessible when logged in. id from clerk:auth object is null"
     );
+    return null;
+  }
 
   const user = await getUser();
   if (user === null) throw new Error("User not found in the database.");

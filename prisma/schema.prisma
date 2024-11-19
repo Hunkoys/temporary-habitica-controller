@@ -19,6 +19,7 @@ model User {
   tasks         Task[]
   taskHistories TaskHistory[]
   shortcuts     Shortcut[]
+  Skill         Skill[]
 }
 
 model Task {
@@ -45,7 +46,14 @@ model Shortcut {
   userId  String
 }
 
-model Dog {
-  id   String @id @default(cuid())
-  data Json
+model Skill {
+  name        String
+  description String
+  allowed     Boolean
+  target      String
+  repeat      Int
+  user        User    @relation(fields: [userId], references: [id])
+  userId      String
+
+  @@id([name, userId])
 }

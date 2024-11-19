@@ -1,6 +1,7 @@
 import { getUser } from "@/app/_actions/db";
 import { HabiticaKeys } from "@/app/_types/habitica.types";
 import { Habitica } from "@/app/_utils/habitica";
+import ShortcutsClientPage from "@/app/shortcuts/_components/ClientPage";
 import ShortcutsSpells from "@/app/shortcuts/_components/Spells";
 import { Card, Link } from "@nextui-org/react";
 import NextLink from "next/link";
@@ -37,7 +38,8 @@ export default async function ShortcutsPage() {
 
   return (
     <div className="flex flex-col gap-2 p-2 w-full sm:w-96 ">
-      <ShortcutsSpells burstCount={burstCount} />
+      {/* Skeleton here */}
+      <ShortcutsClientPage burstCount={burstCount} />
     </div>
   );
 }

@@ -1,0 +1,326 @@
+//@ts-nocheck
+
+class Channel {
+  private peers: {
+    [peerId: string]: Peer;
+  } = {};
+
+  constructor(public id: string) {}
+
+  broadcasting: Promise<boolean> = new Promise((res) => res(true));
+
+  broadcast(message: string) {
+    this.broadcasting = new Promise((resolve, reject) => {
+      for (const peerId in this.peers) {
+        const peer = this.peers[peerId];
+        peer.send(message);
+      }
+
+      resolve(true);
+    });
+  }
+
+  async requestEntry(peer: Peer): Promise<boolean> {
+    await this.broadcasting;
+    this.peers[peer.id] = peer;
+    return true;
+  }
+
+  async requestLeave(peer: Peer): Promise<boolean> {
+    console.log("broadcasting");
+    await this.broadcasting;
+    console.log("broadcasted");
+    if (!this.peers[peer.id]) return false;
+    delete this.peers[peer.id];
+    return true;
+  }
+}
+
+class Peer {
+  channel: Channel | null = null;
+  private controller: ReadableStreamDefaultController | null = null;
+  private _stream = new ReadableStream({
+    start: (controller) => {
+      this.controller = controller;
+      controller.enqueue(
+        new TextEncoder().encode(JSON.stringify({ id: this.id }))
+      );
+    },
+    cancel: async (reason) => {
+      console.log(`cancel for : ${reason}`);
+      this.disconnect();
+    },
+  });
+
+  constructor(public id: string) {}
+
+  async enter(channel: Channel) {
+    const entered = await channel.requestEntry(this);
+
+    if (entered) {
+      this.channel = channel;
+      return true;
+    }
+
+    return false;
+  }
+
+  async leave() {
+    const left = await this.channel?.requestLeave(this);
+    console.log(`leave ${left}`);
+    if (left) {
+      this.channel = null;
+      return true;
+    }
+    return false;
+  }
+
+  async send(message: string) {
+    const encoder = new TextEncoder();
+    this.controller?.enqueue(encoder.encode(message));
+  }
+
+  async disconnect() {
+    const left = await this.leave();
+    console.log(`disconnect ${left}`);
+    if (left) {
+      try {
+        this.controller?.close();
+      } catch (err) {
+        console.log("err on close()");
+      }
+    }
+  }
+
+  get stream() {
+    return this._stream;
+  }
+}
+
+const HabiticaChannels = {
+  channels: {} as { [channelId: string]: Channel },
+  peers: {} as { [peerId: string]: Peer },
+
+  id(channelId: string) {
+    if (!this.channels[channelId]) {
+      this.channels[channelId] = new Channel(channelId);
+    }
+
+    return this.channels[channelId];
+  },
+  peer(peerId: string) {
+    if (!this.peers[peerId]) {
+      this.peers[peerId] = new Peer(peerId);
+    }
+
+    return this.peers[peerId];
+  },
+
+  // Delete channel when inactive for a while
+};
+
+// HabiticaChannels.join(channel, peer) .leave(peer) .terminate(channel) .dispose(peer)
+
+// Reminder! Never send deltas, always current state
+
+const tanglo = "tanglo";
+
+export async function PUT(req: NextRequest) {
+  const { userId } = auth();
+  if (!userId) return new NextResponse("Unauthorized", { status: 401 });
+
+  const peer = new Peer(randomUUID());
+  HabiticaChannels.peers[peer.id] = peer;
+  const entered = await peer.enter(HabiticaChannels.id(tanglo));
+
+  if (entered == false) return new NextResponse("Can't enter", { status: 500 });
+
+  setTimeout(() => {
+    console.log(HabiticaChannels.peers);
+  }, 1000);
+  // peer.send(peer.id);
+
+  return new NextResponse(peer.stream, {
+    headers: {
+      Connection: "keep-alive",
+      "Content-Encoding": "none",
+      "Cache-Control": "no-cache, no-transform",
+      "Content-Type": "text/event-stream; charset=utf-8",
+    },
+  });
+}
+
+export async function DELETE(request: NextRequest) {
+  const { userId } = auth();
+  if (!userId) return new NextResponse("Unauthorized", { status: 401 });
+
+  const s = await request.json();
+  const peerId = s.peerId;
+  if (!peerId) return new NextResponse("No peerId", { status: 400 });
+  console.log(HabiticaChannels.peers);
+  const peer = HabiticaChannels.peers[peerId];
+
+  if (peer == null) return new NextResponse("No peer", { status: 404 });
+
+  const left = await peer.disconnect();
+
+  console.log(HabiticaChannels.peers);
+
+  return new NextResponse("Left");
+}
+
+export async function GET() {
+  console.log("deleeeeeeete");
+  console.log(HabiticaChannels.peers);
+
+  return new NextResponse("hi");
+}
+
+// ===== server1
+
+const stream = useRef<ReadableStream | null>(null);
+const peerId = useRef<string>("");
+
+useEffect(() => {
+  console.log(`entered useEffect ${stream.current}`);
+
+  const getReader = new Promise(
+    (
+      resolve: ({
+        reader,
+        id,
+      }: {
+        reader: ReadableStreamDefaultReader<string>;
+        id: string;
+      }) => void,
+      reject
+    ) => {
+      fetch("/api/quest/enter", { method: "PUT" }).then(async (res) => {
+        if (res.body === null) {
+          reject();
+          return;
+        }
+
+        const reader = res.body
+          .pipeThrough(new TextDecoderStream())
+          .getReader();
+
+        const result = await reader.read();
+        const { done, value } = result;
+
+        if (done) {
+          console.error("didnt get id");
+          return;
+        }
+
+        const { id } = JSON.parse(value);
+
+        console.log(`got peerId ${id}`);
+
+        reader.closed.then(() => {
+          reader.releaseLock();
+        });
+
+        reader
+          .read()
+          .then(function next({ done, value }) {
+            if (done) {
+              return;
+            }
+
+            console.log(`bro ${value}`);
+
+            setN(value);
+            reader
+              .read()
+              .then(next)
+              .catch((err) => {
+                reader.cancel();
+              });
+          })
+          .catch((err) => {
+            console.log("cannn");
+          });
+
+        console.log(`resolve ${id}`);
+
+        resolve({ reader, id });
+      });
+    }
+  );
+
+  return () => {
+    console.log("leaving");
+    getReader.then(({ reader, id }) => {
+      console.log(`delete ${id}`);
+      fetch("/api/quest/enter", {
+        method: "DELETE",
+        body: JSON.stringify({ peerId: id }),
+      });
+
+      console.log("got reader");
+    });
+  };
+
+  // fetch("/api/stream")
+  //   .then((res) => {
+  //     console.log("rwwww");
+  //     // stream?.current?.getReader().releaseLock();
+  //     stream?.current?.cancel();
+
+  //     if (res.body === null) return;
+  //     stream.current = res.body;
+
+  //     reader = stream.current
+  //       .pipeThrough(new TextDecoderStream())
+  //       .getReader();
+
+  //     reader.cancel();
+
+  //     // reader
+  //     //   .read()
+  //     //   .then(function read({ done, value }) {
+  //     //     if (done) {
+  //     //       reader.releaseLock();
+  //     //       return;
+  //     //     }
+
+  //     //     console.log(`bro ${value}`);
+  //     //     setN(value);
+  //     //     reader
+  //     //       .read()
+  //     //       .then(read)
+  //     //       .catch((err) => {
+  //     //         reader.releaseLock();
+  //     //       });
+  //     //   })
+  //     //   .catch((err) => {
+  //     //     reader.releaseLock();
+  //     //   });
+
+  //     console.log("fetch done");
+  //   })
+  // .catch((err) => {
+  //   // stream.current?.cancel();
+  // });
+}, []);
+
+// const num = useRef<number | null>(null);
+
+// useEffect(() => {
+//   console.log(`entered useEffect ${stream.current}`);
+//   let controller = new AbortController();
+
+//   fetchNum().then((randomnum) => {
+//     console.log(`canceling ${num.current}`);
+
+//     num.current = randomnum;
+
+//     console.log(`running ${num.current}`);
+//   });
+
+//   return () => {
+//     controller.abort('unmounted')
+//     console.log(`left useEffect, closing bro ${num.current}`);
+//   };
+// }, []);
