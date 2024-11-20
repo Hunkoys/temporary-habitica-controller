@@ -3,74 +3,20 @@
 import { saveHabiticaKeys } from "@/app/_actions/user";
 import CommonButton from "@/app/_components/elements/CommonButton";
 import { HabiticaKeys } from "@/app/_types/habitica.types";
+import { useQuestState } from "@/app/_utils/quest/useQuestState";
 import { Button, Input } from "@nextui-org/react";
 import clsx from "clsx";
 import { useCallback, useEffect, useState } from "react";
-
-let s = 1;
-async function fetchNum() {
-  await new Promise((res) => setTimeout(res, s * 1000));
-  return Math.trunc(Math.random() * 100);
-}
 
 export default function HabiticaForm({
   habiticaKeys,
 }: {
   habiticaKeys: HabiticaKeys;
 }) {
-  const [n, setN] = useState("300");
+  const [hp, setHp] = useState("300");
   const [id, setId] = useState("");
 
-  useEffect(() => {
-    const setup = (async () => {
-      const response = await fetch("/api/quest/enter", {
-        method: "POST",
-      });
-
-      if (response.body == null) return false;
-      const reader = response.body
-        .pipeThrough(new TextDecoderStream())
-        .getReader();
-
-      const { done, value } = await reader.read();
-      if (done) return false;
-      const msg = JSON.parse(value);
-
-      if (msg.type !== "init") return false;
-
-      (async () => {
-        while (true) {
-          const { done, value } = await reader.read();
-          if (done) break;
-          const msg = JSON.parse(value);
-          if (msg.type === "bossDamage") {
-            setN(msg.data.hp);
-          }
-        }
-      })().catch(() => {
-        console.error("whoops");
-      });
-
-      setId(msg.data.id);
-
-      return msg.data.id;
-    })();
-
-    return () => {
-      (async () => {
-        const id = await setup;
-        if (id) {
-          const left = await fetch("/api/quest/enter", {
-            method: "DELETE",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ id }),
-          });
-        }
-      })();
-    };
-  }, []);
+  const game = useQuestState({});
 
   const [editMode, setEditMode] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -158,7 +104,7 @@ export default function HabiticaForm({
 
   return (
     <>
-      <div>Boss HP: {n}</div>
+      <div>Boss HP: {hp}</div>
       <CommonButton onClick={handleAttck}>Attack</CommonButton>
       <h2>Habitica</h2>
       <h3>Keys</h3>

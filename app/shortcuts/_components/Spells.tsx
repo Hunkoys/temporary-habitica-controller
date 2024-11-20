@@ -10,8 +10,7 @@ import {
 } from "@nextui-org/react";
 import fireball from "@/assets/shop_fireball.png";
 import NextImage from "next/image";
-import { useCallback, useEffect, useState } from "react";
-import { castBurstOfFlames } from "@/app/shortcuts/actions";
+import { useCallback, useState } from "react";
 
 export default function ShortcutsSpells({
   burstCount: propBurstCount,

@@ -1,3 +1,5 @@
+// @ts-nocheck
+
 // const unitMap = {
 //   day: 'Day',
 //   week: 'Week',
@@ -5,8 +7,8 @@
 //   year: 'Year',
 // };
 
-import { Select } from '@nextui-org/select';
-import { Tab, Tabs } from '@nextui-org/tabs';
+import { Select } from "@nextui-org/select";
+import { Tab, Tabs } from "@nextui-org/tabs";
 
 // function Selector<T extends { readonly [key: string]: string }>({
 //   options,

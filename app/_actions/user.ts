@@ -3,7 +3,7 @@
 import { getUser } from "@/app/_actions/db";
 import { fetchHabitica } from "@/app/_actions/habitica";
 import { HabiticaKeys } from "@/app/_types/habitica.types";
-import { Habitica } from "@/app/_utils/habitica";
+import { Habitica } from "@/app/_utils/habiticaKeys";
 import prisma from "@/prisma/db";
 import { auth } from "@clerk/nextjs/server";
 import { revalidatePath } from "next/cache";

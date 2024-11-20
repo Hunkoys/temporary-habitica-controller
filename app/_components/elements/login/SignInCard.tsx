@@ -59,22 +59,3 @@ export default function SignInCard() {
     </section>
   );
 }
-/*           {isLoading ? (
-            <>
-              <Spinner color="primary" />
-              <p className="text-gray-400">Signing in...</p>
-            </>
-          ) : (
-            <UniversalButton
-              variant="flat"
-              color="primary"
-              size="lg"
-              spinner={<CircularProgress color="primary" />}
-              isLoading={isLoading}
-              onClick={onClick}
-            >
-              Sign In
-              {/* <SignInButton>Sign In</SignInButton> }
-              </UniversalButton>
-            )}
-            */

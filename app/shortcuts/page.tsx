@@ -1,8 +1,7 @@
 import { getUser } from "@/app/_actions/db";
 import { HabiticaKeys } from "@/app/_types/habitica.types";
-import { Habitica } from "@/app/_utils/habitica";
-import ShortcutsClientPage from "@/app/shortcuts/_components/ClientPage";
-import ShortcutsSpells from "@/app/shortcuts/_components/Spells";
+import { Habitica } from "@/app/_utils/habiticaKeys";
+import ShortcutsClientPage from "@/app/shortcuts/page-client";
 import { Card, Link } from "@nextui-org/react";
 import NextLink from "next/link";
 

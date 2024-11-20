@@ -1,5 +1,5 @@
 import { getUser } from "@/app/_actions/db";
-import { Habitica } from "@/app/_utils/habitica";
+import { Habitica } from "@/app/_utils/habiticaKeys";
 import HabiticaForm from "@/app/settings/_components/HabiticaForm";
 import { auth } from "@clerk/nextjs/server";
 import { Card, CardBody, Skeleton } from "@nextui-org/react";

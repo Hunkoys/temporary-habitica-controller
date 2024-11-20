@@ -2,7 +2,7 @@
 
 import { HabiticaContent, HabiticaKeys } from "@/app/_types/habitica.types";
 import { getUser } from "@/app/_actions/db";
-import { Habitica } from "@/app/_utils/habitica";
+import { Habitica } from "@/app/_utils/habiticaKeys";
 
 const X_CLIENT = process.env.HABITICA_X_CLIENT;
 
@@ -88,9 +88,26 @@ export async function fetchHabitica<T = unknown>(
   return json;
 }
 
+export async function checkAPIStatus() {
+  const data = await fetchHabitica("get", "status");
+  return data?.status === "up";
+}
+
+export async function getUserData(HabiticaKeys: HabiticaKeys, filter?: string) {
+  const data = await fetchHabitica(
+    "get",
+    "user" + (filter ? "?" + new URLSearchParams({ userFields: filter }) : "")
+  );
+  return data;
+}
+
+// === Content ===
+
 let content: HabiticaContent = {};
 let dataTimeStamp: number = Date.now();
 const validity = 2 * 60 * 60 * 1000;
+
+// move this to db
 
 export async function getContent() {
   if (dataTimeStamp + validity < Date.now()) {
