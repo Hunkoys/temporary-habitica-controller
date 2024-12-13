@@ -2,13 +2,14 @@
 
 import { getUser } from "@/app/_actions/db";
 import { fetchHabitica } from "@/app/_actions/habitica";
-import { Stats } from "@/app/_utils/habiticaTypes";
+import { HabiticaStats } from "@/app/_types/habitica.types";
+import getPusher from "@/app/_utils/pusher";
 import prisma from "@/prisma/db";
 import { auth } from "@clerk/nextjs/server";
 
 export async function saveAutoAssignCommand(
   userId: string,
-  command: { stat: keyof Stats; status: boolean }
+  command: { stat: keyof HabiticaStats; status: boolean }
 ) {
   const id = "auto-assign-stat-" + userId;
   const shortcut = await prisma.shortcut.upsert({
@@ -80,6 +81,11 @@ export async function castBurstOfFlames(burstCount: string): Promise<{
     // if (cast.success === false) {
     //   return { success: false, message: cast.error };
     // }
+
+    getPusher().trigger("tanglo", "tampoy", {
+      sound: "bosss",
+    });
+
     await new Promise((res) => setTimeout(res, 1000));
   }
 
@@ -127,4 +133,19 @@ export async function saveBurstCount(burstCount: string): Promise<boolean> {
   });
 
   return true;
+}
+
+function randomDamage() {
+  return Math.floor(Math.random() * 200 + 10);
+}
+
+let bossHp = 5000;
+export async function burst(count: number) {
+  for (let i = 0; i < count; i++) {
+    getPusher().trigger("tanglo", "tampoy", {
+      bossHp: (bossHp -= randomDamage()),
+    });
+
+    await new Promise((res) => setTimeout(res, 1000));
+  }
 }

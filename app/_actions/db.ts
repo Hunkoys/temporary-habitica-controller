@@ -20,7 +20,7 @@ export async function getUser<T extends Prisma.UserInclude>(include?: T) {
 
   if (include) search.include = include;
 
-  return await prisma.user.findUnique(
+  const user = await prisma.user.findUnique(
     search as {
       where: {
         id: string;
@@ -28,4 +28,8 @@ export async function getUser<T extends Prisma.UserInclude>(include?: T) {
       include: T;
     }
   );
+
+  if (user == null) throw new UnauthorizedError("User not found in database");
+
+  return user;
 }

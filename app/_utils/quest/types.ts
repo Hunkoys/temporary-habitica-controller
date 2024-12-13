@@ -2,6 +2,7 @@ import { Payload } from "@/app/_lib/ampeer/types";
 
 export type GameState = {
   player: {
+    peerId: string;
     hp: number;
     mana: number;
   };

@@ -120,7 +120,7 @@ const routeMap = [
       />
     </svg>
   )),
-  newRoute("shortcuts", "Shortcuts", ({ size, className }) => (
+  newRoute("quest", "Quest", ({ size, className }) => (
     <svg
       height={size}
       viewBox="0 0 28 30"

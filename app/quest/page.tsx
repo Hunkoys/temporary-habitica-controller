@@ -1,11 +1,11 @@
 import { getUser } from "@/app/_actions/db";
 import { HabiticaKeys } from "@/app/_types/habitica.types";
 import { Habitica } from "@/app/_utils/habiticaKeys";
-import ShortcutsClientPage from "@/app/shortcuts/page-client";
+import QuestScreen from "@/app/quest/_components/QuestScreen";
 import { Card, Link } from "@nextui-org/react";
 import NextLink from "next/link";
 
-export default async function ShortcutsPage() {
+export default async function QuestPage() {
   const user = await getUser({ shortcuts: true });
   if (user === null)
     return <ErrorElement>User not found in the database.</ErrorElement>;
@@ -38,7 +38,7 @@ export default async function ShortcutsPage() {
   return (
     <div className="flex flex-col gap-2 p-2 w-full sm:w-96 ">
       {/* Skeleton here */}
-      <ShortcutsClientPage burstCount={burstCount} />
+      <QuestScreen burstCount={burstCount} />
     </div>
   );
 }

@@ -11,8 +11,10 @@ import {
 import fireball from "@/assets/shop_fireball.png";
 import NextImage from "next/image";
 import { useCallback, useState } from "react";
+import { burst } from "@/app/quest/actions";
+import usePusher from "@/app/_utils/usePusher";
 
-export default function ShortcutsSpells({
+export default function Spells({
   burstCount: propBurstCount,
 }: {
   burstCount: string;
@@ -21,9 +23,15 @@ export default function ShortcutsSpells({
   const [isSavingBurstCount, setIsSavingBurstCount] = useState(false);
   const [progress, setProgress] = useState<number>(0);
 
+  usePusher((bind) => {
+    bind("tampoy", (data: { bossHp: number }) => {
+      setProgress(data.bossHp);
+    });
+  });
+
   const onBurstOfFlames = useCallback(async () => {
     setIsSavingBurstCount(true);
-    const a = await fetch("/api/actions", { method: "POST" });
+    burst(parseInt(burstCount));
     setIsSavingBurstCount(false);
   }, [burstCount]);
 
@@ -64,7 +72,7 @@ export default function ShortcutsSpells({
             aria-label="asd"
             value={progress}
             minValue={0}
-            maxValue={20}
+            maxValue={5000}
           />
         </CardFooter>
       </Card>

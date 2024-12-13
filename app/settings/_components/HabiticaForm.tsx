@@ -13,7 +13,6 @@ export default function HabiticaForm({
 }: {
   habiticaKeys: HabiticaKeys;
 }) {
-  const [hp, setHp] = useState("300");
   const [id, setId] = useState("");
 
   const game = useQuestState({});
@@ -92,19 +91,19 @@ export default function HabiticaForm({
 
   const handleAttck = useCallback(async () => {
     console.log("attack");
-    await fetch("/api/quest/enter", {
-      method: "PUT",
+    await fetch("/api/skill/flame/cast", {
+      method: "POST",
       headers: {
-        "peer-id": id,
+        "peer-id": game.player?.peerId || "",
       },
       body: JSON.stringify({ damage: (Math.random() * 100).toFixed(2) }),
     });
     console.log("done");
-  }, [id]);
+  }, [game.player?.peerId]);
 
   return (
     <>
-      <div>Boss HP: {hp}</div>
+      <div>Boss HP: {game.boss?.hp}</div>
       <CommonButton onClick={handleAttck}>Attack</CommonButton>
       <h2>Habitica</h2>
       <h3>Keys</h3>
