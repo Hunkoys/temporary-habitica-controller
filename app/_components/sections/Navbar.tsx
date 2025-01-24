@@ -1,6 +1,6 @@
 "use client";
 
-import { Progress, Spinner, Tab, Tabs } from "@nextui-org/react";
+import { Progress, Spinner, Tab, Tabs } from "@heroui/react";
 import { ReactElement, useEffect, useMemo, useState } from "react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";

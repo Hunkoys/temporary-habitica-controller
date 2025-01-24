@@ -1,6 +1,14 @@
 "use client";
 
 import CommonButton from "@/app/_components/elements/CommonButton";
+import { CreateStatModal } from "@/app/edit/egos/modals";
+import {
+  Modal,
+  ModalBody,
+  ModalContent,
+  ModalFooter,
+  useDisclosure,
+} from "@heroui/react";
 import { Prisma } from "@prisma/client";
 import { useState } from "react";
 
@@ -9,7 +17,7 @@ type Props = {
     select: {
       id: true;
       title: true;
-      stat: { select: { id: true; title: true; value: true } };
+      stats: { select: { id: true; title: true; value: true } };
     };
   }>[];
 };
@@ -24,7 +32,7 @@ export default function EgosClientPage({ initialEgos }: Props) {
         <div key={ego.id}>
           <h2>{ego.title}</h2>
           <ul>
-            {ego.stat.map((stat) => (
+            {ego.stats.map((stat) => (
               <li key={stat.id}>
                 {stat.title}: {stat.value}
               </li>
@@ -32,7 +40,8 @@ export default function EgosClientPage({ initialEgos }: Props) {
           </ul>
         </div>
       ))}
-      <CommonButton>Create</CommonButton>
+
+      <CreateStatModal />
     </div>
   );
 }

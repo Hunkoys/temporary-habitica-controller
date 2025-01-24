@@ -7,7 +7,7 @@ import {
   CardFooter,
   CardHeader,
   Divider,
-} from "@nextui-org/react";
+} from "@heroui/react";
 import { useCallback, useEffect, useState } from "react";
 import clerkLogo from "@/app/_components/elements/login/clerk-logo-light-accent.svg";
 import Image from "next/image";

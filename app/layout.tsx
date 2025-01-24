@@ -6,7 +6,7 @@ import { dark } from "@clerk/themes";
 import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import { Spinner } from "@nextui-org/react";
+import { Spinner } from "@heroui/react";
 
 const inter = Inter({ subsets: ["latin"] });
 

@@ -3,7 +3,7 @@
 import { saveHabiticaKeys } from "@/app/_actions/user";
 import CommonButton from "@/app/_components/elements/CommonButton";
 import { HabiticaKeys } from "@/app/_types/habitica.types";
-import { Button, Input } from "@nextui-org/react";
+import { Button, Input } from "@heroui/react";
 import clsx from "clsx";
 import { useCallback, useEffect, useState } from "react";
 

@@ -7,7 +7,7 @@ import {
   CardFooter,
   Input,
   Progress,
-} from "@nextui-org/react";
+} from "@heroui/react";
 import fireball from "@/assets/shop_fireball.png";
 import NextImage from "next/image";
 import { useCallback, useState } from "react";

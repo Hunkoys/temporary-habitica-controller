@@ -1,9 +1,9 @@
 "use client";
 
 import { useCallback, useState } from "react";
-import { Input } from "@nextui-org/input";
+import { Input } from "@heroui/input";
 import { getLocalTimeZone, today } from "@internationalized/date";
-import { Card } from "@nextui-org/react";
+import { Card } from "@heroui/react";
 import CommonButton from "@/app/_components/elements/CommonButton";
 
 function AddIcon({ className = "fill-white" }: { className?: string }) {

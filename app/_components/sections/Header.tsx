@@ -1,7 +1,7 @@
 "use client";
 
 import { UserButton, useUser } from "@clerk/nextjs";
-import { Card, Progress, Skeleton } from "@nextui-org/react";
+import { Card, Progress, Skeleton } from "@heroui/react";
 import { useMemo, useState } from "react";
 
 const LightningIcon = ({ className }: { className?: string }) => (

@@ -2,7 +2,7 @@ import { getUser } from "@/app/_actions/db";
 import { HabiticaKeys, QuestGameState } from "@/app/_types/habitica.types";
 import { Habitica } from "@/app/_utils/habiticaKeys";
 import QuestScreen from "@/app/quest/_components/QuestScreen";
-import { Card, Link } from "@nextui-org/react";
+import { Card, Link } from "@heroui/react";
 import NextLink from "next/link";
 
 export default async function QuestPage() {

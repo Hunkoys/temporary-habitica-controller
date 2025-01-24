@@ -20,25 +20,29 @@ model User {
   energy       Float      @default(0)
   equity       Float      @default(0)
   tasks        Task[]
-  ego          Ego[]
+  egos         Ego[]
+  stats        Stat[]
   shortcuts    Shortcut[]
-  skill        Skill[]
+  skills       Skill[]
 }
 
 model Ego {
   id     String @id @default(cuid())
   title  String
-  stat   Stat[]
+  stats  Stat[]
   user   User   @relation(fields: [userId], references: [id])
   userId String
 }
 
 model Stat {
-  id    String  @id @default(cuid())
-  title String
-  value Float
-  Ego   Ego?    @relation(fields: [egoId], references: [id])
-  egoId String?
+  id     String  @id @default(cuid())
+  title  String
+  value  Float   @default(0)
+  egos   Ego[]
+  User   User?   @relation(fields: [userId], references: [id])
+  userId String?
+
+  @@unique([userId, title])
 }
 
 model Task {
@@ -46,7 +50,7 @@ model Task {
   title  String
   date   String?
   steps  Step[]
-  User   User?   @relation(fields: [userId], references: [id])
+  user   User?   @relation(fields: [userId], references: [id])
   userId String?
 }
 
