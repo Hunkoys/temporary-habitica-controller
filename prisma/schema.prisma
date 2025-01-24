@@ -27,6 +27,7 @@ model User {
 
 model Ego {
   id     String @id @default(cuid())
+  title  String
   stat   Stat[]
   user   User   @relation(fields: [userId], references: [id])
   userId String
