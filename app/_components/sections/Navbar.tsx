@@ -94,7 +94,7 @@ const iconClassName = (color: string) => {
 };
 
 const routeMap = [
-  newRoute("", "List", ({ size, className }) => (
+  newRoute("", "Main", ({ size, className }) => (
     <svg
       width={size}
       viewBox="0 0 32 32"
@@ -107,7 +107,7 @@ const routeMap = [
       />
     </svg>
   )),
-  newRoute("schedule", "Schedule", ({ size, className }) => (
+  newRoute("stats", "Stats", ({ size, className }) => (
     <svg
       width={size}
       viewBox="0 0 32 32"
@@ -120,7 +120,7 @@ const routeMap = [
       />
     </svg>
   )),
-  newRoute("quest", "Quest", ({ size, className }) => (
+  newRoute("edit", "Edit", ({ size, className }) => (
     <svg
       height={size}
       viewBox="0 0 28 30"

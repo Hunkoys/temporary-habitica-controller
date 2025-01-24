@@ -59,3 +59,21 @@ export type HabiticaContent = {
     };
   };
 };
+
+export type QuestGameState = {
+  party: string;
+  moment: number;
+  boss?: {
+    maxHp?: number;
+    hp?: number;
+    rage?: number;
+  };
+  players?: {
+    id?: string;
+    hp?: number;
+    mana?: number;
+    skill1?: number;
+  }[];
+};
+
+export const GAME_STATE_ACTION = "game-state";

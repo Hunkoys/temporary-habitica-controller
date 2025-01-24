@@ -14,30 +14,70 @@ datasource db {
 }
 
 model User {
-  id            String        @id
-  habiticaKeys  String        @default("")
-  party         String        @default("")
-  tasks         Task[]
-  taskHistories TaskHistory[]
-  shortcuts     Shortcut[]
-  Skill         Skill[]
+  id           String     @id
+  habiticaKeys String     @default("")
+  party        String     @default("")
+  energy       Float      @default(0)
+  equity       Float      @default(0)
+  tasks        Task[]
+  ego          Ego[]
+  shortcuts    Shortcut[]
+  skill        Skill[]
 }
 
-model Task {
+model Ego {
   id     String @id @default(cuid())
-  title  String
+  stat   Stat[]
   user   User   @relation(fields: [userId], references: [id])
   userId String
 }
 
-model TaskHistory {
-  id     String   @id @default(cuid())
-  date   DateTime
-  status String
-  taskId String
-  user   User     @relation(fields: [userId], references: [id])
-  userId String
+model Stat {
+  id    String  @id @default(cuid())
+  title String
+  value Float
+  Ego   Ego?    @relation(fields: [egoId], references: [id])
+  egoId String?
 }
+
+model Task {
+  id     String  @id @default(cuid())
+  title  String
+  date   String?
+  steps  Step[]
+  User   User?   @relation(fields: [userId], references: [id])
+  userId String?
+}
+
+model Step {
+  id       String        @id @default(cuid())
+  title    String
+  duration Int
+  cost     String
+  rewards  String
+  history  StepHistory[]
+  task     Task          @relation(fields: [taskId], references: [id])
+  taskId   String
+}
+
+model StepHistory {
+  id      String   @id @default(cuid())
+  date    DateTime
+  elapsed Float
+  value   Float
+  note    String
+  step    Step     @relation(fields: [stepId], references: [id])
+  stepId  String
+}
+
+// model TaskHistory {
+//   id     String   @id @default(cuid())
+//   date   DateTime
+//   status String
+//   taskId String
+//   user   User     @relation(fields: [userId], references: [id])
+//   userId String
+// }
 
 model Shortcut {
   id      String @id @default(cuid())

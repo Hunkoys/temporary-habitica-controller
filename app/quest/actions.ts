@@ -2,8 +2,12 @@
 
 import { getUser } from "@/app/_actions/db";
 import { fetchHabitica } from "@/app/_actions/habitica";
-import { HabiticaStats } from "@/app/_types/habitica.types";
-import getPusher from "@/app/_utils/pusher";
+import {
+  GAME_STATE_ACTION,
+  HabiticaStats,
+  QuestGameState,
+} from "@/app/_types/habitica.types";
+import getPusher from "@/app/_utils/pusher/pusher";
 import prisma from "@/prisma/db";
 import { auth } from "@clerk/nextjs/server";
 
@@ -140,11 +144,23 @@ function randomDamage() {
 }
 
 let bossHp = 5000;
+let moment = 0;
 export async function burst(count: number) {
   for (let i = 0; i < count; i++) {
-    getPusher().trigger("tanglo", "tampoy", {
-      bossHp: (bossHp -= randomDamage()),
-    });
+    const gameState: QuestGameState = {
+      moment: moment++,
+      party: "tanglo",
+      boss: {
+        hp: (bossHp -= randomDamage()),
+      },
+      players: [
+        {
+          skill1: i,
+        },
+      ],
+    };
+
+    getPusher().trigger("tanglo", GAME_STATE_ACTION, gameState);
 
     await new Promise((res) => setTimeout(res, 1000));
   }

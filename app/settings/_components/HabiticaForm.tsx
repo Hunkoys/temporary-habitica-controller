@@ -3,7 +3,6 @@
 import { saveHabiticaKeys } from "@/app/_actions/user";
 import CommonButton from "@/app/_components/elements/CommonButton";
 import { HabiticaKeys } from "@/app/_types/habitica.types";
-import { useQuestState } from "@/app/_utils/quest/useQuestState";
 import { Button, Input } from "@nextui-org/react";
 import clsx from "clsx";
 import { useCallback, useEffect, useState } from "react";
@@ -14,8 +13,6 @@ export default function HabiticaForm({
   habiticaKeys: HabiticaKeys;
 }) {
   const [id, setId] = useState("");
-
-  const game = useQuestState({});
 
   const [editMode, setEditMode] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -89,22 +86,8 @@ export default function HabiticaForm({
     setInputToken(value);
   }, []);
 
-  const handleAttck = useCallback(async () => {
-    console.log("attack");
-    await fetch("/api/skill/flame/cast", {
-      method: "POST",
-      headers: {
-        "peer-id": game.player?.peerId || "",
-      },
-      body: JSON.stringify({ damage: (Math.random() * 100).toFixed(2) }),
-    });
-    console.log("done");
-  }, [game.player?.peerId]);
-
   return (
     <>
-      <div>Boss HP: {game.boss?.hp}</div>
-      <CommonButton onClick={handleAttck}>Attack</CommonButton>
       <h2>Habitica</h2>
       <h3>Keys</h3>
       <Input

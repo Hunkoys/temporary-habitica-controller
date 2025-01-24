@@ -1,5 +1,5 @@
 import { getUser } from "@/app/_actions/db";
-import { HabiticaKeys } from "@/app/_types/habitica.types";
+import { HabiticaKeys, QuestGameState } from "@/app/_types/habitica.types";
 import { Habitica } from "@/app/_utils/habiticaKeys";
 import QuestScreen from "@/app/quest/_components/QuestScreen";
 import { Card, Link } from "@nextui-org/react";
@@ -35,10 +35,24 @@ export default async function QuestPage() {
 
   const burstCount = (burstCountShortcut?.command as string) || "1";
 
+  const initial: QuestGameState = {
+    party: "tanglo",
+    moment: 0,
+    boss: {
+      hp: 5000,
+      maxHp: 5000,
+    },
+    players: [
+      {
+        skill1: 0,
+      },
+    ],
+  };
+
   return (
     <div className="flex flex-col gap-2 p-2 w-full sm:w-96 ">
       {/* Skeleton here */}
-      <QuestScreen burstCount={burstCount} />
+      <QuestScreen burstCount={burstCount} initial={initial} />
     </div>
   );
 }

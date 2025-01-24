@@ -12,22 +12,17 @@ import fireball from "@/assets/shop_fireball.png";
 import NextImage from "next/image";
 import { useCallback, useState } from "react";
 import { burst } from "@/app/quest/actions";
-import usePusher from "@/app/_utils/usePusher";
+import { QuestGameState } from "@/app/_types/habitica.types";
 
 export default function Spells({
   burstCount: propBurstCount,
+  gameState,
 }: {
   burstCount: string;
+  gameState: QuestGameState;
 }) {
   const [burstCount, setBurstCount] = useState(propBurstCount);
   const [isSavingBurstCount, setIsSavingBurstCount] = useState(false);
-  const [progress, setProgress] = useState<number>(0);
-
-  usePusher((bind) => {
-    bind("tampoy", (data: { bossHp: number }) => {
-      setProgress(data.bossHp);
-    });
-  });
 
   const onBurstOfFlames = useCallback(async () => {
     setIsSavingBurstCount(true);
@@ -70,9 +65,9 @@ export default function Spells({
         <CardFooter className=" flex flex-row items-baseline gap-1">
           <Progress
             aria-label="asd"
-            value={progress}
+            value={gameState.players?.[0].skill1 || 0}
             minValue={0}
-            maxValue={5000}
+            maxValue={parseInt(burstCount)}
           />
         </CardFooter>
       </Card>

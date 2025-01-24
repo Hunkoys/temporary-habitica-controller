@@ -7,6 +7,7 @@ const PUSHER_KEY = process.env.NEXT_PUBLIC_PUSHER_KEY;
 const PUSHER_CLUSTER = process.env.NEXT_PUBLIC_PUSHER_CLUSTER;
 
 export default function usePusher(
+  channel: string,
   callback: (
     on: <T extends string, O extends Object>(
       event: T,
@@ -25,8 +26,8 @@ export default function usePusher(
         cluster: PUSHER_CLUSTER,
       });
 
-      const channel = pusher.subscribe("tanglo");
-      callback(channel.bind.bind(channel));
+      const c = pusher.subscribe(channel);
+      callback(c.bind.bind(c));
     } catch (err) {
       console.log();
     }
@@ -37,5 +38,5 @@ export default function usePusher(
         pusher.disconnect();
       });
     };
-  }, []);
+  });
 }

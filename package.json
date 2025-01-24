@@ -17,13 +17,14 @@
     "@prisma/client": "^5.19.1",
     "clsx": "^2.1.1",
     "framer-motion": "^11.3.30",
-    "next": "14.2.13",
+    "next": "^14.2.23",
     "next-pwa": "^5.6.0",
     "pusher": "^5.2.0",
     "pusher-js": "^8.4.0-rc2",
     "react": "^18",
     "react-dom": "^18",
-    "svix": "^1.32.0"
+    "svix": "^1.32.0",
+    "zustand": "^5.0.2"
   },
   "devDependencies": {
     "@types/node": "^20",
