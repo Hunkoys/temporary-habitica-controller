@@ -15,20 +15,24 @@ import {
   CardHeader,
   Checkbox,
   CheckboxGroup,
-  ScrollShadow,
+  useCheckboxGroup,
+  useCheckboxGroupContext,
 } from "@heroui/react";
-import { useCallback, useReducer, useState } from "react";
+import clsx from "clsx";
+import { useCallback, useState } from "react";
 
 export default function EgosClientPage({ user }: { user: UserEgoPayload }) {
+  const [selectedStats, setSelectedStats] = useState<string[]>([]);
+  const [selectedEgos, setSelectedEgos] = useState<string[]>([]);
+
   const sendCreateStat = useCallback(async (title: string, value: string) => {
     createStat(title, parseFloat(value));
   }, []);
-  const [selected, setSelected] = useState<string[]>([]);
 
   const sendDeleteStats = useCallback(async () => {
-    await deleteStats(selected);
-    setSelected([]);
-  }, [selected]);
+    await deleteStats(selectedStats);
+    setSelectedStats([]);
+  }, [selectedStats]);
 
   const sendCreateEgo = useCallback(async (title: string) => {
     createEgo(title);
@@ -36,10 +40,12 @@ export default function EgosClientPage({ user }: { user: UserEgoPayload }) {
 
   const sendAssign = useCallback(
     (egoId: string) => {
-      setSelected([]);
+      setSelectedStats([]);
     },
-    [selected]
+    [selectedStats]
   );
+
+  console.log(selectedEgos);
 
   return (
     <>
@@ -49,12 +55,23 @@ export default function EgosClientPage({ user }: { user: UserEgoPayload }) {
             <h2>Egos</h2>
           </CardHeader>
           <CardBody>
-            {user.egos.map((ego) => (
-              <EgoCard key={ego.id} {...ego} onAssign={sendAssign} />
-            ))}
+            <CheckboxGroup value={selectedEgos} onValueChange={setSelectedEgos}>
+              {user.egos.map((ego) => (
+                <EgoCard
+                  key={ego.id}
+                  {...ego}
+                  onAssign={sendAssign}
+                  selection={selectedEgos}
+                  setSelection={setSelectedEgos}
+                />
+              ))}
+            </CheckboxGroup>
           </CardBody>
-          <CardFooter>
+          <CardFooter className="flex gap-2 justify-between">
             <CreateEgoModal onCreate={sendCreateEgo} />
+            <CommonButton onPress={sendDeleteStats} color="danger">
+              Delete
+            </CommonButton>
           </CardFooter>
         </Card>
 
@@ -63,7 +80,10 @@ export default function EgosClientPage({ user }: { user: UserEgoPayload }) {
             <h2>Stats</h2>
           </CardHeader>
           <CardBody>
-            <CheckboxGroup value={selected} onValueChange={setSelected}>
+            <CheckboxGroup
+              value={selectedStats}
+              onValueChange={setSelectedStats}
+            >
               {user.stats.map((stat) => (
                 <StatCard key={stat.id} {...stat} />
               ))}
@@ -73,7 +93,7 @@ export default function EgosClientPage({ user }: { user: UserEgoPayload }) {
             <CreateStatModal onCreate={sendCreateStat} />
             <CommonButton
               onPress={sendDeleteStats}
-              isDisabled={!selected.length}
+              isDisabled={!selectedStats.length}
               color="danger"
             >
               Delete
@@ -104,10 +124,14 @@ function EgoCard({
   id,
   stats,
   disabled,
+  selection,
+  setSelection,
   onAssign,
   onRemove,
 }: UserEgoPayload["egos"][number] & {
   disabled?: boolean;
+  selection?: string[];
+  setSelection?: (ids: string[]) => void;
   onAssign?: (id: string) => void;
   onRemove?: (statIds: string[]) => void;
 }) {
@@ -115,16 +139,30 @@ function EgoCard({
     onAssign?.(id);
   }, [id]);
 
+  const isSelected = selection?.includes(id);
+
   return (
     <div className="flex gap-3 items-center">
-      <Card className={`bg-content2 w-full`}>
-        <CardHeader>
+      <Card
+        className={clsx(
+          "bg-content2 w-full border-2",
+          isSelected ? "border-primary" : "border-transparent"
+        )}
+        onMouseUp={() => {
+          if (selection?.includes(id)) {
+            setSelection?.(selection.filter((s) => s !== id));
+          } else {
+            setSelection?.([...(selection || []), id]);
+          }
+          console.log("hi");
+        }}
+      >
+        <CardHeader className="flex justify-between">
           <h3>{title}</h3>
+          <Checkbox value={id} />
         </CardHeader>
         <CardBody>
-          <div className="flex flex-col gap-1 border-2 border-content3 rounded-lg p-2 min-h-10">
-            hi
-          </div>
+          <div className="flex flex-col gap-1 border-2 border-content3 rounded-lg p-2 min-h-10"></div>
         </CardBody>
       </Card>
       <CommonButton isDisabled={disabled} onPress={assign}>
