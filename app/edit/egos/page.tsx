@@ -1,4 +1,4 @@
-import { getUser } from "@/app/_actions/db";
+import { getEgostats } from "@/app/edit/egos/actions";
 import EgosClientPage from "@/app/edit/egos/client";
 import { auth } from "@clerk/nextjs/server";
 
@@ -12,15 +12,11 @@ export default async function EgosPage() {
     return null;
   }
 
-  const user = await getUser({
-    egos: {
-      select: {
-        id: true,
-        title: true,
-        stats: { select: { id: true, title: true, value: true } },
-      },
-    },
-  });
+  const user = await getEgostats();
 
-  return <EgosClientPage initialEgos={user.egos} />;
+  return (
+    <div className="h-full">
+      <EgosClientPage user={user} />
+    </div>
+  );
 }
