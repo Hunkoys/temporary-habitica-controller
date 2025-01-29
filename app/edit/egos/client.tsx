@@ -55,13 +55,19 @@ export default function EgosClientPage({
 
   const [user, dispatch] = useReducer(reducer, userInitial);
 
+  const [egoError, setEgoError] = useState("");
+  const egoInput = useCallback(
+    (title: string) => {
+      if (exists(user.egos, title))
+        setEgoError("Ego with that name already exists");
+      else setEgoError("");
+    },
+    [user]
+  );
+
   const createEgo = useCallback(
     (title: string) => {
-      if (exists(user.egos, title)) {
-        return "Ego with that name already exists";
-      }
       dispatch({ action: "ego", payload: { title } });
-      return "";
     },
     [user]
   );
@@ -96,7 +102,11 @@ export default function EgosClientPage({
                 <h2>Egos</h2>
                 <div className="flex gap-1 justify-end">
                   <Checkbox size="lg" />
-                  <CreateEgoModal onCreate={createEgo} />
+                  <CreateEgoModal
+                    onCreate={createEgo}
+                    error={egoError}
+                    onInput={egoInput}
+                  />
                 </div>
               </CardHeader>
               <CardBody>

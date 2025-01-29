@@ -15,26 +15,37 @@ import {
 import { useCallback, useState } from "react";
 
 type EgoModalProps = {
-  onCreate?: (title: string) => string;
+  onCreate?: (title: string) => void;
   show?: boolean;
   error?: string;
+  onInput?: (title: string) => void;
 };
 
-export function CreateEgoModal({ onCreate, show = false }: EgoModalProps) {
+export function CreateEgoModal({
+  onCreate,
+  show = false,
+  error,
+  onInput,
+}: EgoModalProps) {
   const [title, setTitle] = useState("");
   const { isOpen, onOpen, onOpenChange } = useDisclosure({
     defaultOpen: show,
     onClose: () => {
       setTitle("");
-      setError("");
     },
   });
 
-  const [error, setError] = useState("");
-
   const create = useCallback(() => {
     return onCreate?.(title) || "";
-  }, [title]);
+  }, [title, onCreate]);
+
+  const onValueChange = useCallback(
+    (value: string) => {
+      setTitle(value);
+      onInput?.(value);
+    },
+    [onInput]
+  );
 
   return (
     <div>
@@ -53,9 +64,8 @@ export function CreateEgoModal({ onCreate, show = false }: EgoModalProps) {
                   validationBehavior="native"
                   onSubmit={(e) => {
                     e.preventDefault();
-                    const error = create();
-                    setError(error);
-                    if (!error) onClose();
+                    create();
+                    onClose();
                   }}
                 >
                   <Input
@@ -64,7 +74,9 @@ export function CreateEgoModal({ onCreate, show = false }: EgoModalProps) {
                     label="Name"
                     isClearable
                     value={title}
-                    onValueChange={setTitle}
+                    onValueChange={onValueChange}
+                    isInvalid={!!error}
+                    errorMessage={error}
                   />
                   <div className="flex gap-1 w-full">
                     <CommonButton className="w-full" onPress={onClose}>
@@ -75,17 +87,18 @@ export function CreateEgoModal({ onCreate, show = false }: EgoModalProps) {
                       type="submit"
                       color="primary"
                       variant="shadow"
+                      isDisabled={!!error}
                     >
                       Create
                     </CommonButton>
                   </div>
                 </Form>
               </ModalBody>
-              <Alert
+              {/* <Alert
                 color="danger"
                 description={error}
                 isVisible={Boolean(error)}
-              />
+              /> */}
             </>
           )}
         </ModalContent>
