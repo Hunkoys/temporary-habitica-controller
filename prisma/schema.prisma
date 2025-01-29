@@ -52,8 +52,8 @@ model Task {
   title  String
   date   String?
   steps  Step[]
-  user   User?   @relation(fields: [userId], references: [id])
-  userId String?
+  user   User    @relation(fields: [userId], references: [id])
+  userId String
 }
 
 model Step {

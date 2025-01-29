@@ -1,7 +1,7 @@
 "use client";
 
 import CommonButton from "@/app/_components/elements/CommonButton";
-import { UserEgoPayload } from "@/app/edit/egos/actions";
+import { rebuildEgos, UserEgoPayload } from "@/app/edit/egos/actions";
 import { CreateEgoModal, CreateStatModal } from "@/app/edit/egos/modals";
 import {
   Card,
@@ -117,7 +117,9 @@ export default function EgosClientPage({
     setSelectedStats([]);
   }, [selectedEgos, selectedStats]);
 
-  console.log(selectedEgos);
+  const save = useCallback(async () => {
+    await rebuildEgos(user);
+  }, [user]);
 
   return (
     <>
@@ -191,6 +193,7 @@ export default function EgosClientPage({
             variant="solid"
             color="primary"
             isDisabled={userInitial == user}
+            onPress={save}
           >
             Save
           </CommonButton>

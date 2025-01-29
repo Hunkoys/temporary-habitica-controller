@@ -3,8 +3,10 @@
 import { getUserId } from "@/app/_utils/auth";
 import prisma from "@/prisma/db";
 import { auth } from "@clerk/nextjs/server";
+import { select } from "@heroui/react";
 import { Prisma } from "@prisma/client";
 import { revalidatePath } from "next/cache";
+import { title } from "process";
 
 type Data = {
   egos: {
@@ -16,7 +18,7 @@ type Data = {
     value: number;
   }[];
 };
-export async function rebuildEgos(data: Data) {
+export async function rebuildEgos(data: UserEgoPayload) {
   const userId = getUserId();
 
   await prisma.ego.deleteMany({
@@ -40,7 +42,10 @@ export async function rebuildEgos(data: Data) {
     data: {
       stats: {
         createMany: {
-          data: stats,
+          data: stats.map(({ title, value }) => ({
+            title,
+            value,
+          })),
         },
       },
       egos: {
@@ -63,13 +68,18 @@ export async function rebuildEgos(data: Data) {
       },
       data: {
         stats: {
-          connect: ego.stats.map((title) => ({
-            userId_title: { userId, title },
+          connect: ego.stats.map(({ title }) => ({
+            userId_title: {
+              userId,
+              title,
+            },
           })),
         },
       },
     });
   }
+
+  revalidatePath("/");
 }
 
 const EGO_STAT_SHAPE = {
@@ -87,7 +97,9 @@ const EGO_STAT_SHAPE = {
     select: {
       title: true,
       value: true,
-      egos: {},
+      egos: {
+        select: { title: true },
+      },
     },
   },
 };
