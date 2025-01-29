@@ -14,51 +14,74 @@ import {
   useCheckboxGroupContext,
 } from "@heroui/react";
 import clsx from "clsx";
-import { useCallback, useState } from "react";
+import { act, useCallback, useReducer, useState } from "react";
+
+function reducer(user: UserEgoPayload, { action, payload }: ActionPayloadMap) {
+  switch (action) {
+    case "ego":
+      return {
+        ...user,
+        egos: [
+          ...user.egos,
+          {
+            title: payload.title,
+            stats: [],
+          },
+        ],
+      };
+    case "delete-ego":
+      return {
+        ...user,
+        egos: user.egos.filter((e) => !payload.titles.includes(e.title)),
+      };
+    case "delete-stat":
+      return {
+        ...user,
+        stats: user.stats.filter((s) => !payload.titles.includes(s.title)),
+      };
+    default:
+      action satisfies never;
+      throw Error("Invalid action");
+  }
+}
 
 export default function EgosClientPage({
   userInitial,
 }: {
   userInitial: UserEgoPayload;
 }) {
-  const [user, setUser] = useState(userInitial);
-
   const [selectedStats, setSelectedStats] = useState<string[]>([]);
   const [selectedEgos, setSelectedEgos] = useState<string[]>([]);
 
-  const createEgo = useCallback((title: string) => {
-    let error = "";
+  const [user, dispatch] = useReducer(reducer, userInitial);
 
-    setUser((u) => {
-      if (exists(u.egos, title)) {
-        error = "Ego with that name already exists";
-        return u;
+  const createEgo = useCallback(
+    (title: string) => {
+      if (exists(user.egos, title)) {
+        return "Ego with that name already exists";
       }
-
-      return {
-        ...u,
-        egos: [
-          ...u.egos,
-          {
-            title,
-            stats: [],
-          },
-        ],
-      };
-    });
-
-    return error;
-  }, []);
+      dispatch({ action: "ego", payload: { title } });
+      return "";
+    },
+    [user]
+  );
 
   const deleteSelected = useCallback(() => {
-    setUser((u) => ({
-      ...u,
-      egos: u.egos.filter((e) => !selectedEgos.includes(e.title)),
-      stats: u.stats.filter((s) => !selectedStats.includes(s.title)),
-    }));
+    dispatch({
+      action: "delete-ego",
+      payload: {
+        titles: selectedEgos,
+      },
+    });
+    dispatch({
+      action: "delete-stat",
+      payload: {
+        titles: selectedStats,
+      },
+    });
 
-    setSelectedEgos((e) => e.filter((s) => !selectedEgos.includes(s)));
-    setSelectedStats((s) => s.filter((s) => !selectedStats.includes(s)));
+    setSelectedEgos([]);
+    setSelectedStats([]);
   }, [selectedEgos, selectedStats]);
 
   console.log(selectedEgos);
@@ -230,15 +253,14 @@ type ActionPayloadMap =
   | {
       action: "delete-stat";
       payload: {
-        id: string;
+        titles: string[];
       };
     }
   | {
       action: "edit-stat";
       payload: {
-        id: string;
-        title?: string;
-        value?: string;
+        title: string;
+        value: string;
       };
     }
   | {
@@ -250,20 +272,20 @@ type ActionPayloadMap =
   | {
       action: "delete-ego";
       payload: {
-        id: string;
+        titles: string[];
       };
     }
   | {
       action: "edit-ego";
       payload: {
-        id: string;
-        title?: string;
+        title: string;
+        newTitle: string;
       };
     }
   | {
       action: "assign-stat";
       payload: {
-        egoId: string;
-        statId: string;
+        ego: string;
+        stats: string[];
       };
     };
