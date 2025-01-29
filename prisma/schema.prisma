@@ -32,15 +32,17 @@ model Ego {
   stats  Stat[]
   user   User   @relation(fields: [userId], references: [id])
   userId String
+
+  @@unique([userId, title])
 }
 
 model Stat {
-  id     String  @id @default(cuid())
+  id     String @id @default(cuid())
   title  String
-  value  Float   @default(0)
+  value  Float  @default(0)
   egos   Ego[]
-  User   User?   @relation(fields: [userId], references: [id])
-  userId String?
+  user   User   @relation(fields: [userId], references: [id])
+  userId String
 
   @@unique([userId, title])
 }

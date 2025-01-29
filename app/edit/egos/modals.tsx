@@ -15,29 +15,32 @@ import {
 import { useCallback, useState } from "react";
 
 type EgoModalProps = {
-  onCreate?: (title: string) => void;
+  onCreate?: (title: string) => string;
   show?: boolean;
   error?: string;
 };
 
-export function CreateEgoModal({
-  onCreate,
-  show = false,
-  error = "",
-}: EgoModalProps) {
+export function CreateEgoModal({ onCreate, show = false }: EgoModalProps) {
   const [title, setTitle] = useState("");
   const { isOpen, onOpen, onOpenChange } = useDisclosure({
     defaultOpen: show,
-    onClose: () => setTitle(""),
+    onClose: () => {
+      setTitle("");
+      setError("");
+    },
   });
 
-  const create = useCallback(async () => {
-    onCreate?.(title);
+  const [error, setError] = useState("");
+
+  const create = useCallback(() => {
+    return onCreate?.(title) || "";
   }, [title]);
 
   return (
     <div>
-      <CommonButton onPress={onOpen}>New Ego</CommonButton>
+      <CommonButton onPress={onOpen} className="min-w-0">
+        New Ego
+      </CommonButton>
       <Modal isOpen={isOpen} onOpenChange={onOpenChange}>
         <ModalContent>
           {(onClose) => (
@@ -50,7 +53,9 @@ export function CreateEgoModal({
                   validationBehavior="native"
                   onSubmit={(e) => {
                     e.preventDefault();
-                    onClose();
+                    const error = create();
+                    setError(error);
+                    if (!error) onClose();
                   }}
                 >
                   <Input
@@ -68,7 +73,6 @@ export function CreateEgoModal({
                     <CommonButton
                       className="w-full"
                       type="submit"
-                      onPress={create}
                       color="primary"
                       variant="shadow"
                     >
@@ -114,7 +118,9 @@ export function CreateStatModal({
 
   return (
     <div>
-      <CommonButton onPress={onOpen}>New Stat</CommonButton>
+      <CommonButton onPress={onOpen} className="min-w-0">
+        New Stat
+      </CommonButton>
       <Modal isOpen={isOpen} onOpenChange={onOpenChange}>
         <ModalContent>
           {(onClose) => (

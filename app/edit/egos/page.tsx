@@ -12,11 +12,11 @@ export default async function EgosPage() {
     return null;
   }
 
-  const user = await getEgostats();
+  const user = (await getEgostats()) || { egos: [], stats: [] };
 
   return (
     <div className="h-full">
-      <EgosClientPage user={user} />
+      <EgosClientPage userInitial={user} />
     </div>
   );
 }

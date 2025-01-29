@@ -6,113 +6,88 @@ import { auth } from "@clerk/nextjs/server";
 import { Prisma } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 
-export async function createEgo(title: string) {
-  setTimeout(() => {
-    revalidatePath("/edit");
-  }, 500);
+type Data = {
+  egos: {
+    title: string;
+    stats: string[];
+  }[];
+  stats: {
+    title: string;
+    value: number;
+  }[];
+};
+export async function rebuildEgos(data: Data) {
+  const userId = getUserId();
 
-  return await prisma.user.update({
+  await prisma.ego.deleteMany({
     where: {
-      id: getUserId(),
+      userId,
     },
+  });
 
+  await prisma.stat.deleteMany({
+    where: {
+      userId,
+    },
+  });
+
+  const { egos, stats } = data;
+
+  await prisma.user.update({
+    where: {
+      id: userId,
+    },
     data: {
+      stats: {
+        createMany: {
+          data: stats,
+        },
+      },
       egos: {
-        create: {
-          title,
+        createMany: {
+          data: egos.map(({ title }) => ({ title })),
         },
       },
     },
   });
-}
 
-export async function deleteEgo(id: string) {
-  const ego = await prisma.ego.findUnique({
-    where: {
-      id,
-    },
-  });
+  for (const ego of egos) {
+    if (ego.stats.length === 0) continue;
 
-  if (ego?.userId !== getUserId()) throw new Error("You do not own this ego");
-
-  revalidatePath("/edit");
-
-  return prisma.ego.delete({
-    where: {
-      id,
-    },
-  });
-}
-
-export async function createStat(title: string, value: number) {
-  revalidatePath("/edit");
-
-  return prisma.user.update({
-    where: {
-      id: getUserId(),
-    },
-
-    data: {
-      stats: {
-        create: {
-          title,
-          value,
+    await prisma.ego.update({
+      where: {
+        userId_title: {
+          userId,
+          title: ego.title,
         },
       },
-    },
-  });
-}
-
-export async function deleteStats(ids: string[] | string) {
-  if (typeof ids === "string") ids = [ids];
-
-  revalidatePath("/edit");
-
-  return prisma.stat.deleteMany({
-    where: {
-      userId: getUserId(),
-      id: { in: ids },
-    },
-  });
-}
-
-export async function assignStat(egoId: string, statIds: string[]) {
-  revalidatePath("/edit");
-
-  return prisma.ego.update({
-    where: {
-      id: egoId,
-    },
-    data: {
-      stats: {
-        connect: statIds.map((id) => ({ id })),
+      data: {
+        stats: {
+          connect: ego.stats.map((title) => ({
+            userId_title: { userId, title },
+          })),
+        },
       },
-    },
-  });
+    });
+  }
 }
 
 const EGO_STAT_SHAPE = {
   egos: {
     select: {
-      id: true,
       title: true,
       stats: {
         select: {
-          id: true,
+          title: true,
         },
       },
     },
   },
   stats: {
     select: {
-      id: true,
       title: true,
       value: true,
-      egos: {
-        select: {
-          id: true,
-        },
-      },
+      egos: {},
     },
   },
 };
@@ -135,52 +110,7 @@ export async function getEgostats() {
     select: EGO_STAT_SHAPE,
   });
 
-  if (egostats === null) throw new Error("No egos found");
+  // if (egostats === null) throw new Error("No egos found");
 
   return egostats;
 }
-
-// export async function createEgo(title: string) {
-//   return getUserId((id) => {
-//     return prisma.user.update({
-//       where: {
-//         id,
-//       },
-
-//       data: {
-//         egos: {
-//           create: {
-//             title,
-//           },
-//         },
-//       },
-//     });
-//   });
-// }
-
-// export async function linkStatToEgo(statId: string, egoId: string) {
-//   return getUserId((id) => {
-//     return prisma.user.update({
-//       where: {
-//         id,
-//       },
-
-//       data: {
-//         stats: {
-//           update: {
-//             where: {
-//               id: statId,
-//             },
-//             data: {
-//               egos: {
-//                 connect: {
-//                   id: egoId,
-//                 },
-//               },
-//             },
-//           },
-//         },
-//       },
-//     });
-//   });
-// }
