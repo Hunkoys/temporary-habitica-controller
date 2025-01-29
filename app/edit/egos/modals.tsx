@@ -39,7 +39,7 @@ export function CreateEgoModal({
     return onCreate?.(title) || "";
   }, [title, onCreate]);
 
-  const onValueChange = useCallback(
+  const onTitleChange = useCallback(
     (value: string) => {
       setTitle(value);
       onInput?.(value);
@@ -74,7 +74,7 @@ export function CreateEgoModal({
                     label="Name"
                     isClearable
                     value={title}
-                    onValueChange={onValueChange}
+                    onValueChange={onTitleChange}
                     isInvalid={!!error}
                     errorMessage={error}
                   />
@@ -111,11 +111,13 @@ type StatModalProps = {
   onCreate?: (title: string, value: string) => void;
   show?: boolean;
   error?: string;
+  onInput?: (title: string) => void;
 };
 export function CreateStatModal({
   onCreate,
   show = false,
   error = "",
+  onInput,
 }: StatModalProps) {
   const [title, setTitle] = useState("");
   const [value, setValue] = useState("");
@@ -127,7 +129,15 @@ export function CreateStatModal({
 
   const create = useCallback(async () => {
     onCreate?.(title, value || "0");
-  }, [title, value]);
+  }, [title, value, onCreate]);
+
+  const onTitleChange = useCallback(
+    (value: string) => {
+      setTitle(value);
+      onInput?.(value);
+    },
+    [onInput]
+  );
 
   return (
     <div>
@@ -146,6 +156,7 @@ export function CreateStatModal({
                   validationBehavior="native"
                   onSubmit={(e) => {
                     e.preventDefault();
+                    create();
                     onClose();
                   }}
                 >
@@ -155,7 +166,9 @@ export function CreateStatModal({
                     label="Name"
                     isClearable
                     value={title}
-                    onValueChange={setTitle}
+                    onValueChange={onTitleChange}
+                    isInvalid={!!error}
+                    errorMessage={error}
                   />
                   <Input
                     type="number"
@@ -172,7 +185,6 @@ export function CreateStatModal({
                     <CommonButton
                       className="w-full"
                       type="submit"
-                      onPress={create}
                       color="primary"
                       variant="shadow"
                     >
@@ -181,11 +193,11 @@ export function CreateStatModal({
                   </div>
                 </Form>
               </ModalBody>
-              <Alert
+              {/* <Alert
                 color="danger"
                 description={error}
                 isVisible={Boolean(error)}
-              />
+              /> */}
             </>
           )}
         </ModalContent>

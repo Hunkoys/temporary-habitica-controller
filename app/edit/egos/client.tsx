@@ -14,9 +14,12 @@ import {
   useCheckboxGroupContext,
 } from "@heroui/react";
 import clsx from "clsx";
-import { act, useCallback, useReducer, useState } from "react";
+import { useCallback, useReducer, useState } from "react";
 
-function reducer(user: UserEgoPayload, { action, payload }: ActionPayloadMap) {
+function reducer(
+  user: UserEgoPayload,
+  { action, payload }: ActionPayloadMap
+): UserEgoPayload {
   switch (action) {
     case "ego":
       return {
@@ -26,6 +29,18 @@ function reducer(user: UserEgoPayload, { action, payload }: ActionPayloadMap) {
           {
             title: payload.title,
             stats: [],
+          },
+        ],
+      };
+    case "stat":
+      return {
+        ...user,
+        stats: [
+          ...user.stats,
+          {
+            title: payload.title,
+            value: parseFloat(payload.value),
+            egos: [],
           },
         ],
       };
@@ -39,6 +54,7 @@ function reducer(user: UserEgoPayload, { action, payload }: ActionPayloadMap) {
         ...user,
         stats: user.stats.filter((s) => !payload.titles.includes(s.title)),
       };
+
     default:
       action satisfies never;
       throw Error("Invalid action");
@@ -52,10 +68,11 @@ export default function EgosClientPage({
 }) {
   const [selectedStats, setSelectedStats] = useState<string[]>([]);
   const [selectedEgos, setSelectedEgos] = useState<string[]>([]);
-
-  const [user, dispatch] = useReducer(reducer, userInitial);
-
   const [egoError, setEgoError] = useState("");
+  const [statError, setStatError] = useState("");
+
+  const [user, modUser] = useReducer(reducer, userInitial);
+
   const egoInput = useCallback(
     (title: string) => {
       if (exists(user.egos, title))
@@ -65,21 +82,31 @@ export default function EgosClientPage({
     [user]
   );
 
-  const createEgo = useCallback(
+  const statInput = useCallback(
     (title: string) => {
-      dispatch({ action: "ego", payload: { title } });
+      if (exists(user.stats, title))
+        setStatError("Stat with that name already exists");
+      else setStatError("");
     },
     [user]
   );
 
+  const createEgo = useCallback((title: string) => {
+    modUser({ action: "ego", payload: { title } });
+  }, []);
+
+  const createStat = useCallback((title: string) => {
+    modUser({ action: "stat", payload: { title, value: "0" } });
+  }, []);
+
   const deleteSelected = useCallback(() => {
-    dispatch({
+    modUser({
       action: "delete-ego",
       payload: {
         titles: selectedEgos,
       },
     });
-    dispatch({
+    modUser({
       action: "delete-stat",
       payload: {
         titles: selectedStats,
@@ -131,7 +158,11 @@ export default function EgosClientPage({
                 <h2>Stats</h2>
                 <div className="flex gap-1 justify-end">
                   <Checkbox size="lg" />
-                  <CreateStatModal />
+                  <CreateStatModal
+                    onCreate={createStat}
+                    error={statError}
+                    onInput={statInput}
+                  />
                 </div>
               </CardHeader>
               <CardBody>
