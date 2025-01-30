@@ -10,6 +10,8 @@ import {
   Checkbox,
   CheckboxGroup,
   Divider,
+  input,
+  Input,
 } from "@heroui/react";
 import clsx from "clsx";
 import { useCallback, useReducer, useState } from "react";
@@ -85,6 +87,32 @@ function reducer(
           }
           return e;
         }),
+      };
+    case "edit-stat":
+      return {
+        ...user,
+        stats: user.stats.map((s) => {
+          if (s.title === payload.title) {
+            return {
+              ...s,
+              title: payload.newTitle || s.title,
+              value: payload.value ? parseFloat(payload.value) : s.value,
+            };
+          }
+          return s;
+        }),
+        egos: user.egos.map((e) => ({
+          ...e,
+          stats: e.stats.map((s) => {
+            if (s.title === payload.title) {
+              return {
+                ...s,
+                title: payload.newTitle || s.title,
+              };
+            }
+            return s;
+          }),
+        })),
       };
     default:
       action satisfies never;
@@ -196,6 +224,23 @@ export default function EgosClientPage({
     });
   }, []);
 
+  const statEdit = useCallback(
+    (
+      title: string,
+      { value, newTitle }: { value?: string; newTitle?: string }
+    ) => {
+      modUser({
+        action: "edit-stat",
+        payload: {
+          title,
+          value,
+          newTitle,
+        },
+      });
+    },
+    []
+  );
+
   return (
     <>
       <div className="h-full flex flex-col gap-3 items-stretch justify-between">
@@ -250,7 +295,11 @@ export default function EgosClientPage({
                   onValueChange={setSelectedStats}
                 >
                   {user.stats.map((stat) => (
-                    <StatCard key={stat.title} {...stat} />
+                    <StatCard
+                      key={stat.title}
+                      {...stat}
+                      onValueEdit={statEdit}
+                    />
                   ))}
                 </CheckboxGroup>
               </CardBody>
@@ -285,18 +334,55 @@ function exists(arr: { title: string }[], title: string) {
   return arr.find((i) => i.title === title);
 }
 
-function StatCard({ title, value }: { title: string; value: number }) {
+function StatCard({
+  title,
+  value,
+  onValueEdit,
+}: {
+  title: string;
+  value: number;
+  onValueEdit: (
+    stat: string,
+    {
+      value,
+      newTitle,
+    }: {
+      value?: string;
+      newTitle?: string;
+    }
+  ) => void;
+}) {
+  const valueEdit = useCallback(
+    (value: string) => {
+      onValueEdit?.(title, { value });
+    },
+    [title]
+  );
+
   return (
-    <div className="flex gap-2 items-stretch w-full">
-      <Checkbox
-        className={`max-w-full w-full bg-content2 items-center justify-start cursor-pointer
-        rounded-lg gap-2 m-0 border-2 border-transparent hover:border-primary-200 data-[selected=true]:border-primary`}
-        value={title}
+    <Card
+    // className={`max-w-full w-full bg-content2 items-center justify-start cursor-pointer
+    // rounded-lg gap-2 m-0 border-2 border-transparent hover:border-primary-200 data-[selected=true]:border-primary`}
+    >
+      <CardBody
+        className={clsx(
+          "flex flex-row items-center justify-between bg-content2 border-2 border-transparent"
+        )}
       >
-        <span>{title}</span>
-        <span>{value}</span>
-      </Checkbox>
-    </div>
+        <Checkbox classNames={{ base: "w-full max-w-full" }} value={title}>
+          {title}
+        </Checkbox>
+        <Input
+          classNames={{
+            base: ["w-24"],
+          }}
+          variant="bordered"
+          type="number"
+          value={value.toString()}
+          onValueChange={valueEdit}
+        />
+      </CardBody>
+    </Card>
   );
 }
 
@@ -424,7 +510,8 @@ type ActionPayloadMap =
       action: "edit-stat";
       payload: {
         title: string;
-        value: string;
+        value?: string;
+        newTitle?: string;
       };
     }
   | {
