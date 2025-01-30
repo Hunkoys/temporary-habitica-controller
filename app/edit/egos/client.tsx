@@ -100,6 +100,7 @@ export default function EgosClientPage({
   const [selectedEgos, setSelectedEgos] = useState<string[]>([]);
   const [egoError, setEgoError] = useState("");
   const [statError, setStatError] = useState("");
+  const [isSaving, setIsSaving] = useState(false);
 
   const [user, modUser] = useReducer(reducer, userInitial);
 
@@ -148,7 +149,9 @@ export default function EgosClientPage({
   }, [selectedEgos, selectedStats]);
 
   const save = useCallback(async () => {
+    setIsSaving(true);
     await rebuildEgos(user);
+    setIsSaving(false);
   }, [user]);
 
   const assign = useCallback(
@@ -253,6 +256,7 @@ export default function EgosClientPage({
             color="primary"
             isDisabled={userInitial == user}
             onPress={save}
+            isLoading={isSaving}
           >
             Save
           </CommonButton>
