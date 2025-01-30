@@ -50,6 +50,10 @@ function reducer(
       return {
         ...user,
         stats: user.stats.filter((s) => !payload.titles.includes(s.title)),
+        egos: user.egos.map((e) => ({
+          ...e,
+          stats: e.stats.filter((s) => !payload.titles.includes(s.title)),
+        })),
       };
     case "assign-stat":
       return {
