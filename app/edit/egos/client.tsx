@@ -6,12 +6,9 @@ import { CreateEgoModal, CreateStatModal } from "@/app/edit/egos/modals";
 import {
   Card,
   CardBody,
-  CardFooter,
   CardHeader,
   Checkbox,
   CheckboxGroup,
-  useCheckboxGroup,
-  useCheckboxGroupContext,
 } from "@heroui/react";
 import clsx from "clsx";
 import { useCallback, useReducer, useState } from "react";
@@ -54,7 +51,23 @@ function reducer(
         ...user,
         stats: user.stats.filter((s) => !payload.titles.includes(s.title)),
       };
-
+    case "assign-stat":
+      return {
+        ...user,
+        egos: user.egos.map((e) => {
+          if (e.title === payload.ego) {
+            const statList = new Set<string>([
+              ...e.stats.map(({ title }) => title),
+              ...payload.stats,
+            ]);
+            return {
+              ...e,
+              stats: user.stats.filter((s) => statList.has(s.title)),
+            };
+          }
+          return e;
+        }),
+      };
     default:
       action satisfies never;
       throw Error("Invalid action");
@@ -95,8 +108,8 @@ export default function EgosClientPage({
     modUser({ action: "ego", payload: { title } });
   }, []);
 
-  const createStat = useCallback((title: string) => {
-    modUser({ action: "stat", payload: { title, value: "0" } });
+  const createStat = useCallback((title: string, value: string) => {
+    modUser({ action: "stat", payload: { title, value } });
   }, []);
 
   const deleteSelected = useCallback(() => {
@@ -120,6 +133,23 @@ export default function EgosClientPage({
   const save = useCallback(async () => {
     await rebuildEgos(user);
   }, [user]);
+
+  const assign = useCallback(
+    (ego: string) => {
+      modUser({
+        action: "assign-stat",
+        payload: {
+          ego,
+          stats: selectedStats,
+        },
+      });
+
+      setSelectedStats([]);
+    },
+    [selectedStats]
+  );
+
+  console.log(selectedStats);
 
   return (
     <>
@@ -149,6 +179,7 @@ export default function EgosClientPage({
                       {...ego}
                       selection={selectedEgos}
                       setSelection={setSelectedEgos}
+                      onAssign={assign}
                     />
                   ))}
                 </CheckboxGroup>
@@ -207,7 +238,7 @@ function exists(arr: { title: string }[], title: string) {
   return arr.find((i) => i.title === title);
 }
 
-function StatCard({ title }: { title: string }) {
+function StatCard({ title, value }: { title: string; value: number }) {
   return (
     <div className="flex gap-2 items-stretch w-full">
       <Checkbox
@@ -216,6 +247,7 @@ function StatCard({ title }: { title: string }) {
         value={title}
       >
         <span>{title}</span>
+        <span>{value}</span>
       </Checkbox>
     </div>
   );
@@ -238,7 +270,7 @@ function EgoCard({
 }) {
   const assign = useCallback(() => {
     onAssign?.(title);
-  }, [title]);
+  }, [title, onAssign]);
 
   const isSelected = selection?.includes(title);
 
@@ -265,7 +297,9 @@ function EgoCard({
         </CardHeader>
         <CardBody>
           <div className="flex flex-col gap-1 border-2 border-content3 rounded-lg p-2 min-h-10">
-            <Checkbox />
+            {stats.map((stat) => (
+              <span key={stat.title}>{stat.title}</span>
+            ))}
           </div>
         </CardBody>
       </Card>
