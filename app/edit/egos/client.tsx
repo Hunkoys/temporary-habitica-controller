@@ -9,6 +9,7 @@ import {
   CardHeader,
   Checkbox,
   CheckboxGroup,
+  Divider,
 } from "@heroui/react";
 import clsx from "clsx";
 import { useCallback, useReducer, useState } from "react";
@@ -365,9 +366,17 @@ function EgoStatStrip({
   }, [title]);
 
   return (
-    <div className="flex justify-between">
+    <div className="flex justify-between items-center bg-content3 rounded-md py-1 px-3">
       <span>{title}</span>
-      <CommonButton onPress={remove}>X</CommonButton>
+      <CommonButton
+        className="min-w-0 min-h-0 p-0 h-5 w-5"
+        onPress={remove}
+        variant="light"
+        radius="full"
+        color="danger"
+      >
+        X
+      </CommonButton>
     </div>
   );
 }
