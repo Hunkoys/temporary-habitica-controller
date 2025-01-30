@@ -105,15 +105,21 @@ export default function EgosClientPage({
 
   const [user, modUser] = useReducer(reducer, userInitial);
 
-  const selectAllEgos = useCallback((checked: boolean) => {
-    if (checked) setSelectedEgos(user.egos.map((e) => e.title));
-    else setSelectedEgos([]);
-  }, []);
+  const selectAllEgos = useCallback(
+    (checked: boolean) => {
+      if (checked) setSelectedEgos(user.egos.map((e) => e.title));
+      else setSelectedEgos([]);
+    },
+    [user]
+  );
 
-  const selectAllStats = useCallback((checked: boolean) => {
-    if (checked) setSelectedStats(user.stats.map((s) => s.title));
-    else setSelectedStats([]);
-  }, []);
+  const selectAllStats = useCallback(
+    (checked: boolean) => {
+      if (checked) setSelectedStats(user.stats.map((s) => s.title));
+      else setSelectedStats([]);
+    },
+    [user]
+  );
 
   const egoInput = useCallback(
     (title: string) => {
@@ -189,8 +195,6 @@ export default function EgosClientPage({
       },
     });
   }, []);
-
-  console.log(selectedStats);
 
   return (
     <>
