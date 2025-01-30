@@ -68,6 +68,19 @@ function reducer(
           return e;
         }),
       };
+    case "remove-stat":
+      return {
+        ...user,
+        egos: user.egos.map((e) => {
+          if (e.title === payload.ego) {
+            return {
+              ...e,
+              stats: e.stats.filter((s) => !payload.stats.includes(s.title)),
+            };
+          }
+          return e;
+        }),
+      };
     default:
       action satisfies never;
       throw Error("Invalid action");
@@ -149,6 +162,16 @@ export default function EgosClientPage({
     [selectedStats]
   );
 
+  const remove = useCallback((ego: string, stat: string) => {
+    modUser({
+      action: "remove-stat",
+      payload: {
+        ego,
+        stats: [stat],
+      },
+    });
+  }, []);
+
   console.log(selectedStats);
 
   return (
@@ -180,6 +203,7 @@ export default function EgosClientPage({
                       selection={selectedEgos}
                       setSelection={setSelectedEgos}
                       onAssign={assign}
+                      onRemove={remove}
                     />
                   ))}
                 </CheckboxGroup>
@@ -266,7 +290,7 @@ function EgoCard({
   selection?: string[];
   setSelection?: (ids: string[]) => void;
   onAssign?: (id: string) => void;
-  onRemove?: (statIds: string[]) => void;
+  onRemove?: (ego: string, stat: string) => void;
 }) {
   const assign = useCallback(() => {
     onAssign?.(title);
@@ -281,6 +305,13 @@ function EgoCard({
       setSelection?.([...(selection || []), title]);
     }
   }, [selection]);
+
+  const remove = useCallback(
+    (stat: string) => {
+      onRemove?.(title, stat);
+    },
+    [title]
+  );
 
   return (
     <div className="flex gap-3 items-center">
@@ -298,7 +329,11 @@ function EgoCard({
         <CardBody>
           <div className="flex flex-col gap-1 border-2 border-content3 rounded-lg p-2 min-h-10">
             {stats.map((stat) => (
-              <span key={stat.title}>{stat.title}</span>
+              <EgoStatStrip
+                key={stat.title}
+                title={stat.title}
+                onRemove={remove}
+              />
             ))}
           </div>
         </CardBody>
@@ -306,6 +341,25 @@ function EgoCard({
       <CommonButton isDisabled={disabled} onPress={assign}>
         {"<-"}
       </CommonButton>
+    </div>
+  );
+}
+
+function EgoStatStrip({
+  title,
+  onRemove,
+}: {
+  title: string;
+  onRemove: (title: string) => void;
+}) {
+  const remove = useCallback(() => {
+    onRemove?.(title);
+  }, [title]);
+
+  return (
+    <div className="flex justify-between">
+      <span>{title}</span>
+      <CommonButton onPress={remove}>X</CommonButton>
     </div>
   );
 }
@@ -318,6 +372,7 @@ const ACTIONS = [
   "delete-ego",
   "edit-ego",
   "assign-stat",
+  "remove-stat",
 ];
 
 type ActionPayloadMap =
@@ -362,6 +417,13 @@ type ActionPayloadMap =
     }
   | {
       action: "assign-stat";
+      payload: {
+        ego: string;
+        stats: string[];
+      };
+    }
+  | {
+      action: "remove-stat";
       payload: {
         ego: string;
         stats: string[];
