@@ -105,6 +105,16 @@ export default function EgosClientPage({
 
   const [user, modUser] = useReducer(reducer, userInitial);
 
+  const selectAllEgos = useCallback((checked: boolean) => {
+    if (checked) setSelectedEgos(user.egos.map((e) => e.title));
+    else setSelectedEgos([]);
+  }, []);
+
+  const selectAllStats = useCallback((checked: boolean) => {
+    if (checked) setSelectedStats(user.stats.map((s) => s.title));
+    else setSelectedStats([]);
+  }, []);
+
   const egoInput = useCallback(
     (title: string) => {
       if (exists(user.egos, title))
@@ -191,7 +201,7 @@ export default function EgosClientPage({
               <CardHeader className="flex justify-between">
                 <h2>Egos</h2>
                 <div className="flex gap-1 justify-end">
-                  <Checkbox size="lg" />
+                  <Checkbox size="lg" onValueChange={selectAllEgos} />
                   <CreateEgoModal
                     onCreate={createEgo}
                     error={egoError}
@@ -222,7 +232,7 @@ export default function EgosClientPage({
               <CardHeader className="flex justify-between">
                 <h2>Stats</h2>
                 <div className="flex gap-1 justify-end">
-                  <Checkbox size="lg" />
+                  <Checkbox size="lg" onValueChange={selectAllStats} />
                   <CreateStatModal
                     onCreate={createStat}
                     error={statError}
@@ -244,7 +254,7 @@ export default function EgosClientPage({
           </div>
         </div>
 
-        <div className="flex justify-between gap-2">
+        <div className="flex justify-between gap-2 px-2">
           <CommonButton
             color="danger"
             isDisabled={!(selectedEgos.length + selectedStats.length)}
