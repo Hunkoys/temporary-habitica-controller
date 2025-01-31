@@ -13,8 +13,6 @@ export default function Navbar({ leftie = false }: { leftie?: boolean }) {
 
   const [to, setTo] = useState<string | number>(pathBase);
 
-  console.log(pathName);
-
   useEffect(() => {
     setTo(pathBase);
   }, [pathBase]);
