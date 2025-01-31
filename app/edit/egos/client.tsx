@@ -4,17 +4,25 @@ import CommonButton from "@/app/_components/elements/CommonButton";
 import { rebuildEgos, UserEgoPayload } from "@/app/edit/egos/actions";
 import { CreateEgoModal, CreateStatModal } from "@/app/edit/egos/modals";
 import {
+  ButtonGroup,
   Card,
   CardBody,
   CardHeader,
   Checkbox,
   CheckboxGroup,
+  Chip,
   Divider,
+  Form,
   input,
   Input,
+  Modal,
+  ModalBody,
+  ModalContent,
+  ModalHeader,
+  useDisclosure,
 } from "@heroui/react";
 import clsx from "clsx";
-import { useCallback, useReducer, useState } from "react";
+import { FormEvent, useCallback, useReducer, useState } from "react";
 
 function reducer(
   user: UserEgoPayload,
@@ -39,7 +47,7 @@ function reducer(
           ...user.stats,
           {
             title: payload.title,
-            value: parseFloat(payload.value),
+            value: parseFloat(payload.value || "0"),
             egos: [],
           },
         ],
@@ -96,7 +104,7 @@ function reducer(
             return {
               ...s,
               title: payload.newTitle || s.title,
-              value: payload.value ? parseFloat(payload.value) : s.value,
+              value: payload.value ? parseFloat(payload.value || "0") : s.value,
             };
           }
           return s;
@@ -113,6 +121,19 @@ function reducer(
             return s;
           }),
         })),
+      };
+    case "edit-ego":
+      return {
+        ...user,
+        egos: user.egos.map((e) => {
+          if (e.title === payload.title) {
+            return {
+              ...e,
+              title: payload.newTitle,
+            };
+          }
+          return e;
+        }),
       };
     default:
       action satisfies never;
@@ -224,11 +245,27 @@ export default function EgosClientPage({
     });
   }, []);
 
-  const statEdit = useCallback(
+  const [editing, setEditing] = useState<"Ego" | "Stat" | "">("");
+
+  const edit = useCallback(() => {
+    if (selectedEgos.length === 1) setEditing("Ego");
+    else if (selectedStats.length === 1) setEditing("Stat");
+  }, [selectedEgos, selectedStats]);
+
+  const {
+    isOpen: isEditOpen,
+    onOpen: onEditOpen,
+    onOpenChange: onEditOpenChange,
+  } = useDisclosure({
+    onOpen: edit,
+  });
+
+  const updateStat = useCallback(
     (
       title: string,
       { value, newTitle }: { value?: string; newTitle?: string }
     ) => {
+      setSelectedStats([]);
       modUser({
         action: "edit-stat",
         payload: {
@@ -240,6 +277,17 @@ export default function EgosClientPage({
     },
     []
   );
+
+  const updateEgo = useCallback((title: string, newTitle: string) => {
+    setSelectedEgos([]);
+    modUser({
+      action: "edit-ego",
+      payload: {
+        title,
+        newTitle,
+      },
+    });
+  }, []);
 
   return (
     <>
@@ -299,7 +347,7 @@ export default function EgosClientPage({
                     <StatCard
                       key={stat.title}
                       {...stat}
-                      onValueEdit={statEdit}
+                      onValueEdit={updateStat}
                     />
                   ))}
                 </CheckboxGroup>
@@ -309,13 +357,21 @@ export default function EgosClientPage({
         </div>
 
         <div className="flex justify-between gap-2 px-2">
-          <CommonButton
-            color="danger"
-            isDisabled={!(selectedEgos.length + selectedStats.length)}
-            onPress={deleteSelected}
-          >
-            Delete
-          </CommonButton>
+          <div className="flex items-center gap-2">
+            <CommonButton
+              color="danger"
+              isDisabled={!(selectedEgos.length + selectedStats.length)}
+              onPress={deleteSelected}
+            >
+              Delete
+            </CommonButton>
+            <CommonButton
+              onPress={onEditOpen}
+              isDisabled={selectedEgos.length + selectedStats.length !== 1}
+            >
+              Edit
+            </CommonButton>
+          </div>
           <CommonButton
             variant="solid"
             color="primary"
@@ -327,7 +383,119 @@ export default function EgosClientPage({
           </CommonButton>
         </div>
       </div>
+      <Modal isOpen={isEditOpen} onOpenChange={onEditOpenChange}>
+        <ModalContent>
+          {(onClose) => (
+            <>
+              <ModalHeader className="flex items-baseline gap-4">
+                Edit {editing}:
+                <Chip
+                  variant="bordered"
+                  size="lg"
+                  radius="sm"
+                  className="text-xl font-bold"
+                >
+                  {editing === "Ego" ? selectedEgos[0] : selectedStats[0]}
+                </Chip>
+              </ModalHeader>
+              <ModalBody>
+                {editing === "Ego" ? (
+                  <EgoEditForm
+                    title={selectedEgos[0]}
+                    onSave={updateEgo}
+                    onCancel={onClose}
+                  />
+                ) : (
+                  <StatEditForm
+                    stat={user.stats.find((s) => s.title === selectedStats[0])}
+                    onSave={updateStat}
+                    onCancel={onClose}
+                  />
+                )}
+              </ModalBody>
+            </>
+          )}
+        </ModalContent>
+      </Modal>
     </>
+  );
+}
+
+function EgoEditForm({
+  title: currentTitle,
+  onSave,
+  onCancel,
+}: {
+  title: string;
+  onSave?: (title: string, newTitle: string) => void;
+  onCancel?: () => void;
+}) {
+  const [title, setTitle] = useState(currentTitle);
+  const onSubmit = useCallback(
+    (e: FormEvent) => {
+      onCancel?.();
+      e.preventDefault();
+      onSave?.(currentTitle, title);
+    },
+    [title]
+  );
+
+  return (
+    <Form onSubmit={onSubmit}>
+      <Input label="Title" autoFocus value={title} onValueChange={setTitle} />
+      <div className="w-full flex justify-end gap-1">
+        <CommonButton onPress={onCancel}>Cancel</CommonButton>
+        <CommonButton type="submit" variant="solid" color="primary">
+          Save
+        </CommonButton>
+      </div>
+    </Form>
+  );
+}
+
+function StatEditForm({
+  stat: { title: currentTitle, value: currentValue } = { title: "", value: 0 },
+  onSave,
+  onCancel,
+}: {
+  stat?: {
+    title: string;
+    value: number;
+  };
+  onSave?: (
+    title: string,
+    { newTitle, value }: { newTitle: string; value: string }
+  ) => void;
+  onCancel?: () => void;
+}) {
+  const [title, setTitle] = useState(currentTitle);
+  const [value, setValue] = useState(currentValue.toString());
+
+  const onSubmit = useCallback(
+    (e: FormEvent) => {
+      onCancel?.();
+      e.preventDefault();
+      onSave?.(currentTitle, { newTitle: title, value });
+    },
+    [title, value]
+  );
+
+  return (
+    <Form onSubmit={onSubmit}>
+      <Input label="Title" autoFocus value={title} onValueChange={setTitle} />
+      <Input
+        label="Value"
+        type="number"
+        value={value}
+        onValueChange={setValue}
+      />
+      <div className="w-full flex justify-end gap-1">
+        <CommonButton>Cancel</CommonButton>
+        <CommonButton type="submit" variant="solid" color="primary">
+          Save
+        </CommonButton>
+      </div>
+    </Form>
   );
 }
 
@@ -487,17 +655,6 @@ function EgoStatStrip({
     </div>
   );
 }
-
-const ACTIONS = [
-  "stat",
-  "delete-stat",
-  "edit-stat",
-  "ego",
-  "delete-ego",
-  "edit-ego",
-  "assign-stat",
-  "remove-stat",
-];
 
 type ActionPayloadMap =
   | {

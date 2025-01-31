@@ -80,7 +80,7 @@ export function CreateEgoModal({
                   />
                   <div className="flex gap-1 w-full">
                     <CommonButton className="w-full" onPress={onClose}>
-                      Discard
+                      Cancel
                     </CommonButton>
                     <CommonButton
                       className="w-full"
@@ -180,7 +180,7 @@ export function CreateStatModal({
                   />
                   <div className="flex gap-1 w-full">
                     <CommonButton className="w-full" onPress={onClose}>
-                      Discard
+                      Cancel
                     </CommonButton>
                     <CommonButton
                       className="w-full"
