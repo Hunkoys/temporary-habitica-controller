@@ -301,8 +301,8 @@ export default function EgosClientPage({
         onMouseDownCapture={deselectAll}
       >
         <div className="w-[100%] overflow-auto h-full">
-          <div className="flex gap-2 p-2 h-full w-[140%] sm:w-full transition-all">
-            <Card className="w-full max-h-[100%]">
+          <div className="flex gap-2 p-2 h-full w-fit sm:w-full transition-all">
+            <Card className="w-fit max-h-[100%]">
               <CardHeader className="flex justify-between">
                 <h2>Egos</h2>
                 <div className="flex gap-1 justify-end">
@@ -355,7 +355,6 @@ export default function EgosClientPage({
                     <StatCard
                       key={stat.title}
                       {...stat}
-                      onValueEdit={updateStat}
                       setSelection={setSelectedStats}
                     />
                   ))}
@@ -575,10 +574,10 @@ function EgoCard({
   );
 
   return (
-    <div className="flex gap-3 items-center">
+    <div className="flex gap-3 items-center w-full">
       <Card
         className={clsx(
-          "bg-content2 w-full border-2",
+          "bg-content2 w-full border-2 transition-all",
           isSelected ? "border-primary" : "border-transparent"
         )}
         onMouseDown={select}
@@ -588,7 +587,7 @@ function EgoCard({
           <Checkbox value={title} size="lg" />
         </CardHeader>
         <CardBody>
-          <div className="flex flex-col gap-1 border-2 border-content3 rounded-lg p-2 min-h-10">
+          <div className="flex flex-col gap-1 border-2 border-content3 rounded-lg p-2 min-h-10 min-w-0">
             {stats.map((stat) => (
               <EgoStatStrip
                 key={stat.title}
@@ -600,7 +599,10 @@ function EgoCard({
         </CardBody>
       </Card>
       <CommonButton
-        className="min-w-0"
+        className={clsx(
+          "min-w-0 transition-all duration-1000",
+          disabled && "scale-0 absolute left-[-1000px]"
+        )}
         variant="solid"
         color={disabled ? "default" : "primary"}
         isDisabled={disabled}
@@ -624,10 +626,10 @@ function EgoStatStrip({
   }, [title]);
 
   return (
-    <div className="flex justify-between items-center bg-content3 rounded-md py-1 px-3">
-      <span>{title}</span>
+    <div className="flex justify-between items-center bg-content3 rounded-md py-1 pl-2 max-w-[100%]">
+      <span className="overflow-clip text-nowrap w-full min-w-0">{title}</span>
       <CommonButton
-        className="min-w-0 min-h-0 p-0 h-5 w-5"
+        className="min-w-6 min-h-0 p-0 h-5 w-6"
         onPress={remove}
         variant="light"
         radius="full"
