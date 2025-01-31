@@ -1,9 +1,9 @@
 "use client";
 
-import { Progress, Spinner, Tab, Tabs } from "@heroui/react";
-import { ReactElement, useEffect, useMemo, useState } from "react";
-import { usePathname } from "next/navigation";
+import { Spinner, Tab, Tabs } from "@heroui/react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { ReactElement, useEffect, useMemo, useState } from "react";
 
 export default function Navbar({ leftie = false }: { leftie?: boolean }) {
   const pathName = usePathname();
@@ -12,6 +12,8 @@ export default function Navbar({ leftie = false }: { leftie?: boolean }) {
   }, [pathName]);
 
   const [to, setTo] = useState<string | number>(pathBase);
+
+  console.log(pathName);
 
   useEffect(() => {
     setTo(pathBase);
@@ -31,12 +33,10 @@ export default function Navbar({ leftie = false }: { leftie?: boolean }) {
           <Tab
             className="transition-all"
             key={url}
+            href={`/${url}`}
+            as={Link}
             title={
-              <Link
-                prefetch
-                href={`/${url}`}
-                className="relative flex w-fit sm:w-full justify-center items-center gap-1 transition-all"
-              >
+              <div className="relative flex w-fit sm:w-full justify-center items-center gap-1 transition-all">
                 {
                   <Icon
                     size={24}
@@ -66,7 +66,7 @@ export default function Navbar({ leftie = false }: { leftie?: boolean }) {
                     to === url && to !== pathBase ? "opacity-100" : "opacity-0"
                   }`}
                 />
-              </Link>
+              </div>
             }
           />
         ))}
