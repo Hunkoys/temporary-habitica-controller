@@ -271,6 +271,7 @@ export default function EgosClientPage({
                       setSelection={setSelectedEgos}
                       onAssign={assign}
                       onRemove={remove}
+                      disabled={!selectedStats.length}
                     />
                   ))}
                 </CheckboxGroup>
@@ -447,7 +448,13 @@ function EgoCard({
           </div>
         </CardBody>
       </Card>
-      <CommonButton isDisabled={disabled} onPress={assign}>
+      <CommonButton
+        className="min-w-0"
+        variant="solid"
+        color={disabled ? "default" : "primary"}
+        isDisabled={disabled}
+        onPress={assign}
+      >
         {"<-"}
       </CommonButton>
     </div>
