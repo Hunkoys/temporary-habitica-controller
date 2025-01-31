@@ -301,8 +301,8 @@ export default function EgosClientPage({
         onMouseDownCapture={deselectAll}
       >
         <div className="w-[100%] overflow-auto h-full">
-          <div className="flex gap-2 p-2 h-full w-fit sm:w-full transition-all">
-            <Card className="w-fit max-h-[100%]">
+          <div className="flex gap-2 p-2 h-full w-[160%] sm:w-full transition-all">
+            <Card className="w-full max-h-[100%]">
               <CardHeader className="flex justify-between">
                 <h2>Egos</h2>
                 <div className="flex gap-1 justify-end">
