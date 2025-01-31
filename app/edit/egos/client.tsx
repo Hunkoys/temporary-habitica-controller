@@ -170,6 +170,11 @@ export default function EgosClientPage({
     [user]
   );
 
+  const deselectAll = useCallback(() => {
+    setSelectedEgos([]);
+    setSelectedStats([]);
+  }, []);
+
   const egoInput = useCallback(
     (title: string) => {
       if (exists(user.egos, title))
@@ -291,7 +296,10 @@ export default function EgosClientPage({
 
   return (
     <>
-      <div className="h-full flex flex-col gap-3 items-stretch justify-between">
+      <div
+        className="h-full flex flex-col gap-3 items-stretch justify-between"
+        onMouseDownCapture={deselectAll}
+      >
         <div className="w-[100%] overflow-auto h-full">
           <div className="flex gap-2 p-2 h-full w-[140%] sm:w-full transition-all">
             <Card className="w-full max-h-[100%]">
@@ -348,6 +356,7 @@ export default function EgosClientPage({
                       key={stat.title}
                       {...stat}
                       onValueEdit={updateStat}
+                      setSelection={setSelectedStats}
                     />
                   ))}
                 </CheckboxGroup>
@@ -490,7 +499,7 @@ function StatEditForm({
         onValueChange={setValue}
       />
       <div className="w-full flex justify-end gap-1">
-        <CommonButton>Cancel</CommonButton>
+        <CommonButton onPress={onCancel}>Cancel</CommonButton>
         <CommonButton type="submit" variant="solid" color="primary">
           Save
         </CommonButton>
@@ -506,50 +515,28 @@ function exists(arr: { title: string }[], title: string) {
 function StatCard({
   title,
   value,
-  onValueEdit,
+  setSelection,
 }: {
   title: string;
   value: number;
-  onValueEdit: (
-    stat: string,
-    {
-      value,
-      newTitle,
-    }: {
-      value?: string;
-      newTitle?: string;
-    }
-  ) => void;
+  setSelection?: (selection: string[]) => void;
 }) {
-  const valueEdit = useCallback(
-    (value: string) => {
-      onValueEdit?.(title, { value });
-    },
-    [title]
-  );
+  const select = useCallback(() => {
+    setSelection?.([title]);
+  }, [title]);
 
   return (
-    <Card
-    // className={`max-w-full w-full bg-content2 items-center justify-start cursor-pointer
-    // rounded-lg gap-2 m-0 border-2 border-transparent hover:border-primary-200 data-[selected=true]:border-primary`}
-    >
+    <Card onMouseDown={select}>
       <CardBody
         className={clsx(
           "flex flex-row items-center justify-between bg-content2 border-2 border-transparent"
         )}
       >
-        <Checkbox classNames={{ base: "w-full max-w-full" }} value={title}>
-          {title}
-        </Checkbox>
-        <Input
-          classNames={{
-            base: ["w-24"],
-          }}
-          variant="bordered"
-          type="number"
-          value={value.toString()}
-          onValueChange={valueEdit}
-        />
+        <div className="flex items-center">
+          <Checkbox value={title} size="lg" />
+          <div>{title}</div>
+        </div>
+        <span>{value}</span>
       </CardBody>
     </Card>
   );
@@ -566,8 +553,8 @@ function EgoCard({
 }: UserEgoPayload["egos"][number] & {
   disabled?: boolean;
   selection?: string[];
-  setSelection?: (ids: string[]) => void;
-  onAssign?: (id: string) => void;
+  setSelection?: (selection: string[]) => void;
+  onAssign?: (title: string) => void;
   onRemove?: (ego: string, stat: string) => void;
 }) {
   const assign = useCallback(() => {
@@ -576,13 +563,9 @@ function EgoCard({
 
   const isSelected = selection?.includes(title);
 
-  const toggleSelection = useCallback(() => {
-    if (isSelected) {
-      setSelection?.(selection?.filter((s) => s !== title) || []);
-    } else {
-      setSelection?.([...(selection || []), title]);
-    }
-  }, [selection]);
+  const select = useCallback(() => {
+    setSelection?.([title]);
+  }, [title]);
 
   const remove = useCallback(
     (stat: string) => {
@@ -598,11 +581,11 @@ function EgoCard({
           "bg-content2 w-full border-2",
           isSelected ? "border-primary" : "border-transparent"
         )}
-        onMouseUp={toggleSelection}
+        onMouseDown={select}
       >
         <CardHeader className="flex justify-between">
           <h3>{title}</h3>
-          <Checkbox value={title} />
+          <Checkbox value={title} size="lg" />
         </CardHeader>
         <CardBody>
           <div className="flex flex-col gap-1 border-2 border-content3 rounded-lg p-2 min-h-10">
