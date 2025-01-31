@@ -44,7 +44,7 @@ export default function RootLayout({
         baseTheme: dark,
       }}
     >
-      <html lang="en" className="dark bg-background h-full">
+      <html lang="en" className="dark bg-[#161616] h-full">
         <body className={`${inter.className} h-full w-full overflow-hidden`}>
           <SignedOut>
             <SignInCard />

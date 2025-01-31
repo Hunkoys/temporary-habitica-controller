@@ -11,11 +11,11 @@ export default function SignInCard() {
 
   return (
     <section className="h-full flex flex-col items-center justify-center">
-      <Card className="w-[300px] p-4 flex flex-col items-center gap-1 bg-matter-950">
+      <Card className="w-[300px] p-4 flex flex-col items-center gap-1 ">
         <CardBody className="flex flex-col items-center gap-4">
           <div className="flex flex-col items-center">
             <p className="text-gray-400">Welcome to</p>
-            <h1 className="text-2xl font-bold text-secondary-400">Habitica+</h1>
+            <h1 className="text-2xl font-bold text-secondary">Habitica+</h1>
           </div>
           {user.isLoaded ? (
             <SignInButton mode="modal">

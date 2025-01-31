@@ -31,7 +31,7 @@ export default function Header() {
 
   return (
     <div className="p-2 w-full">
-      <Card className="w-full flex-row justify-between py-2 px-3 sm:px-4 transition-all bg-matter">
+      <Card className="w-full flex-row justify-between py-2 px-3 sm:px-4 transition-all bg-content2">
         <div className="flex gap-2 items-center">
           {profile && <UserButton />}
           <div>
