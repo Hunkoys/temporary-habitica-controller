@@ -4,16 +4,13 @@ import CommonButton from "@/app/_components/elements/CommonButton";
 import { rebuildEgos, UserEgoPayload } from "@/app/edit/egos/actions";
 import { CreateEgoModal, CreateStatModal } from "@/app/edit/egos/modals";
 import {
-  ButtonGroup,
   Card,
   CardBody,
   CardHeader,
   Checkbox,
   CheckboxGroup,
   Chip,
-  Divider,
   Form,
-  input,
   Input,
   Modal,
   ModalBody,
@@ -445,7 +442,7 @@ function EgoEditForm({
       e.preventDefault();
       onSave?.(currentTitle, title);
     },
-    [title]
+    [currentTitle, title, onCancel, onSave]
   );
 
   return (
@@ -485,7 +482,7 @@ function StatEditForm({
       e.preventDefault();
       onSave?.(currentTitle, { newTitle: title, value });
     },
-    [title, value]
+    [currentTitle, title, value, onCancel, onSave]
   );
 
   return (
@@ -522,7 +519,7 @@ function StatCard({
 }) {
   const select = useCallback(() => {
     setSelection?.([title]);
-  }, [title]);
+  }, [title, setSelection]);
 
   return (
     <Card onMouseDown={select}>
@@ -564,13 +561,13 @@ function EgoCard({
 
   const select = useCallback(() => {
     setSelection?.([title]);
-  }, [title]);
+  }, [title, setSelection]);
 
   const remove = useCallback(
     (stat: string) => {
       onRemove?.(title, stat);
     },
-    [title]
+    [title, onRemove]
   );
 
   return (
@@ -623,7 +620,7 @@ function EgoStatStrip({
 }) {
   const remove = useCallback(() => {
     onRemove?.(title);
-  }, [title]);
+  }, [title, onRemove]);
 
   return (
     <div className="flex justify-between items-center bg-content3 rounded-md py-1 pl-2 max-w-[100%]">
